@@ -708,7 +708,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.09 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.10 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -2041,6 +2041,10 @@ function stShow(kind, eye, big, hint){
   $("stWrap").hidden  = false;
 }
 function stStart(){
+  // ⚠️ 一定要先清掉上一次的計時器再換新物件 ——
+  //    直接覆蓋 selfTest 會弄丟舊計時器的參照，那個 10 秒計時器之後才觸發，
+  //    會把新測試提前判定結束、時間也算錯。
+  if(selfTest){ clearTimeout(selfTest.timer); clearTimeout(selfTest.idle); }
   selfTest = { t0: 0, raw: "", timer: 0, idle: 0 };
   buf = ""; CAP.value = "";
   $("stCode").hidden = true; $("stChecks").hidden = true;
@@ -2337,7 +2341,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.09 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.10 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

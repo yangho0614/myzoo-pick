@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<title>角色按鈕示意 · MYZOO 撿貨核對</title>
+<title>載入畫面示意 · MYZOO 撿貨核對</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#13151C">
 <link rel="icon" href="data:,">
@@ -29,7 +29,7 @@ h1{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px}
 .sub b{color:var(--amber)}
 .ico{width:1em;height:1em;fill:currentColor;display:block}
 
-.block{margin-bottom:30px}
+.block{margin-bottom:32px}
 .tag{
   display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;
   color:var(--amber);background:var(--amber-wash);border:1px solid var(--amber-line);
@@ -41,43 +41,53 @@ h1{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px}
   font-family:ui-monospace,Menlo,monospace;font-size:11.5px;
   color:var(--ink-dim);background:var(--surface-2);padding:1px 5px;border-radius:4px;
 }
+.eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--ink-faint);
+  text-transform:uppercase;margin-bottom:9px;
+}
 
-/* ══ A：並排大方塊 ══════════════════════════════════ */
-.rA{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.rA button{
+/* ══ 選檔案：大方塊按鈕（跟角色同一套語言） ═════════ */
+.pick{
+  width:100%;appearance:none;font:inherit;cursor:pointer;text-align:center;
+  padding:26px 16px 22px;border-radius:18px;
+  background:var(--amber);border:2px solid var(--amber);color:var(--amber-ink);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  transition:transform .1s,filter .15s;
+}
+.pick:active{transform:scale(.98)}
+.pick .ico{font-size:44px}
+.pick b{font-size:22px;font-weight:800;letter-spacing:.01em}
+.pick span{font-size:12.5px;opacity:.72;line-height:1.45}
+
+/* 舊版對照 */
+.drop0{
+  border:2px dashed var(--line);border-radius:16px;padding:26px 16px;
+  display:flex;flex-direction:column;align-items:center;gap:11px;text-align:center;
+}
+.drop0 .em{font-size:34px;line-height:1}
+.btn0{
+  background:var(--amber);color:var(--amber-ink);border:1px solid var(--amber);
+  font-weight:750;font-size:15px;padding:11px 18px;border-radius:10px;
+}
+.drop0 p{margin:0;color:var(--ink-faint);font-size:12.5px}
+
+/* ══ 角色：並排大方塊（已定案 A-2） ═════════════════ */
+.rolegrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.role{
   appearance:none;font:inherit;cursor:pointer;
-  background:var(--surface);border:2px solid var(--line);border-radius:18px;
-  padding:22px 12px 18px;color:var(--ink);
+  text-align:center;padding:22px 12px 18px;border-radius:18px;
+  background:var(--surface);border:2px solid var(--line);color:var(--ink);
   display:flex;flex-direction:column;align-items:center;gap:9px;
   transition:transform .1s,background .15s,border-color .15s;
 }
-.rA button:active{transform:scale(.97)}
-.rA .ico{font-size:40px}
-.rA .t{font-size:21px;font-weight:800;letter-spacing:.01em}
-.rA .d{font-size:12px;color:var(--ink-faint);line-height:1.45;text-align:center}
-.rA button.sel{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
-.rA button.sel .d{color:var(--amber-ink);opacity:.72}
-.rA button.sel.lb{background:var(--ok);border-color:var(--ok);color:var(--ok-ink)}
-.rA button.sel.lb .d{color:var(--ok-ink)}
-
-/* ══ C：大型分段控制 ════════════════════════════════ */
-.rC{
-  display:grid;grid-template-columns:1fr 1fr;gap:6px;
-  background:var(--surface);border:1px solid var(--line);
-  border-radius:18px;padding:6px;
-}
-.rC button{
-  appearance:none;font:inherit;cursor:pointer;
-  background:transparent;border:0;border-radius:13px;
-  padding:18px 10px;color:var(--ink-faint);
-  display:flex;flex-direction:column;align-items:center;gap:7px;
-  transition:background .18s,color .18s;
-}
-.rC .ico{font-size:32px}
-.rC .t{font-size:20px;font-weight:800}
-.rC .d{font-size:11.5px;line-height:1.4;text-align:center;opacity:.85}
-.rC button.sel{background:var(--amber);color:var(--amber-ink)}
-.rC button.sel.lb{background:var(--ok);color:var(--ok-ink)}
+.role:active{transform:scale(.97)}
+.role .ico{font-size:40px}
+.role b{font-size:21px;font-weight:800;letter-spacing:.01em}
+.role span{font-size:12px;color:var(--ink-faint);line-height:1.45}
+.role.sel{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
+.role.sel span{color:var(--amber-ink);opacity:.72}
+.role.sel.lb{background:var(--ok);border-color:var(--ok);color:var(--ok-ink)}
+.role.sel.lb span{color:var(--ok-ink)}
 
 /* ══ 圖示備選 ═══════════════════════════════════════ */
 .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px}
@@ -87,10 +97,11 @@ h1{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px}
   color:var(--ink-dim);
 }
 .gal .ico{font-size:30px}
-.gal span{
-  font-family:ui-monospace,Menlo,monospace;font-size:10px;
+.gal em{
+  font-family:ui-monospace,Menlo,monospace;font-size:10px;font-style:normal;
   color:var(--ink-faint);text-align:center;word-break:break-all;line-height:1.35;
 }
+.gal .now{color:var(--amber);border-color:var(--amber-line);background:var(--amber-wash)}
 .foot{
   margin-top:34px;padding-top:18px;border-top:1px solid var(--line-soft);
   color:var(--ink-faint);font-size:12.5px;line-height:1.8;
@@ -100,91 +111,115 @@ h1{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px}
 </head>
 <body>
 
-<!-- Material Symbols（Apache 2.0），路徑直接內嵌 —— 不連外部 CDN，離線也畫得出來 -->
+<!-- Material Symbols（Apache 2.0），路徑內嵌，不連 CDN -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-<symbol id="i-inventory_2" viewBox="0 -960 960 960"><path d="M200-80q-33 0-56.5-23.5T120-160v-451q-18-11-29-28.5T80-680v-120q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v120q0 23-11 40.5T840-611v451q0 33-23.5 56.5T760-80H200Zm0-520v440h560v-440H200Zm-40-80h640v-120H160v120Zm200 280h240v-80H360v80Zm120 20Z"/></symbol>
 <symbol id="i-package_2" viewBox="0 -960 960 960"><path d="M440-183v-274L200-596v274l240 139Zm80 0 240-139v-274L520-457v274Zm-80 92L160-252q-19-11-29.5-29T120-321v-318q0-22 10.5-40t29.5-29l280-161q19-11 40-11t40 11l280 161q19 11 29.5 29t10.5 40v318q0 22-10.5 40T800-252L520-91q-19 11-40 11t-40-11Zm200-528 77-44-237-137-78 45 238 136Zm-160 93 78-45-237-137-78 45 237 137Z"/></symbol>
-<symbol id="i-label" viewBox="0 -960 960 960"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h440q19 0 36 8.5t28 23.5l216 288-216 288q-11 15-28 23.5t-36 8.5H160Zm0-80h440l180-240-180-240H160v480Zm220-240Z"/></symbol>
 <symbol id="i-fact_check" viewBox="0 -960 960 960"><path d="M160-120q-33 0-56.5-23.5T80-200v-560q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v560q0 33-23.5 56.5T800-120H160Zm0-80h640v-560H160v560Zm40-80h200v-80H200v80Zm382-80 198-198-57-57-141 142-57-57-56 57 113 113Zm-382-80h200v-80H200v80Zm0-160h200v-80H200v80Zm-40 400v-560 560Z"/></symbol>
-<symbol id="i-barcode_scanner" viewBox="0 -960 960 960"><path d="M40-120v-200h80v120h120v80H40Zm680 0v-80h120v-120h80v200H720ZM160-240v-480h80v480h-80Zm120 0v-480h40v480h-40Zm120 0v-480h80v480h-80Zm120 0v-480h120v480H520Zm160 0v-480h40v480h-40Zm80 0v-480h40v480h-40ZM40-640v-200h200v80H120v120H40Zm800 0v-120H720v-80h200v200h-80Z"/></symbol>
-<symbol id="i-local_shipping" viewBox="0 -960 960 960"><path d="M155-195q-35-35-35-85H40v-440q0-33 23.5-56.5T120-800h560v160h120l120 160v200h-80q0 50-35 85t-85 35q-50 0-85-35t-35-85H360q0 50-35 85t-85 35q-50 0-85-35Zm113.5-56.5Q280-263 280-280t-11.5-28.5Q257-320 240-320t-28.5 11.5Q200-297 200-280t11.5 28.5Q223-240 240-240t28.5-11.5ZM120-360h32q17-18 39-29t49-11q27 0 49 11t39 29h272v-360H120v360Zm628.5 108.5Q760-263 760-280t-11.5-28.5Q737-320 720-320t-28.5 11.5Q680-297 680-280t11.5 28.5Q703-240 720-240t28.5-11.5ZM680-440h170l-90-120h-80v120ZM360-540Z"/></symbol>
-<symbol id="i-checklist" viewBox="0 -960 960 960"><path d="M222-200 80-342l56-56 85 85 170-170 56 57-225 226Zm0-320L80-662l56-56 85 85 170-170 56 57-225 226Zm298 240v-80h360v80H520Zm0-320v-80h360v80H520Z"/></symbol>
-<symbol id="i-warehouse" viewBox="0 -960 960 960"><path d="M160-200h80v-320h480v320h80v-426L480-754 160-626v426Zm-80 80v-560l400-160 400 160v560H640v-320H320v320H80Zm280 0v-80h80v80h-80Zm80-120v-80h80v80h-80Zm80 120v-80h80v80h-80ZM240-520h480-480Z"/></symbol>
+<symbol id="i-upload_file" viewBox="0 -960 960 960"><path d="M440-200h80v-167l64 64 56-57-160-160-160 160 57 56 63-63v167ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z"/></symbol>
+<symbol id="i-description" viewBox="0 -960 960 960"><path d="M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z"/></symbol>
+<symbol id="i-table_chart" viewBox="0 -960 960 960"><path d="M760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120ZM200-640h560v-120H200v120Zm100 80H200v360h100v-360Zm360 0v360h100v-360H660Zm-80 0H380v360h200v-360Z"/></symbol>
+<symbol id="i-folder_open" viewBox="0 -960 960 960"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h240l80 80h320q33 0 56.5 23.5T880-640H447l-80-80H160v480l96-320h684L837-217q-8 26-29.5 41.5T760-160H160Zm84-80h516l72-240H316l-72 240Zm0 0 72-240-72 240Zm-84-400v-80 80Z"/></symbol>
+<symbol id="i-file_present" viewBox="0 -960 960 960"><path d="M240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h360l200 200v520q0 33-23.5 56.5T720-80H240Zm0-80h480v-480H560v-160H240v640Zm240-40q67 0 113.5-47T640-360v-160h-80v160q0 33-23 56.5T480-280q-33 0-56.5-23.5T400-360v-220q0-9 6-14.5t14-5.5q9 0 14.5 5.5T440-580v220h80v-220q0-42-29-71t-71-29q-42 0-71 29t-29 71v220q0 66 47 113t113 47ZM240-800v160-160 640-640Z"/></symbol>
+<symbol id="i-drive_folder_upload" viewBox="0 -960 960 960"><path d="M440-280h80v-168l64 64 56-56-160-160-160 160 56 56 64-64v168ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h240l80 80h320q33 0 56.5 23.5T880-640v400q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H447l-80-80H160v480Zm0 0v-480 480Z"/></symbol>
 </defs></svg>
 
 <div class="wrap">
 
-  <h1>角色按鈕 · A ／ C 版</h1>
+  <h1>載入畫面 · 新版示意</h1>
   <p class="sub">
-    圖示全部換成 <b>Google Material Symbols</b>（真的檔案，不是 emoji），
-    而且是<b>內嵌的</b> —— 不連外部網站，離線一樣畫得出來。<br>
-    每一組都可以<b>直接點點看</b>。
+    選檔案的區塊改成跟角色<b>同一套按鈕語言</b>，位置維持在最上面。<br>
+    下面三種只差在圖示，點看看再告訴我選哪個。
   </p>
 
-  <!-- A-1 -->
+  <!-- 現況 -->
   <div class="block">
-    <span class="tag">A · 配對 1</span>
-    <p class="name">並排大方塊　<code>inventory_2</code> ＋ <code>label</code></p>
-    <p class="why">最直白的一組：一個是<b>箱子</b>、一個是<b>標籤</b>，不用想就知道哪個是哪個。</p>
-    <div class="rA" data-g>
-      <button class="sel"><svg class="ico"><use href="#i-inventory_2"/></svg><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></button>
-      <button class="lb"><svg class="ico"><use href="#i-label"/></svg><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></button>
+    <span class="tag">現況</span>
+    <p class="name">目前線上的樣子</p>
+    <p class="why">虛線框 ＋ 小按鈕 ＋ emoji 文件圖示。跟下面新的角色按鈕擺在一起會不搭。</p>
+    <div class="drop0">
+      <span class="em">📄</span>
+      <span class="btn0">選擇出貨明細 xlsx</span>
+      <p>或把檔案拖進這個框（CSV 也吃）</p>
     </div>
   </div>
 
-  <!-- A-2 -->
+  <!-- 1 -->
   <div class="block">
-    <span class="tag">A · 配對 2</span>
-    <p class="name">並排大方塊　<code>package_2</code> ＋ <code>fact_check</code></p>
-    <p class="why">強調「<b>覆核</b>」而不是「貼」—— 對單貼標真正的價值是第二道檢查，貼標只是體力活。圖示講的是這件事。</p>
-    <div class="rA" data-g>
-      <button class="sel"><svg class="ico"><use href="#i-package_2"/></svg><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></button>
-      <button class="lb"><svg class="ico"><use href="#i-fact_check"/></svg><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></button>
-    </div>
+    <span class="tag">配對 1</span>
+    <p class="name"><code>upload_file</code>　文件 ＋ 向上箭頭</p>
+    <p class="why">動作感最強 ——「把檔案送進來」。我推薦這個。</p>
+    <button class="pick">
+      <svg class="ico"><use href="#i-upload_file"/></svg>
+      <b>選擇出貨明細</b>
+      <span>今天的 xlsx 原檔，不用先整理</span>
+    </button>
   </div>
 
-  <!-- C-1 -->
+  <!-- 2 -->
   <div class="block">
-    <span class="tag">C · 配對 1</span>
-    <p class="name">分段控制　<code>inventory_2</code> ＋ <code>label</code></p>
-    <p class="why">最省空間。沒選到的那半整個變暗，對比很強烈。</p>
-    <div class="rC" data-g>
-      <button class="sel"><svg class="ico"><use href="#i-inventory_2"/></svg><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></button>
-      <button class="lb"><svg class="ico"><use href="#i-label"/></svg><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></button>
-    </div>
+    <span class="tag">配對 2</span>
+    <p class="name"><code>table_chart</code>　表格</p>
+    <p class="why">最像 Excel／試算表，一看就知道要選的是哪種檔。</p>
+    <button class="pick">
+      <svg class="ico"><use href="#i-table_chart"/></svg>
+      <b>選擇出貨明細</b>
+      <span>今天的 xlsx 原檔，不用先整理</span>
+    </button>
   </div>
 
-  <!-- C-2 -->
+  <!-- 3 -->
   <div class="block">
-    <span class="tag">C · 配對 2</span>
-    <p class="name">分段控制　<code>package_2</code> ＋ <code>fact_check</code></p>
-    <p class="why">同上，換成強調覆核的那組圖示。</p>
-    <div class="rC" data-g>
-      <button class="sel"><svg class="ico"><use href="#i-package_2"/></svg><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></button>
-      <button class="lb"><svg class="ico"><use href="#i-fact_check"/></svg><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></button>
+    <span class="tag">配對 3</span>
+    <p class="name"><code>folder_open</code>　打開的資料夾</p>
+    <p class="why">強調「去資料夾裡找」，跟實際操作（進檔案 App 選）最接近。</p>
+    <button class="pick">
+      <svg class="ico"><use href="#i-folder_open"/></svg>
+      <b>選擇出貨明細</b>
+      <span>今天的 xlsx 原檔，不用先整理</span>
+    </button>
+  </div>
+
+  <!-- 整體效果 -->
+  <div class="block">
+    <span class="tag">合起來</span>
+    <p class="name">實際疊在一起的樣子</p>
+    <p class="why">選檔案在上、角色在下 —— 順序不變，只是視覺統一了。角色按鈕可以點。</p>
+    <button class="pick" style="margin-bottom:16px">
+      <svg class="ico"><use href="#i-upload_file"/></svg>
+      <b>選擇出貨明細</b>
+      <span>今天的 xlsx 原檔，不用先整理</span>
+    </button>
+    <div class="eyebrow">你現在做哪一段</div>
+    <div class="rolegrid" data-g>
+      <button class="role sel">
+        <svg class="ico"><use href="#i-package_2"/></svg>
+        <b>撿貨</b><span>撿齊、分成一堆一堆</span>
+      </button>
+      <button class="role lb">
+        <svg class="ico"><use href="#i-fact_check"/></svg>
+        <b>對單貼標</b><span>覆核一堆、貼物流標</span>
+      </button>
     </div>
   </div>
 
   <!-- 備選 -->
   <div class="block">
     <span class="tag">備選圖示</span>
-    <p class="name">還有這些可以換</p>
-    <p class="why">看到喜歡的直接報名字給我，例如「撿貨用 warehouse」。</p>
+    <p class="name">不喜歡上面三個的話</p>
     <div class="gal">
-      <div><svg class="ico"><use href="#i-inventory_2"/></svg><span>inventory_2</span></div>
-      <div><svg class="ico"><use href="#i-package_2"/></svg><span>package_2</span></div>
-      <div><svg class="ico"><use href="#i-warehouse"/></svg><span>warehouse</span></div>
-      <div><svg class="ico"><use href="#i-label"/></svg><span>label</span></div>
-      <div><svg class="ico"><use href="#i-fact_check"/></svg><span>fact_check</span></div>
-      <div><svg class="ico"><use href="#i-checklist"/></svg><span>checklist</span></div>
-      <div><svg class="ico"><use href="#i-local_shipping"/></svg><span>local_shipping</span></div>
-      <div><svg class="ico"><use href="#i-barcode_scanner"/></svg><span>barcode_scanner</span></div>
+      <div class="now"><svg class="ico"><use href="#i-upload_file"/></svg><em>upload_file</em></div>
+      <div><svg class="ico"><use href="#i-table_chart"/></svg><em>table_chart</em></div>
+      <div><svg class="ico"><use href="#i-folder_open"/></svg><em>folder_open</em></div>
+      <div><svg class="ico"><use href="#i-description"/></svg><em>description</em></div>
+      <div><svg class="ico"><use href="#i-file_present"/></svg><em>file_present</em></div>
+      <div><svg class="ico"><use href="#i-drive_folder_upload"/></svg><em>drive_folder_upload</em></div>
     </div>
   </div>
 
   <div class="foot">
-    告訴我 <b>A-1 / A-2 / C-1 / C-2</b> 哪一個，我就套進正式頁面。<br>
-    也可以指定「版型用 A、圖示用 warehouse ＋ fact_check」這種組合。
+    告訴我 <b>1 / 2 / 3</b>，或直接報備選裡的名字。<br>
+    「或把檔案拖進這個框」那句我先拿掉了 —— 手機上拖不了，只有電腦用得到，
+    留著反而佔版面。要保留的話講一聲。
   </div>
 
 </div>

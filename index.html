@@ -613,7 +613,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">304fa94a</b></span>
+      <span>版本 <b id="verTag">77001446</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -1239,7 +1239,8 @@ function renderOrders(){
   $("stOrders").textContent = DB.orders.length;
   $("stBoxes").textContent  = totalBox;
   $("stLeft").textContent   = totalBox - totalGot;
-  $("ordSub").textContent   = totalGot + " / " + totalBox + " 箱已核對";
+  // 「已核對」是贅字 —— 模式標籤變長後這行會被截斷，縮短比截斷好
+  $("ordSub").textContent   = totalGot + " / " + totalBox + " 箱";
 }
 
 /* ═══ 託運單號：認不得就當場學 ═══════════════════════════
@@ -2048,7 +2049,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 304fa94a");
+      console.log("[MYZOO] 離線快取就緒 · 版本 77001446");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

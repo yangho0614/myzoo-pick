@@ -484,27 +484,6 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   background:var(--amber-wash);border-color:var(--amber-line);color:var(--amber);
 }
 
-/* 彙總頁掃到的那一列：直接把「列本身」標起來，而且**一直留著**
-   （直到掃下一個），不要另外開一條結果列。
-   用藍色 —— 琥珀是撿貨角色、綠是對單貼標、紅是錯誤，都已經有意義了，
-   藍色是「動作／目前選中」，不會跟那些混淆。 */
-.row.scanned{
-  /* ⚠️ 一定要蓋掉 .row[data-s="done"] 的 opacity:.5 ——
-     掃到「已經撿完」的品項時整列是半透明的，高亮會被壓掉看不出來。 */
-  opacity:1;
-  background:rgba(91,147,245,.30);
-  border-color:var(--blue);
-  border-left:7px solid var(--blue);
-  box-shadow:0 0 0 2px var(--blue), 0 6px 20px rgba(91,147,245,.28);
-  animation:scannedIn .28s ease-out;
-}
-.row.scanned .row__name{color:#fff;text-decoration:none}
-.row.scanned .row__qty{color:#fff}
-.row.scanned .row__whos,
-.row.scanned .row__multi{opacity:1}
-@keyframes scannedIn{
-  0%{transform:scale(1.03)}
-  100%{transform:scale(1)}
 }
 .rowlist{flex:1;overflow-y:auto;padding:12px var(--pad) calc(120px + var(--armh));display:flex;flex-direction:column;gap:7px}
 .row{
@@ -676,6 +655,32 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
 }
+
+/* ══ 放在樣式表最後是刻意的 ══
+   `.row.scanned` 要蓋過 `.row[data-s="done"]`（半透明 ＋ 刪除線），
+   兩者權重相同（都是 0,2,0），**權重相同時後面的規則才會贏**。
+   放在前面就會被壓掉 —— 2026-08-15 踩過，掃到已撿完的品項時高亮看不出來。 */
+/* 彙總頁掃到的那一列：直接把「列本身」標起來，而且**一直留著**
+   （直到掃下一個），不要另外開一條結果列。
+   用藍色 —— 琥珀是撿貨角色、綠是對單貼標、紅是錯誤，都已經有意義了，
+   藍色是「動作／目前選中」，不會跟那些混淆。 */
+.row.scanned{
+  /* ⚠️ 一定要蓋掉 .row[data-s="done"] 的 opacity:.5 ——
+     掃到「已經撿完」的品項時整列是半透明的，高亮會被壓掉看不出來。 */
+  opacity:1;
+  background:rgba(91,147,245,.30);
+  border-color:var(--blue);
+  border-left:7px solid var(--blue);
+  box-shadow:0 0 0 2px var(--blue), 0 6px 20px rgba(91,147,245,.28);
+  animation:scannedIn .28s ease-out;
+}
+.row.scanned .row__name{color:#fff;text-decoration:none}
+.row.scanned .row__qty{color:#fff}
+.row.scanned .row__whos,
+.row.scanned .row__multi{opacity:1}
+@keyframes scannedIn{
+  0%{transform:scale(1.03)}
+  100%{transform:scale(1)}
 </style></head>
 <body>
 <!-- Google Material Symbols（Apache 2.0）。⚠️ 路徑直接內嵌，不連 CDN ——
@@ -741,7 +746,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.24 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.25 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -2508,7 +2513,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.24 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.25 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

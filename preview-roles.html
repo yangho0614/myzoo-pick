@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<title>覆核提示樣式 · MYZOO 撿貨核對</title>
+<title>掃描器自我測試 · 示意</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#13151C">
 <link rel="icon" href="data:,">
@@ -16,6 +16,8 @@
   --ok:#3DD68C; --ok-ink:#04200F;
   --ok-wash:rgba(61,214,140,.12); --ok-line:rgba(61,214,140,.34);
   --err:#FF5265; --err-wash:rgba(255,82,101,.14); --err-line:rgba(255,82,101,.42);
+  --blue:#5B93F5; --blue-ink:#05122C;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
   --pad:16px;
 }
 *{box-sizing:border-box}
@@ -24,70 +26,92 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;
   -webkit-text-size-adjust:100%;
 }
-.wrap{max-width:420px;margin:0 auto;padding:20px var(--pad) 50px}
+.wrap{max-width:420px;margin:0 auto;padding:20px var(--pad) 60px}
 h1{font-size:19px;font-weight:800;margin:0 0 4px}
-.sub{color:var(--ink-dim);font-size:13px;line-height:1.7;margin:0 0 24px}
+.sub{color:var(--ink-dim);font-size:13px;line-height:1.7;margin:0 0 26px}
+.sub b{color:var(--amber)}
+.ico{width:1em;height:1em;fill:currentColor;display:block}
 
-.block{margin-bottom:28px}
+.block{margin-bottom:30px}
 .tag{
   display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;
-  color:var(--amber);background:var(--amber-wash);border:1px solid var(--amber-line);
+  color:var(--ink-faint);background:var(--surface-2);border:1px solid var(--line);
   padding:3px 10px;border-radius:999px;margin-bottom:6px;
 }
 .name{font-size:15px;font-weight:750;margin:0 0 3px}
 .why{color:var(--ink-faint);font-size:12.5px;line-height:1.65;margin:0 0 11px}
 
-/* 角色按鈕（照正式頁面），讓提示放在真實情境裡看 */
-.rolegrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:10px}
-.role{
-  text-align:center;padding:18px 12px 14px;border-radius:18px;
-  display:flex;flex-direction:column;align-items:center;gap:7px;
+/* 入口按鈕（放在載入畫面版本號那一列旁） */
+.entryrow{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding-top:12px;border-top:1px solid var(--line-soft);
+  color:var(--ink-faint);font-size:12px;
 }
-.role .ico{width:1em;height:1em;fill:currentColor;display:block;font-size:32px}
-.role b{font-size:19px;font-weight:800}
-.role span{font-size:11.5px;line-height:1.45;opacity:.8}
-.r-pick{background:var(--amber);border:2px solid var(--amber);color:var(--amber-ink)}
-.r-pick span{color:var(--amber-ink);opacity:.72}
-.r-lab{background:var(--ok-wash);border:2px solid var(--ok-line);color:var(--ok)}
-.r-lab span{color:var(--ink-faint);opacity:1}
+.entryrow b{font-family:var(--mono);color:var(--ink-dim)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:9px 14px;border-radius:11px;font-weight:700;font-size:13.5px;
+  background:var(--surface-2);border:1.5px solid var(--line);color:var(--ink);
+}
+.btn .ico{font-size:17px}
+.btn--test{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
 
-/* ── 現況 ───────────────────────────────── */
-.n0{
-  color:var(--ink-faint);font-size:12px;line-height:1.6;
+/* 測試面板 */
+.panel{
+  border-radius:18px;padding:22px 18px 18px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;
 }
-.n0 b{color:var(--ink-dim)}
+.panel--wait{background:var(--surface);border:2px solid var(--blue)}
+.panel--ok{background:var(--ok-wash);border:2px solid var(--ok)}
+.panel--err{background:var(--err-wash);border:2px solid var(--err)}
+.panel__eye{font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--ink-faint)}
+.panel--ok .panel__eye{color:var(--ok)}
+.panel--err .panel__eye{color:var(--err)}
+.panel__big{font-size:26px;font-weight:800;line-height:1.25}
+.panel--ok .panel__big{color:var(--ok)}
+.panel--err .panel__big{color:var(--err)}
+.panel__code{
+  font-family:var(--mono);font-size:15px;color:var(--ink-dim);letter-spacing:.06em;
+}
+.panel__code b{font-size:21px;font-weight:800;color:var(--ink);margin-left:.35em}
+.panel__hint{color:var(--ink-faint);font-size:12.5px;line-height:1.7}
+.dots{display:flex;gap:6px;margin-top:2px}
+.dots i{
+  width:8px;height:8px;border-radius:50%;background:var(--blue);
+  animation:bl 1.2s ease-in-out infinite;
+}
+.dots i:nth-child(2){animation-delay:.15s}
+.dots i:nth-child(3){animation-delay:.3s}
+@keyframes bl{0%,100%{opacity:.25}50%{opacity:1}}
 
-/* ── 甲：紅框、透明底、置中 ───────────────── */
-.n1{
-  border:1.5px solid var(--err-line);border-radius:12px;
-  padding:11px 14px;text-align:center;
-  color:var(--ink-dim);font-size:12.5px;line-height:1.75;
+/* 四項檢查 */
+.checks{
+  width:100%;display:flex;flex-direction:column;gap:1px;
+  background:rgba(0,0,0,.18);border-radius:10px;padding:8px 10px;margin-top:2px;
 }
-.n1 b{color:var(--err)}
+.chk{
+  display:flex;align-items:center;gap:9px;
+  font-size:13px;line-height:1.9;color:var(--ink-dim);text-align:left;
+}
+.chk s{
+  width:17px;height:17px;flex:none;border-radius:50%;
+  display:grid;place-items:center;font-size:11px;font-weight:900;text-decoration:none;
+  background:var(--ok);color:var(--ok-ink);
+}
+.chk.bad s{background:var(--err);color:#fff}
+.chk em{margin-left:auto;font-style:normal;font-family:var(--mono);font-size:12px;color:var(--ink-faint)}
+.chk.bad{color:var(--err)}
 
-/* ── 乙：紅框＋淡紅底、置中 ───────────────── */
-.n2{
-  border:1.5px solid var(--err-line);border-radius:12px;background:var(--err-wash);
-  padding:12px 14px;text-align:center;
-  color:var(--ink-dim);font-size:12.5px;line-height:1.75;
+.steps{
+  width:100%;margin:0;padding-left:20px;text-align:left;
+  color:var(--ink-dim);font-size:13px;line-height:1.85;
 }
-.n2 b{color:var(--err)}
-
-/* ── 丙：紅框＋標題列，置中 ───────────────── */
-.n3{
-  border:1.5px solid var(--err-line);border-radius:12px;background:var(--err-wash);
-  padding:12px 14px;text-align:center;
-  display:flex;flex-direction:column;gap:5px;
-}
-.n3 .h{
-  color:var(--err);font-size:13px;font-weight:800;letter-spacing:.04em;
-  display:flex;align-items:center;justify-content:center;gap:6px;
-}
-.n3 .b{color:var(--ink-dim);font-size:12.5px;line-height:1.7}
-.n3 .b b{color:var(--ink)}
+.steps b{color:var(--amber)}
+.btnrow{display:flex;gap:8px;width:100%;margin-top:4px}
+.btnrow .btn{flex:1}
 
 .foot{
-  margin-top:30px;padding-top:18px;border-top:1px solid var(--line-soft);
+  margin-top:34px;padding-top:18px;border-top:1px solid var(--line-soft);
   color:var(--ink-faint);font-size:12.5px;line-height:1.8;
 }
 .foot b{color:var(--amber)}
@@ -95,64 +119,86 @@ h1{font-size:19px;font-weight:800;margin:0 0 4px}
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-<symbol id="i-pick" viewBox="0 -960 960 960"><path d="M440-183v-274L200-596v274l240 139Zm80 0 240-139v-274L520-457v274Zm-80 92L160-252q-19-11-29.5-29T120-321v-318q0-22 10.5-40t29.5-29l280-161q19-11 40-11t40 11l280 161q19 11 29.5 29t10.5 40v318q0 22-10.5 40T800-252L520-91q-19 11-40 11t-40-11Zm200-528 77-44-237-137-78 45 238 136Zm-160 93 78-45-237-137-78 45 237 137Z"/></symbol>
-<symbol id="i-label" viewBox="0 -960 960 960"><path d="M160-120q-33 0-56.5-23.5T80-200v-560q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v560q0 33-23.5 56.5T800-120H160Zm0-80h640v-560H160v560Zm40-80h200v-80H200v80Zm382-80 198-198-57-57-141 142-57-57-56 57 113 113Zm-382-80h200v-80H200v80Zm0-160h200v-80H200v80Zm-40 400v-560 560Z"/></symbol>
+<symbol id="i-scan" viewBox="0 -960 960 960"><path d="M40-120v-200h80v120h120v80H40Zm680 0v-80h120v-120h80v200H720ZM160-240v-480h80v480h-80Zm120 0v-480h40v480h-40Zm120 0v-480h80v480h-80Zm120 0v-480h120v480H520Zm160 0v-480h40v480h-40Zm80 0v-480h40v480h-40ZM40-640v-200h200v80H120v120H40Zm800 0v-120H720v-80h200v200h-80Z"/></symbol>
+<symbol id="i-close" viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></symbol>
 </defs></svg>
 
 <div class="wrap">
-  <h1>覆核提示 · 四種樣式</h1>
-  <p class="sub">上面都放了真實的角色按鈕，看提示擺在下面搭不搭。</p>
+  <h1>掃描器自我測試 · 示意</h1>
+  <p class="sub">
+    早上開工按一下，<b>一次確認四件事</b>：藍牙有沒有連上、輸入法對不對、
+    掃描框有沒有接到、條碼完不完整。<br>
+    以下是四個畫面狀態，不是真的能掃。
+  </p>
 
   <div class="block">
-    <span class="tag">現況</span>
-    <p class="name">靠左、灰字、沒有框</p>
-    <p class="why">容易被當成一般說明滑過去。</p>
-    <div class="rolegrid">
-      <button class="role r-pick"><svg class="ico"><use href="#i-pick"/></svg><b>撿貨</b><span>撿齊、分成一堆一堆</span></button>
-      <button class="role r-lab"><svg class="ico"><use href="#i-label"/></svg><b>對單貼標</b><span>覆核一堆、貼物流標</span></button>
+    <span class="tag">① 入口</span>
+    <p class="name">放在載入畫面版本號那一列</p>
+    <p class="why">跟「掃描診斷」並排。診斷是出事才開，這個是每天開工按一下。</p>
+    <div class="entryrow">
+      <span>版本 <b>v0.07 · 2026-08-15</b></span>
+      <span style="display:flex;gap:8px">
+        <button class="btn btn--test"><svg class="ico"><use href="#i-scan"/></svg>測試掃描器</button>
+      </span>
     </div>
-    <p class="n0">⚠️ 兩段進度<b>各自獨立記錄</b>。對單貼標為第二道覆核，不會顯示撿貨階段的核對結果。</p>
   </div>
 
   <div class="block">
-    <span class="tag">甲</span>
-    <p class="name">紅框 · 透明底 · 置中</p>
-    <p class="why">最輕，只用一條紅線把它框起來。畫面上不會多出一塊色。</p>
-    <div class="rolegrid">
-      <button class="role r-pick"><svg class="ico"><use href="#i-pick"/></svg><b>撿貨</b><span>撿齊、分成一堆一堆</span></button>
-      <button class="role r-lab"><svg class="ico"><use href="#i-label"/></svg><b>對單貼標</b><span>覆核一堆、貼物流標</span></button>
+    <span class="tag">② 等待掃描</span>
+    <p class="name">按下去之後</p>
+    <p class="why">焦點會自動進掃描框（按鈕本身就是使用者手勢，iOS 一定放行）。</p>
+    <div class="panel panel--wait">
+      <div class="panel__eye">測試中</div>
+      <div class="panel__big">隨便掃一箱</div>
+      <div class="panel__hint">掃哪一箱都可以，不會影響撿貨進度</div>
+      <div class="dots"><i></i><i></i><i></i></div>
+      <div class="btnrow"><button class="btn"><svg class="ico"><use href="#i-close"/></svg>取消</button></div>
     </div>
-    <div class="n1">⚠️ 兩段進度<b>各自獨立記錄</b><br>對單貼標為第二道覆核，不會顯示撿貨階段的核對結果</div>
   </div>
 
   <div class="block">
-    <span class="tag">乙</span>
-    <p class="name">紅框 ＋ 淡紅底 · 置中</p>
-    <p class="why">份量比甲重一點，一眼就知道這段是警告不是說明。<b style="color:var(--amber)">我推薦這個。</b></p>
-    <div class="rolegrid">
-      <button class="role r-pick"><svg class="ico"><use href="#i-pick"/></svg><b>撿貨</b><span>撿齊、分成一堆一堆</span></button>
-      <button class="role r-lab"><svg class="ico"><use href="#i-label"/></svg><b>對單貼標</b><span>覆核一堆、貼物流標</span></button>
+    <span class="tag">③ 成功</span>
+    <p class="name">四項全過</p>
+    <p class="why">同時會發出「嗶」一聲 —— 順便確認音量夠不夠大，那在倉庫也很重要。</p>
+    <div class="panel panel--ok">
+      <div class="panel__eye">掃描器正常</div>
+      <div class="panel__big">可以開工了</div>
+      <div class="panel__code">728488 <b>110829</b></div>
+      <div class="checks">
+        <div class="chk"><s>✓</s>藍牙連線　收到按鍵<em>12 個字元</em></div>
+        <div class="chk"><s>✓</s>輸入法　全部是數字<em>英數 ✓</em></div>
+        <div class="chk"><s>✓</s>掃描框焦點　正常<em>capIn</em></div>
+        <div class="chk"><s>✓</s>反應速度<em>47 ms</em></div>
+      </div>
+      <div class="panel__hint">這個條碼是今天的品項：六角跳台(原木色)</div>
+      <div class="btnrow"><button class="btn">關閉</button></div>
     </div>
-    <div class="n2">⚠️ 兩段進度<b>各自獨立記錄</b><br>對單貼標為第二道覆核，不會顯示撿貨階段的核對結果</div>
   </div>
 
   <div class="block">
-    <span class="tag">丙</span>
-    <p class="name">紅框 ＋ 標題列 · 置中</p>
-    <p class="why">把重點抽成標題，內文退一階。字多的時候最好讀，但佔的高度也最多。</p>
-    <div class="rolegrid">
-      <button class="role r-pick"><svg class="ico"><use href="#i-pick"/></svg><b>撿貨</b><span>撿齊、分成一堆一堆</span></button>
-      <button class="role r-lab"><svg class="ico"><use href="#i-label"/></svg><b>對單貼標</b><span>覆核一堆、貼物流標</span></button>
-    </div>
-    <div class="n3">
-      <div class="h">⚠️ 兩段進度各自獨立記錄</div>
-      <div class="b">對單貼標為<b>第二道覆核</b><br>不會顯示撿貨階段的核對結果</div>
+    <span class="tag">④ 失敗</span>
+    <p class="name">10 秒內完全沒收到字</p>
+    <p class="why">直接把要檢查的東西照順序列出來，不用去翻文件或問人。</p>
+    <div class="panel panel--err">
+      <div class="panel__eye">沒有收到任何訊號</div>
+      <div class="panel__big">掃描器沒接上</div>
+      <ol class="steps">
+        <li>掃描器<b>電源開著</b>嗎？螢幕會亮</li>
+        <li>掃描器上顯示<b>已連線</b>嗎？</li>
+        <li>手機「設定 → 藍牙」裡是不是<b>已連接</b>？</li>
+        <li>掃描器模式要是 <b>1：藍牙HID</b>（選單 8-1）</li>
+      </ol>
+      <div class="btnrow">
+        <button class="btn btn--test">再試一次</button>
+        <button class="btn">關閉</button>
+      </div>
     </div>
   </div>
 
   <div class="foot">
-    告訴我 <b>甲 / 乙 / 丙</b>。<br>
-    文字要再精簡也可以，例如只留「對單貼標為第二道覆核，看不到撿貨的結果」。
+    這樣可以嗎？<br>
+    ⚠️ 還有一種情況：<b>有收到字、但不是數字</b>（輸入法沒切英數）。
+    那時第 2 項會變紅，並顯示實際收到什麼 —— 這次會把真的字印出來，不會再像上次那樣只能猜。
   </div>
 </div>
 </body>

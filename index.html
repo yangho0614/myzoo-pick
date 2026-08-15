@@ -729,7 +729,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.13 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.14 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -1456,6 +1456,12 @@ function prettyWay(c){
   return c.length === 10 ? c.slice(0,3) + "-" + c.slice(3,6) + "-" + c.slice(6) : c;
 }
 
+// 這串數字是不是某個商品條碼的前綴？是的話代表掃到一半，不是託運單號
+function isCodePrefix(code){
+  for(var k in DB.byCode){ if(k.length > code.length && k.indexOf(code) === 0) return true; }
+  return false;
+}
+
 function askBind(code){
   pendingWay = code;
   $("bindCode").textContent = prettyWay(code);
@@ -1914,6 +1920,23 @@ function earlyCommit(){
   return false;
 }
 
+/* 🔴 靜置判定：掃描器不送 Enter 時，要等「多久沒新字元」才敢當作掃完一筆。
+
+   ⚠️ 原本 180ms 太短。2026-08-15 實機踩到：掃描器送字比想像慢，
+   12 碼只進來 10 碼就被判定「掃完了」，接著那 10 碼又被
+   「10 碼＝託運單號」的規則誤認，跳出「這個託運單號還沒認得 640-841-9707」——
+   而 6408419707 其實是商品條碼 640841970768 的前 10 碼。
+   👉 切一半的條碼比慢半拍危險得多，所以放寬到 400ms。 */
+var IDLE_MS = 400;
+
+function idleCommit(){
+  var d = digits(buf);
+  // 長度不像完整的一筆就再等一輪，避免把還在傳的條碼從中間切斷
+  if(d.length >= 12 || (d.length >= 8 && DB.byWay[d])) commit();
+  else if(d.length >= 8) bufT = setTimeout(function(){ if(digits(buf).length >= 8) commit(); else buf = ""; }, IDLE_MS);
+  else buf = "";
+}
+
 function commit(){
   clearTimeout(bufT);
   var code = digits(buf); buf = "";
@@ -1926,8 +1949,19 @@ function commit(){
   if(!$("scLookup").classList.contains("on")){
     var wo = DB.byWay[code];
     if(wo){ clearBind(); jumpToOrder(wo); return; }
-    // 10 碼、又不是任何商品的 UPC（UPC 是 12-13 碼）→ 幾乎一定是物流標籤
-    if(code.length === 10 && !DB.byCode[code] && DB.orders.length){ askBind(code); return; }
+    /* 10 碼、又不是任何商品的 UPC → 可能是物流標籤。
+       ⚠️ 但也可能是「12 碼商品條碼只進來 10 碼」的殘缺掃描
+       （實機發生過：640841970768 只到 6408419707）。
+       所以要先排除：只要它是某個商品條碼的前綴，就當成掃壞了，不要問綁單。 */
+    if(code.length === 10 && !DB.byCode[code] && DB.orders.length){
+      if(isCodePrefix(code)){
+        SOUND.err(); buzz([90,60,90]);
+        blast("err", "條碼沒掃完整", "只收到 " + code.length + " 碼",
+              pretty(code), "這是某個商品條碼的前半段 —— 請重掃一次");
+        return;
+      }
+      askBind(code); return;
+    }
   }
 
   if($("scSum").classList.contains("on")) { scanSummary(code); return; }   // 彙總頁：只查不記
@@ -1956,8 +1990,7 @@ document.addEventListener("keydown", function(e){
   buf += e.key;
   clearTimeout(bufT);
   if(earlyCommit()) return;
-  // 有些掃描槍不送 Enter：停了 180ms 又夠長就當作一筆
-  bufT = setTimeout(function(){ if(digits(buf).length >= 8) commit(); else buf = ""; }, 180);
+  bufT = setTimeout(idleCommit, IDLE_MS);
 });
 
 /* ═══ iOS：藍牙掃描器要靠一個永遠聚焦的隱形輸入框才收得到 ═══════
@@ -2012,8 +2045,7 @@ CAP.addEventListener("input", function(){
   drainCap();
   clearTimeout(bufT);
   if(earlyCommit()) return;
-  // 掃描器不送 Enter 時的後備：停了 180ms 又沒新字元就當作一筆
-  bufT = setTimeout(function(){ if(digits(buf).length >= 8) commit(); else buf = ""; }, 180);
+  bufT = setTimeout(idleCommit, IDLE_MS);
 });
 
 CAP.addEventListener("keydown", function(e){
@@ -2425,7 +2457,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.13 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.14 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

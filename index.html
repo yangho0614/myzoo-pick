@@ -104,6 +104,11 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   transition:background .12s,transform .1s;
 }
 .btn:hover{background:var(--surface-3)}
+/* ⚠️ 篩選鈕按下去一定要看得出來。原本 .btn 完全沒有 aria-pressed 的樣式，
+   按了畫面沒任何變化，使用者會以為壞掉。 */
+.btn[aria-pressed="true"]{
+  background:var(--amber-wash);border-color:var(--amber-line);color:var(--amber);
+}
 .btn:active{transform:scale(.97)}
 .btn .ico{width:1em;height:1em;fill:currentColor;display:block;font-size:18px;flex:none}
 .btn--go{background:var(--blue);color:var(--blue-ink);border-color:var(--blue)}
@@ -377,6 +382,23 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   color:var(--ok);background:var(--ok-wash);
   border:1px solid var(--ok-line);border-radius:5px;padding:1px 6px;
 }
+/* 跨單清單：⚠️ 每個客戶各自一行，不要擠成一串。
+   客戶名長短差很多（「Three little meow香港代理」vs「林慧敏」），
+   用「·」串起來換行後會斷在名字中間，現場根本讀不出誰要幾箱。 */
+.row__whos{
+  flex-basis:100%;margin-top:3px;
+  display:flex;flex-direction:column;gap:1px;
+  background:var(--ok-wash);border:1px solid var(--ok-line);
+  border-radius:7px;padding:5px 8px;
+}
+.row__whos .who{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;
+  font-size:13px;font-weight:650;color:var(--ok);letter-spacing:0;
+  line-height:1.55;
+}
+.row__whos .who n{font-weight:800;font-variant-numeric:tabular-nums;flex:none}
+.row[data-s="done"] .row__whos{opacity:.5}
 .row[data-s="done"] .row__multi{opacity:.5}
 .row__qty{
   grid-column:2;grid-row:1 / span 2;text-align:right;
@@ -549,7 +571,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">a9e68523</b></span>
+      <span>版本 <b id="verTag">a2bf58ff</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -1257,16 +1279,23 @@ function renderSummary(){
     d.innerHTML =
       '<div class="row__name"></div>' +
       '<div class="row__code"><span class="row__sku"></span><span class="u"></span>' +
-        '<span class="row__multi"></span></div>' +
+        '<div class="row__whos"></div></div>' +
       '<div class="row__qty"><span class="a"></span><em> / ' + m.need + '</em></div>';
     d.querySelector(".row__name").textContent = m.name;
     d.querySelector(".u").textContent = pretty(code);
     d.querySelector(".a").textContent = m.got;
     var sk = d.querySelector(".row__sku");
     if(m.sku) sk.textContent = m.sku; else sk.remove();
-    var mu = d.querySelector(".row__multi");
+    var mu = d.querySelector(".row__whos");
     if(m.hits.length > 1){
-      mu.textContent = m.hits.map(function(h){ return h.cust + " " + h.n; }).join(" · ");
+      m.hits.forEach(function(h){
+        var w = document.createElement("div");
+        w.className = "who";
+        w.innerHTML = '<span></span><n></n>';
+        w.querySelector("span").textContent = h.cust;
+        w.querySelector("n").textContent = h.n + " 箱";
+        mu.appendChild(w);
+      });
     }else mu.remove();
     box.appendChild(d);
   });
@@ -1813,6 +1842,8 @@ $("goSummary").addEventListener("click", function(){ audio(); renderSummary(); s
 $("chipMulti").addEventListener("click", function(){
   onlyMulti = !onlyMulti;
   this.setAttribute("aria-pressed", String(onlyMulti));
+  // 文字說「按下去會發生什麼」，不是說「現在是什麼狀態」—— 現場不用猜
+  this.lastChild.textContent = onlyMulti ? "顯示全部" : "只看跨單";
   renderSummary();
 });
 $("sortUndo").addEventListener("click", undoSort);
@@ -1872,6 +1903,7 @@ $("goLookup").addEventListener("click", function(){
 $("chipLeft").addEventListener("click", function(){
   onlyLeft = !onlyLeft;
   this.setAttribute("aria-pressed", String(onlyLeft));
+  this.lastChild.textContent = onlyLeft ? "顯示全部" : "只看未撿";
   renderPick();
 });
 $("chipManual").addEventListener("click", function(){
@@ -1908,7 +1940,7 @@ setRole(ROLE);
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 a9e68523");
+      console.log("[MYZOO] 離線快取就緒 · 版本 a2bf58ff");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

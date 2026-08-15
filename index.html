@@ -105,9 +105,9 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 }
 .diagbar b{font-family:var(--mono); color:var(--ink-dim); letter-spacing:.04em}
 .diag{
-  position:fixed; left:0; right:0; bottom:0; z-index:90;
-  background:#000; border-top:2px solid var(--amber);
-  padding:9px 12px calc(9px + env(safe-area-inset-bottom));
+  position:fixed; left:0; right:0; top:0; z-index:90;
+  background:#000; border-bottom:2px solid var(--amber);
+  padding:calc(9px + env(safe-area-inset-top)) 12px 9px;
   font-family:var(--mono); font-size:11.5px; line-height:1.5;
   color:var(--ok); max-height:38vh; overflow:auto;
 }
@@ -249,7 +249,20 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   overflow-wrap:anywhere;
 }
 .sortcard__line{font-size:15px;color:var(--ink-dim);font-family:var(--mono);min-height:22px}
-.sortcard__item{font-size:14px;color:var(--ink-faint);overflow-wrap:anywhere}
+/* 品名是操作員真正要核對的東西 —— 外箱印刷一樣、只差一個手工塗點，
+   所以這一行必須夠大。原本 14px 灰字太小，現場看不清。 */
+.sortcard__item{
+  font-size:21px;font-weight:650;line-height:1.3;color:var(--ink);
+  overflow-wrap:anywhere;margin-top:2px;
+}
+/* MZ 品號 ＋ UPC 條碼。MZ 給人看、UPC 對外箱貼紙用。 */
+.sortcard__code{
+  font-family:var(--mono);font-size:16px;letter-spacing:.09em;
+  font-variant-numeric:tabular-nums;color:var(--ink-dim);
+  overflow-wrap:anywhere;
+}
+.sortcard__code b{color:var(--amber);font-weight:700;letter-spacing:.04em}
+.sortcard__note{font-size:13.5px;color:var(--ink-faint);overflow-wrap:anywhere}
 
 .sortcard[data-k="idle"] .sortcard__who{font-size:22px;font-weight:650;color:var(--ink-faint)}
 .sortcard[data-k="ok"]{background:var(--ok-wash);border-color:var(--ok-line)}
@@ -381,18 +394,24 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .blast[data-k="ok"]{background:#0B3B26}
 .blast__mark{font-size:66px;line-height:1}
 .blast__head{font-size:28px;font-weight:780;letter-spacing:-.01em;margin:0}
-/* 掃描接收框：看不見但必須「可聚焦」。
-   ⚠️ 不能用 display:none／visibility:hidden／hidden 屬性 —— 那些都沒辦法聚焦。
-   固定在畫面中央附近，避免 iOS 聚焦時把頁面捲走。 */
+/* 掃描接收框：看不見，但必須是「真的能被聚焦」的元素。
+   ⚠️ 不能用 display:none／visibility:hidden／hidden —— 那些沒辦法聚焦。
+   iOS 沒有輸入框被聚焦時，藍牙掃描器的按鍵根本不會送進網頁（掃了沒反應）。 */
 .cap{
   position:fixed; top:50%; left:0;
   width:1px; height:1px;
   padding:0; margin:0; border:0; outline:0;
   opacity:0; background:transparent; color:transparent;
-  font-size:16px;              /* < 16px 會讓 iOS 自動放大整個頁面 */
-  pointer-events:none;         /* 不擋任何點擊，只由程式聚焦 */
+  font-size:16px;              /* < 16px 會讓 iOS 聚焦時放大整個頁面 */
   z-index:-1;
 }
+/* 待命燈：長在既有的 .dock 進度列上，不另外佔畫面。
+   綠＝掃得動；灰＝焦點掉了，點一下畫面就會回來。 */
+.armdot{
+  width:9px;height:9px;border-radius:50%;flex:none;
+  background:var(--ink-faint);transition:background .15s,box-shadow .15s;
+}
+.armdot.on{background:var(--ok);box-shadow:0 0 0 3px var(--ok-wash)}
 .blast__code{
   font-family:var(--mono);font-size:24px;letter-spacing:.1em;
   padding:8px 16px;border-radius:9px;background:rgba(0,0,0,.3);
@@ -463,7 +482,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">6c1c09e6</b></span>
+      <span>版本 <b id="verTag">21c51c82</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false">🔧 掃描診斷</button>
     </div>
 
@@ -568,6 +587,8 @@ button:focus-visible,input:focus-visible,label:focus-visible{
       <div class="sortcard__who" id="sortWho">—</div>
       <div class="sortcard__line" id="sortLine"></div>
       <div class="sortcard__item" id="sortItem"></div>
+      <div class="sortcard__code" id="sortCode"></div>
+      <div class="sortcard__note" id="sortNote"></div>
     </div>
     <div class="piles" id="piles"></div>
   </div>
@@ -575,6 +596,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   <div class="dock" id="sortDock">
     <div class="dock__bar"><div class="dock__fill" id="sortFill" style="width:0%"></div></div>
     <div class="dock__row">
+      <span class="armdot" id="armSort" title="綠燈＝掃描待命中"></span>
       <div class="dock__msg" id="sortMsg">照揀貨總表撿完之後，一箱一箱掃過來</div>
       <div class="dock__count" id="sortCount">0 / 0</div>
     </div>
@@ -602,6 +624,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   <div class="dock" id="dock">
     <div class="dock__bar"><div class="dock__fill" id="dockFill" style="width:0%"></div></div>
     <div class="dock__row">
+      <span class="armdot" id="armPick" title="綠燈＝掃描待命中"></span>
       <div class="dock__msg" id="dockMsg">掃第一箱的條碼</div>
       <div class="dock__count" id="dockCount">0 / 0</div>
     </div>
@@ -633,16 +656,16 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 </div>
 
 <!--
-  掃描接收框。⚠️ 不要刪，也不要改成 hidden／display:none。
-  iOS Safari 跟桌機不一樣：沒有任何輸入框被聚焦時，藍牙鍵盤（掃描器）按鍵
-  「不會」送到 document，全域 keydown 收不到 → 掃了完全沒反應。
-  解法是永遠讓這個看不見的框保持聚焦，讓掃描器的字打進來。
-  inputmode="none" 是關鍵：告訴 iOS 不要彈出螢幕小鍵盤，
-  否則沒接掃描器的人一開頁面就被鍵盤蓋掉半個畫面。
+  掃描接收框。⚠️ 不要刪、不要改成 hidden／display:none。
+  iOS 跟桌機不一樣：沒有輸入框被聚焦時，藍牙鍵盤（掃描器就是）的按鍵
+  根本不會送進網頁 → 症狀是「掃了完全沒反應」。
+  解法是讓這個看不見的框保持聚焦，掃描器的字才有地方進來。
+  inputmode="none" 讓 iOS 不要彈出螢幕小鍵盤。
+  ⚠️ focus() 必須「同步」在使用者手勢裡呼叫，包進 setTimeout 就失效（見 keepFocus）。
 -->
 <input id="capIn" class="cap" inputmode="none" autocomplete="off"
        autocorrect="off" autocapitalize="off" spellcheck="false"
-       tabindex="-1" aria-hidden="true">
+       tabindex="-1" aria-label="掃描接收">
 
 <!-- 掃描器診斷面板（預設關閉，載入畫面的「🔧 掃描診斷」打開） -->
 <div class="diag" id="diag" hidden>
@@ -1028,8 +1051,9 @@ function show(id){
     $(s).classList.toggle("on", s === id);
   });
   window.scrollTo(0, 0);
-  // 換畫面後把掃描焦點搶回來（iOS 沒焦點就收不到掃描器，見下方 keepFocus）
-  if(typeof keepFocus === "function") setTimeout(keepFocus, 0);
+  // 換畫面後把掃描焦點搶回來。⚠️ 必須同步 —— show() 通常是在點擊事件裡被呼叫的，
+  // 包進 setTimeout 就失去 iOS 的手勢授權，focus() 會靜靜失敗（見 keepFocus）
+  if(typeof keepFocus === "function") keepFocus();
 }
 
 /* ═══ 訂單清單 ═══════════════════════════════════════════ */
@@ -1197,13 +1221,20 @@ function totals(){
 
 function openSort(){ renderSort(); show("scSort"); }
 
-function sortCard(kind, eye, who, line, item){
+// code 用 innerHTML（要把 MZ 品號標成琥珀色），其餘一律 textContent
+function sortCard(kind, eye, who, line, item, code, note){
   var c = $("sortCard");
   c.dataset.k = kind;
   $("sortEye").textContent = eye;
   $("sortWho").textContent = who;
   $("sortLine").textContent = line || "";
   $("sortItem").textContent = item || "";
+  $("sortCode").innerHTML = code || "";
+  $("sortNote").textContent = note || "";
+}
+// MZ 品號給人認、UPC 給掃描器 —— 兩個都印出來，MZ 標色
+function codeLine(sku, upc){
+  return (sku ? "<b>" + sku + "</b> · " : "") + pretty(upc);
 }
 
 function renderSort(){
@@ -1230,8 +1261,8 @@ function scanSort(code){
 
   if(!hits.length){
     SOUND.err(); buzz([90,60,90,60,140]);
-    sortCard("err", "不在今天的出貨單上", "這箱不該在這裡", pretty(code),
-             "整份出貨單裡都沒有這個條碼 —— 先確認是不是撿錯了");
+    sortCard("err", "不在今天的出貨單上", "這箱不該在這裡", "", "",
+             pretty(code), "整份出貨單裡都沒有這個條碼 —— 先確認是不是撿錯了");
     $("sortMsg").textContent = "掃到出貨單上沒有的品項";
     return;
   }
@@ -1240,8 +1271,8 @@ function scanSort(code){
   if(!open.length){
     var n = hits.reduce(function(s, h){ return s + h.item.need; }, 0);
     SOUND.warn(); buzz([60,50,60]);
-    sortCard("warn", "這個品項已經分完了", hits[0].item.name,
-             (hits[0].item.sku ? hits[0].item.sku + "　" : "") + pretty(code),
+    sortCard("warn", "這個品項已經分完了", hits[0].item.name, "", "",
+             codeLine(hits[0].item.sku, code),
              "今天總共只有 " + n + " 箱，都已經分出去了");
     $("sortMsg").textContent = "多出來的一箱：" + hits[0].item.name;
     return;
@@ -1261,8 +1292,9 @@ function scanSort(code){
     full ? "全部分完了" : "放到這一堆",
     h.ord.cust,
     (h.ord.way ? h.ord.way + "　" : "") + h.ord.no,
-    (h.item.sku ? h.item.sku + "　" : "") + h.item.name +
-      (left > 0 ? "　（這位還要 " + left + " 箱）" : "　（這位的這一項齊了）"));
+    h.item.name,
+    codeLine(h.item.sku, code),
+    left > 0 ? "這位還要 " + left + " 箱" : "這位的這一項齊了");
 
   $("sortMsg").textContent = h.ord.cust + " " + got(h.ord) + " / " + h.ord.total + " 箱";
   renderSort();
@@ -1473,10 +1505,27 @@ function scanLookup(code){
 }
 
 /* ═══ 掃描槍輸入：全域攔鍵盤，不需要對焦欄位 ═════════════ */
-var buf = "", bufT = null;
+var buf = "", bufT = null, bufT0 = 0;
+
+function perfNow(){
+  return (window.performance && performance.now) ? performance.now() : Date.now();
+}
+
+/* 🔴 提前送出：掃描器多半不在結尾送 Enter，那就得等「停 180ms」才敢送，
+   現場感覺就是「掃了慢半拍」——一開始還被當成「掃了沒反應」。
+   既然今天要出的條碼我們全都知道，湊滿 12 碼又對得上就立刻送，不用等。
+   ⚠️ 只在 >=12 碼（UPC-A 長度）時提前送。10 碼的託運單號不提前，
+      因為它有可能是某個 UPC 的前綴，提前送會切錯。 */
+function earlyCommit(){
+  var d = digits(buf);
+  if(d.length >= 12 && DB.byCode[d]){ commit(); return true; }
+  return false;
+}
+
 function commit(){
   clearTimeout(bufT);
   var code = digits(buf); buf = "";
+  if(bufT0){ dlog("送出", code + " · 收字到送出 " + Math.round(perfNow() - bufT0) + " ms"); bufT0 = 0; }
   if(code.length < 6) return;
   audio();
   hideBlast();
@@ -1509,8 +1558,10 @@ document.addEventListener("keydown", function(e){
   if(t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;   // 手動輸入自己處理
   if(e.key === "Enter"){ if(buf) { e.preventDefault(); commit(); } return; }
   if(e.key.length !== 1) return;
+  if(!buf) bufT0 = perfNow();
   buf += e.key;
   clearTimeout(bufT);
+  if(earlyCommit()) return;
   // 有些掃描槍不送 Enter：停了 180ms 又夠長就當作一筆
   bufT = setTimeout(function(){ if(digits(buf).length >= 8) commit(); else buf = ""; }, 180);
 });
@@ -1526,21 +1577,38 @@ function drainCap(){
   if(CAP.value){ buf += CAP.value; CAP.value = ""; }
 }
 
-// 只有掃描相關的畫面才搶焦點；使用者正在打字的框不能被搶走
+// 待命燈：綠＝聚焦中＝掃得動。操作員唯一能自己確認「現在掃有沒有用」的訊號
+function scanbarSync(){
+  var on = document.activeElement === CAP;
+  ["armSort","armPick"].forEach(function(id){
+    var d = $(id); if(d) d.classList.toggle("on", on);
+  });
+}
+function scanbarShow(){
+  return DB.orders.length > 0 && !$("scLoad").classList.contains("on");
+}
+
+/* ⚠️ 一定要「同步」呼叫，不能包在 setTimeout 裡 ——
+   iOS 只在使用者手指觸碰的那一瞬間允許程式聚焦輸入框，
+   延遲執行就失去授權資格，focus() 會靜靜地失敗。這是第一版沒生效的原因。 */
 function keepFocus(){
   if(!CAP) return;                                    // 初始化途中被叫到
-  if(!DB.orders.length) return;                       // 還沒載入檔案，沒東西可掃
+  if(!scanbarShow()) return;                          // 沒載入檔案／在載入畫面
   if(!$("manualWrap").hidden) return;                 // 手動輸入開著，讓它自己收
   var a = document.activeElement;
   if(a && a !== CAP && (a.tagName === "INPUT" || a.tagName === "TEXTAREA")) return;
-  if($("scLoad").classList.contains("on")) return;    // 載入畫面不需要
   try{ CAP.focus({ preventScroll: true }); }catch(e){ try{ CAP.focus(); }catch(e2){} }
+  scanbarSync();
 }
 
+CAP.addEventListener("focus", scanbarSync);
+
 CAP.addEventListener("input", function(){
+  if(!buf) bufT0 = perfNow();
   drainCap();
   clearTimeout(bufT);
-  // 掃描器不送 Enter 時的後備：停了 180ms 又夠長就當作一筆
+  if(earlyCommit()) return;
+  // 掃描器不送 Enter 時的後備：停了 180ms 又沒新字元就當作一筆
   bufT = setTimeout(function(){ if(digits(buf).length >= 8) commit(); else buf = ""; }, 180);
 });
 
@@ -1552,10 +1620,11 @@ CAP.addEventListener("keydown", function(e){
   }
 });
 
-// 焦點被系統或使用者弄掉時搶回來（切 App、關鍵盤、點到空白處都會掉）
-CAP.addEventListener("blur", function(){ setTimeout(keepFocus, 60); });
-document.addEventListener("touchend", function(){ setTimeout(keepFocus, 60); }, { passive: true });
-document.addEventListener("click", function(){ setTimeout(keepFocus, 60); });
+// 焦點被系統或使用者弄掉時搶回來。
+// ⚠️ 同步呼叫（見 keepFocus 的註解），delay 版只當作 iOS 拒絕時的補救。
+CAP.addEventListener("blur", function(){ scanbarSync(); setTimeout(keepFocus, 60); });
+document.addEventListener("touchend", keepFocus, { passive: true });
+document.addEventListener("click", keepFocus);
 window.addEventListener("focus", keepFocus);
 document.addEventListener("visibilitychange", function(){ if(!document.hidden) keepFocus(); });
 
@@ -1764,7 +1833,7 @@ setRole(ROLE);
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 6c1c09e6");
+      console.log("[MYZOO] 離線快取就緒 · 版本 21c51c82");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

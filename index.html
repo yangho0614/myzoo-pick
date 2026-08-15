@@ -665,7 +665,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.07 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.08 · 2026-08-15</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -1279,6 +1279,12 @@ function renderOrders(){
   var box = $("ordList"); box.textContent = "";
   var totalBox = 0, totalGot = 0;
 
+  /* 銷貨單號平常不顯示 —— 撿貨的人是靠「客戶名」認堆的，單號只是雜訊。
+     ⚠️ 但同一天同一位客戶有兩張單時就非顯示不可，
+     不然那兩列會長得一模一樣、根本分不出來。所以先數一遍名字。 */
+  var nameCount = {};
+  DB.orders.forEach(function(o){ nameCount[o.cust] = (nameCount[o.cust] || 0) + 1; });
+
   DB.orders.forEach(function(o){
     var g = got(o); totalBox += o.total; totalGot += g;
     var st = g >= o.total ? "done" : (g > 0 ? "part" : "todo");
@@ -1297,8 +1303,11 @@ function renderOrders(){
           : '<span class="ord__frac"><span class="g"></span><em> / ' + o.total + '</em></span>') +
       '</span>';
     b.querySelector(".ord__name").textContent = o.cust;
+    var dupName = nameCount[o.cust] > 1;
     b.querySelector(".ord__meta").textContent =
-      (o.way ? o.way + " · " : "") + o.no + " · " + o.items.length + " 項 · " + o.total + " 箱";
+      (o.way ? o.way + " · " : "") +
+      (dupName ? o.no + " · " : "") +          // 只有同名客戶多張單時才標單號
+      o.items.length + " 項 · " + o.total + " 箱";
     if(st !== "done") b.querySelector(".g").textContent = g;
     b.addEventListener("click", function(){
       if(pendingWay){ bindWay(o, pendingWay); return; }
@@ -2126,7 +2135,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.07 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.08 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

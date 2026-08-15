@@ -146,6 +146,19 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   color:var(--ink-faint); font-size:12px;
 }
 .diagbar b{font-family:var(--mono); color:var(--ink-dim); letter-spacing:.04em}
+.armbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:80;
+  padding:14px var(--pad) calc(14px + env(safe-area-inset-bottom));
+  background:var(--amber);color:var(--amber-ink);border:0;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-size:16px;font-weight:750;
+  box-shadow:0 -8px 24px rgba(0,0,0,.45);
+}
+.armbar__dot{
+  width:10px;height:10px;border-radius:50%;background:var(--amber-ink);
+  opacity:.45;animation:armpulse 1.4s ease-in-out infinite;
+}
+@keyframes armpulse{0%,100%{opacity:.25;transform:scale(.85)}50%{opacity:.9;transform:scale(1)}}
 .diag{
   position:fixed; left:0; right:0; top:0; z-index:90;
   background:#000; border-bottom:2px solid var(--amber);
@@ -630,7 +643,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">d34f9430</b></span>
+      <span>版本 <b id="verTag">5ea42b5a</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -814,6 +827,17 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 <input id="capIn" class="cap" inputmode="none" autocomplete="off"
        autocorrect="off" autocapitalize="off" spellcheck="false"
        tabindex="-1" aria-label="掃描接收">
+
+<!--
+  🔴 掃描待命提示。**只在「還沒啟用」時出現，點一下就消失。**
+  iOS 規定：程式要把游標放進輸入框，必須在「使用者手指碰到螢幕」的那一瞬間做。
+  頁面剛載入時沒有任何觸碰 → 焦點放不進去 → 掃描器的字沒地方進 → 掃了沒反應。
+  這件事使用者不可能自己想到，一定要講出來。
+-->
+<button class="armbar" id="armBar" hidden>
+  <span class="armbar__dot"></span>
+  <span>點一下畫面，啟用掃描</span>
+</button>
 
 <!-- 掃描器診斷面板（預設關閉，載入畫面的「🔧 掃描診斷」打開） -->
 <div class="diag" id="diag" hidden>
@@ -1775,6 +1799,10 @@ function scanbarSync(){
   ["armSort","armPick"].forEach(function(id){
     var d = $(id); if(d) d.classList.toggle("on", on);
   });
+  // 還沒啟用就把提示條秀出來；一啟用就整條消失，不佔畫面
+  var want = !on && DB.orders.length > 0 && !$("scLoad").classList.contains("on")
+             && $("manualWrap").hidden;
+  $("armBar").hidden = !want;
 }
 function scanbarShow(){
   return DB.orders.length > 0 && !$("scLoad").classList.contains("on");
@@ -1794,6 +1822,12 @@ function keepFocus(){
 }
 
 CAP.addEventListener("focus", scanbarSync);
+$("armBar").addEventListener("click", function(){
+  try{ CAP.focus({ preventScroll: true }); }catch(e){ try{ CAP.focus(); }catch(e2){} }
+  scanbarSync();
+});
+// 焦點可能被系統默默拿走（切 App、鍵盤收起），定期對一下狀態
+setInterval(scanbarSync, 800);
 
 /* ⚠️ 這裡曾經有「中文輸入法偵測」，2026-08-15 整個拿掉了。
 
@@ -2064,7 +2098,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 d34f9430");
+      console.log("[MYZOO] 離線快取就緒 · 版本 5ea42b5a");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

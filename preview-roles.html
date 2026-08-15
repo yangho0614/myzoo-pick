@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>角色按鈕 三種示意 · MYZOO 撿貨核對</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#13151C">
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --ground:#13151C; --surface:#1C1F29; --surface-2:#252936; --surface-3:#2E3342;
+  --line:#343A4B; --line-soft:#282D3A;
+  --ink:#EDEFF5; --ink-dim:#9AA2B5; --ink-faint:#6A7285;
+  --amber:#FFB020; --amber-ink:#1A1204;
+  --amber-wash:rgba(255,176,32,.13); --amber-line:rgba(255,176,32,.38);
+  --ok:#3DD68C; --ok-ink:#04200F;
+  --ok-wash:rgba(61,214,140,.12); --ok-line:rgba(61,214,140,.34);
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --pad:16px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:520px;margin:0 auto;padding:22px var(--pad) 60px}
+h1{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px}
+.sub{color:var(--ink-dim);font-size:13.5px;line-height:1.7;margin:0 0 26px}
+.sub b{color:var(--amber)}
+
+.block{margin-bottom:34px}
+.tag{
+  display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;
+  color:var(--amber);background:var(--amber-wash);border:1px solid var(--amber-line);
+  padding:3px 10px;border-radius:999px;margin-bottom:5px;
+}
+.name{font-size:16px;font-weight:750;margin:0 0 3px}
+.why{color:var(--ink-faint);font-size:12.5px;line-height:1.65;margin:0 0 13px}
+.eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--ink-faint);
+  text-transform:uppercase;margin-bottom:9px;
+}
+
+/* ══ 現況（對照組） ══════════════════════════════════ */
+.now{background:var(--surface);border:1px solid var(--line-soft);border-radius:12px;padding:15px 16px}
+.now__row{display:flex;gap:8px}
+.role0{
+  flex:1;text-align:left;padding:11px 13px;border-radius:10px;
+  background:var(--surface-2);border:1px solid var(--line);
+  display:flex;flex-direction:column;gap:2px;color:var(--ink);
+}
+.role0 b{font-size:15px;font-weight:700}
+.role0 span{font-size:11.5px;color:var(--ink-faint);line-height:1.4}
+.role0.sel{background:var(--amber-wash);border-color:var(--amber-line)}
+.role0.sel b{color:var(--amber)}
+
+/* ══ A：並排大方塊 ══════════════════════════════════ */
+.rA{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.rA button{
+  appearance:none;font:inherit;cursor:pointer;
+  background:var(--surface);border:2px solid var(--line);border-radius:18px;
+  padding:22px 12px 18px;color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  transition:transform .1s,background .15s,border-color .15s;
+}
+.rA button:active{transform:scale(.97)}
+.rA .ic{font-size:38px;line-height:1}
+.rA .t{font-size:21px;font-weight:800;letter-spacing:.01em}
+.rA .d{font-size:12px;color:var(--ink-faint);line-height:1.45;text-align:center}
+.rA button.sel{background:var(--amber);border-color:var(--amber)}
+.rA button.sel .t,.rA button.sel .d{color:var(--amber-ink)}
+.rA button.sel .d{opacity:.72}
+.rA button.sel.lb{background:var(--ok);border-color:var(--ok)}
+.rA button.sel.lb .t,.rA button.sel.lb .d{color:var(--ok-ink)}
+
+/* ══ B：整寬橫條 ════════════════════════════════════ */
+.rB{display:flex;flex-direction:column;gap:10px}
+.rB button{
+  appearance:none;font:inherit;cursor:pointer;text-align:left;
+  background:var(--surface);border:2px solid var(--line);border-radius:16px;
+  padding:16px 18px;color:var(--ink);
+  display:flex;align-items:center;gap:15px;
+  transition:transform .1s,background .15s,border-color .15s;
+}
+.rB button:active{transform:scale(.985)}
+.rB .ic{font-size:34px;line-height:1;flex:none}
+.rB .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rB .t{font-size:23px;font-weight:800;letter-spacing:.01em;line-height:1.15}
+.rB .d{font-size:12.5px;color:var(--ink-faint);line-height:1.45}
+.rB .chk{
+  width:26px;height:26px;border-radius:50%;flex:none;
+  border:2px solid var(--line);display:grid;place-items:center;
+  font-size:15px;font-weight:900;color:transparent;
+}
+.rB button.sel{background:var(--amber-wash);border-color:var(--amber)}
+.rB button.sel .t{color:var(--amber)}
+.rB button.sel .chk{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
+.rB button.sel.lb{background:var(--ok-wash);border-color:var(--ok)}
+.rB button.sel.lb .t{color:var(--ok)}
+.rB button.sel.lb .chk{background:var(--ok);border-color:var(--ok);color:var(--ok-ink)}
+
+/* ══ C：大型分段控制 ════════════════════════════════ */
+.rC{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:18px;padding:6px;
+}
+.rC button{
+  appearance:none;font:inherit;cursor:pointer;
+  background:transparent;border:0;border-radius:13px;
+  padding:18px 10px;color:var(--ink-dim);
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  transition:background .18s,color .18s;
+}
+.rC .ic{font-size:30px;line-height:1;filter:grayscale(1);opacity:.5}
+.rC .t{font-size:20px;font-weight:800}
+.rC .d{font-size:11.5px;line-height:1.4;text-align:center;opacity:.8}
+.rC button.sel{background:var(--amber);color:var(--amber-ink)}
+.rC button.sel .ic{filter:none;opacity:1}
+.rC button.sel.lb{background:var(--ok);color:var(--ok-ink)}
+
+.note{
+  margin-top:12px;padding:11px 13px;border-radius:10px;
+  background:var(--surface);border:1px solid var(--line-soft);
+  color:var(--ink-faint);font-size:12px;line-height:1.65;
+}
+.note b{color:var(--ink-dim)}
+.foot{
+  margin-top:38px;padding-top:18px;border-top:1px solid var(--line-soft);
+  color:var(--ink-faint);font-size:12.5px;line-height:1.8;
+}
+.foot b{color:var(--amber)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>角色按鈕 · 三種示意</h1>
+  <p class="sub">
+    每一組都可以<b>直接點點看</b>（會切換選取狀態，跟真的一樣）。<br>
+    看完告訴我要 A／B／C 哪一個，我再套進正式頁面。
+  </p>
+
+  <!-- 現況 -->
+  <div class="block">
+    <span class="tag">現況</span>
+    <p class="name">目前線上的樣子</p>
+    <p class="why">小、字級 15px，戴手套或走動中不好按。放這裡當對照組。</p>
+    <div class="now">
+      <div class="eyebrow">你現在做哪一段</div>
+      <div class="now__row">
+        <button class="role0 sel"><b>撿貨</b><span>撿齊、分成一堆一堆</span></button>
+        <button class="role0"><b>對單貼標</b><span>覆核一堆、貼物流標</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- A -->
+  <div class="block">
+    <span class="tag">A</span>
+    <p class="name">並排大方塊</p>
+    <p class="why">最像 App 首頁。選中的整塊填色，遠遠一眼就知道自己在哪個模式 —— 這點在現場很重要，兩段的進度是分開存的，選錯等於白做。</p>
+    <div class="rA" data-g="A">
+      <button class="sel" data-r="pick"><span class="ic">📦</span><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></button>
+      <button class="lb" data-r="label"><span class="ic">🏷️</span><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></button>
+    </div>
+  </div>
+
+  <!-- B -->
+  <div class="block">
+    <span class="tag">B</span>
+    <p class="name">整寬橫條</p>
+    <p class="why">字可以放到最大（23px），也最好按 —— 整條都是熱區。右邊有勾勾明示選取，不用靠顏色判斷，強光下也看得懂。</p>
+    <div class="rB" data-g="B">
+      <button class="sel" data-r="pick">
+        <span class="ic">📦</span>
+        <span class="mid"><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></span>
+        <span class="chk">✓</span>
+      </button>
+      <button class="lb" data-r="label">
+        <span class="ic">🏷️</span>
+        <span class="mid"><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></span>
+        <span class="chk">✓</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- C -->
+  <div class="block">
+    <span class="tag">C</span>
+    <p class="name">大型分段控制</p>
+    <p class="why">最像 iOS 原生的切換器，最省空間。沒選到的那半會變灰階，對比很強烈。缺點是整體比 A／B 小一點。</p>
+    <div class="rC" data-g="C">
+      <button class="sel" data-r="pick"><span class="ic">📦</span><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></button>
+      <button class="lb" data-r="label"><span class="ic">🏷️</span><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></button>
+    </div>
+    <div class="note">
+      <b>三個都用了顏色區分角色</b>：撿貨＝琥珀、對單貼標＝綠。
+      正式頁面右上角本來就有個小標籤顯示現在的角色，配色會一起對齊。
+    </div>
+  </div>
+
+  <div class="foot">
+    要 <b>A</b> / <b>B</b> / <b>C</b>？<br>
+    也可以混：例如「B 的尺寸 ＋ A 的整塊填色」，講一聲就好。<br>
+    圖示（📦🏷️）不喜歡也能換成純文字或線條圖示。
+  </div>
+
+</div>
+
+<script>
+// 讓三組都能實際點看看，比純圖片好判斷
+document.querySelectorAll("[data-g]").forEach(function(g){
+  g.addEventListener("click", function(e){
+    var b = e.target.closest("button");
+    if(!b) return;
+    g.querySelectorAll("button").forEach(function(x){ x.classList.remove("sel"); });
+    b.classList.add("sel");
+  });
+});
+</script>
+</body>
+</html>

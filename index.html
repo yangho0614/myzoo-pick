@@ -729,7 +729,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.12 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.13 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -2115,7 +2115,7 @@ function stStart(){
   //    直接覆蓋 selfTest 會弄丟舊計時器的參照，那個 10 秒計時器之後才觸發，
   //    會把新測試提前判定結束、時間也算錯。
   if(selfTest){ clearTimeout(selfTest.timer); clearTimeout(selfTest.idle); }
-  selfTest = { t0: 0, raw: "", timer: 0, idle: 0 };
+  selfTest = { t0: 0, raw: "", timer: 0, idle: 0, focused: null, done: false };
   buf = ""; CAP.value = "";
   $("stCode").hidden = true; $("stChecks").hidden = true;
   stShow("wait", "測試中", "隨便掃一箱", "掃哪一箱都可以，不會影響撿貨進度");
@@ -2130,10 +2130,18 @@ function stStop(){
   $("stWrap").hidden = true;
   keepFocus();
 }
-// 測試期間收到的字都往這裡送，靜置 260ms 就當作掃完一筆
+/* 測試期間收到的字都往這裡送，靜置 260ms 就當作掃完一筆。
+   ⚠️ 已經出結果就不再收 —— 否則使用者再掃一次會把兩筆接在一起
+   （實測出現 24 碼＝同一個條碼重複兩次，時間也被拉長到 6 秒）。
+   要重測請按「再試一次」。 */
 function stFeed(chunk){
-  if(!selfTest || !chunk) return;
-  if(!selfTest.t0) selfTest.t0 = perfNow();
+  if(!selfTest || selfTest.done || !chunk) return;
+  if(!selfTest.t0){
+    selfTest.t0 = perfNow();
+    // ⚠️ 焦點要在「字進來的當下」記錄。等到出結果時才量，
+    //    焦點早就跑到面板按鈕上了，會誤報成「掉了」。
+    selfTest.focused = document.activeElement === CAP;
+  }
   selfTest.raw += chunk;
   clearTimeout(selfTest.idle);
   selfTest.idle = setTimeout(stEvaluate, 260);
@@ -2145,10 +2153,11 @@ function stRow(ok, label, val){
 function stEvaluate(){
   if(!selfTest) return;
   clearTimeout(selfTest.timer); clearTimeout(selfTest.idle);
+  selfTest.done = true;                       // 出結果後就不再收字
   var raw = selfTest.raw.replace(/[\r\n\t]/g, "");
   var ms  = selfTest.t0 ? Math.round(perfNow() - selfTest.t0) : 0;
   var d   = digits(raw);
-  var focused = document.activeElement === CAP;
+  var focused = selfTest.focused === null ? (document.activeElement === CAP) : selfTest.focused;
 
   if(!raw){                                    // 完全沒收到任何字
     $("stCode").hidden = true; $("stChecks").hidden = true;
@@ -2158,19 +2167,20 @@ function stEvaluate(){
   }
 
   var allDigits = !/[^0-9]/.test(raw);
-  var longEnough = d.length >= 8;
+  // UPC-A 是 12 碼、EAN-13 是 13 碼。超過就是接了兩筆或掃描器多送字元
+  var lenOK = d.length >= 8 && d.length <= 13;
 
   $("stCode").hidden = false;
-  $("stCode").innerHTML = (allDigits && longEnough) ? codeHTML(d) : esc(JSON.stringify(raw));
+  $("stCode").innerHTML = (allDigits && lenOK) ? codeHTML(d) : esc(raw);
   $("stChecks").hidden = false;
   $("stChecks").innerHTML =
     stRow(true,       "藍牙連線　收到按鍵", raw.length + " 個字元") +
     stRow(allDigits,  "輸入法　全部是數字", allDigits ? "英數 ✓" : "有非數字") +
     stRow(focused,    "掃描框焦點",         focused ? "capIn" : "掉了") +
-    stRow(longEnough, "條碼長度",           d.length + " 碼") +
+    stRow(lenOK,      "條碼長度",           d.length + " 碼") +
     stRow(true,       "反應速度",           ms + " ms");
 
-  if(allDigits && longEnough){
+  if(allDigits && lenOK){
     var hit = DB.byCode[d];
     stShow("ok", "掃描器正常", "可以開工了",
       hit ? "這個條碼是今天的品項：" + hit[0].item.name
@@ -2179,6 +2189,10 @@ function stEvaluate(){
   }else if(!allDigits){
     stShow("err", "收到的不是數字", "輸入法沒切英數",
       "關掉掃描器 → 切成英數 → 再打開掃描器");
+    try{ SOUND.err(); }catch(e){} buzz([90,60,90]);
+  }else if(d.length > 13){
+    stShow("err", "收到 " + d.length + " 碼", "掃到兩筆了",
+      "一次只要掃一箱。按「再試一次」重新測");
     try{ SOUND.err(); }catch(e){} buzz([90,60,90]);
   }else{
     stShow("err", "條碼太短", "只收到 " + d.length + " 碼",
@@ -2411,7 +2425,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.12 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.13 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

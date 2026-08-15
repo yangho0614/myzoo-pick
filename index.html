@@ -374,6 +374,12 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   grid-column:1;font-size:15.5px;font-weight:620;line-height:1.35;
   overflow-wrap:anywhere;
 }
+/* 條碼：前段退到背景，後 6 碼放大。用 em 讓各畫面的字級自動跟著父層。 */
+.uhead{color:var(--ink-faint);opacity:.72;letter-spacing:.06em}
+.utail{
+  font-size:1.4em;font-weight:800;color:var(--ink);
+  letter-spacing:.05em;margin-left:.35em;
+}
 .row__code{
   grid-column:1;font-family:var(--mono);font-size:15px;letter-spacing:.09em;
   color:var(--ink-dim);font-variant-numeric:tabular-nums;
@@ -589,7 +595,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">9d043e83</b></span>
+      <span>版本 <b id="verTag">20fc6375</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -1300,7 +1306,7 @@ function renderSummary(){
         '<div class="row__whos"></div></div>' +
       '<div class="row__qty"><span class="a"></span><em> / ' + m.need + '</em></div>';
     d.querySelector(".row__name").textContent = m.name;
-    d.querySelector(".u").textContent = pretty(code);
+    d.querySelector(".u").innerHTML = codeHTML(code);
     d.querySelector(".a").textContent = m.got;
     var sk = d.querySelector(".row__sku");
     if(m.sku) sk.textContent = m.sku; else sk.remove();
@@ -1356,7 +1362,7 @@ function sortCard(kind, eye, who, line, item, code, note){
 }
 // MZ 品號給人認、UPC 給掃描器 —— 兩個都印出來，MZ 標色
 function codeLine(sku, upc){
-  return (sku ? "<b>" + sku + "</b> · " : "") + pretty(upc);
+  return (sku ? "<b>" + sku + "</b> · " : "") + codeHTML(upc);
 }
 
 function renderSort(){
@@ -1384,7 +1390,7 @@ function scanSort(code){
   if(!hits.length){
     SOUND.err(); buzz([90,60,90,60,140]);
     sortCard("err", "不在今天的出貨單上", "這箱不該在這裡", "", "",
-             pretty(code), "整份出貨單裡都沒有這個條碼 —— 先確認是不是撿錯了");
+             codeHTML(code), "整份出貨單裡都沒有這個條碼 —— 先確認是不是撿錯了");
     $("sortMsg").textContent = "掃到出貨單上沒有的品項";
     return;
   }
@@ -1464,7 +1470,7 @@ function renderPick(){
         '<span class="row__multi"></span></div>' +
       '<div class="row__qty"><span class="a"></span><em> / ' + it.need + '</em></div>';
     d.querySelector(".row__name").textContent = it.name;
-    d.querySelector(".u").textContent = pretty(it.code);
+    d.querySelector(".u").innerHTML = codeHTML(it.code);
     var sk = d.querySelector(".row__sku");
     if(it.sku) sk.textContent = it.sku; else sk.remove();
 
@@ -1493,6 +1499,28 @@ function renderPick(){
 }
 
 // 12 碼拆成 6+6，跟紙本出貨單一樣的分組，方便對照
+/* 🔴 條碼要「後 6 碼放大、前 6 碼壓暗」，理由是資料算出來的（2026-08-15）：
+
+   95 個品項裡，廠商前綴（前 6 碼）只有 4 種 —— 723592 佔 48 個、728488 佔 20、
+   640841 佔 16、641361 佔 11。**前 6 碼幾乎不帶任何資訊**，卻佔掉一半版面。
+   兩兩比對 4465 組裡，前 10 碼相同的有 199 組；93/95 個品項要看到**第 11 碼**
+   才分得出最像的鄰居。真正要比對的是尾巴。
+
+   為什麼是 6 不是 4：條碼本來就以 `723592 927745` 的 6+6 分組顯示，
+   強調後 6 碼＝強調完整的第二組；取 4 會在分組中間硬切成 `92|7745`，反而更難讀。
+
+   ⚠️ 前 6 碼不能拿掉 —— 要跟外箱貼紙逐字核對時還是得看得到。只是退到背景。 */
+function codeHTML(c){
+  var t = pretty(c);
+  var sp = t.lastIndexOf(" ");
+  if(sp < 0) return esc(t);
+  return '<span class="uhead">' + esc(t.slice(0, sp)) + '</span>' +
+         '<span class="utail">' + esc(t.slice(sp + 1)) + '</span>';
+}
+function esc(x){
+  return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 function pretty(c){
   return c.length === 12 ? c.slice(0,6) + " " + c.slice(6)
        : c.length === 13 ? c.slice(0,1) + " " + c.slice(1,7) + " " + c.slice(7)
@@ -1588,7 +1616,7 @@ function blast(kind, mark, head, code, noteHtml){
   el.dataset.k = kind;
   $("blMark").textContent = mark;
   $("blHead").textContent = head;
-  $("blCode").textContent = /^\d+$/.test(code) ? pretty(code) : code;
+  $("blCode").innerHTML = /^\d+$/.test(code) ? codeHTML(code) : esc(code);
   $("blNote").innerHTML = noteHtml || "";
   el.classList.add("on");
   clearTimeout(blastT);
@@ -1599,7 +1627,7 @@ $("blast").addEventListener("click", hideBlast);
 
 /* ═══ 查條碼 ═══════════════════════════════════════════ */
 function scanLookup(code){
-  $("lkCode").textContent = pretty(code);
+  $("lkCode").innerHTML = codeHTML(code);
   var hits = DB.byCode[code] || [];
   var box = $("lkHits"); box.textContent = "";
 
@@ -2002,7 +2030,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 9d043e83");
+      console.log("[MYZOO] 離線快取就緒 · 版本 20fc6375");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

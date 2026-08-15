@@ -738,7 +738,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.16 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.17 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -2081,13 +2081,19 @@ $("armBar").addEventListener("click", function(e){
   scanbarSync();
 });
 // 使用者一碰螢幕就把焦點搶回來。⚠️ 必須同步呼叫（見 keepFocus 註解）
+document.addEventListener("touchstart", keepFocus, { passive: true });   // 手指一碰就搶，比 touchend 早
 document.addEventListener("touchend", keepFocus, { passive: true });
 document.addEventListener("click", keepFocus);
 window.addEventListener("focus", keepFocus);
 document.addEventListener("visibilitychange", function(){ if(!document.hidden) keepFocus(); });
 
-// 焦點可能被系統默默拿走（切 App、鍵盤收起），定期對一下狀態
-setInterval(scanbarSync, 800);
+/* 焦點可能被系統默默拿走（切 App、鍵盤收起、掃描後換畫面）。
+   ⚠️ 換畫面是被「掃描」觸發的、不是使用者手勢，iOS 會拒絕那次 focus()，
+   所以巡邏時順手再試一次 —— 成功就省下使用者多點一下，失敗也沒有壞處。 */
+setInterval(function(){
+  if(document.activeElement !== CAP) keepFocus();
+  scanbarSync();
+}, 800);
 
 /* ⚠️ 這裡曾經有「中文輸入法偵測」，2026-08-15 整個拿掉了。
 
@@ -2473,7 +2479,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.16 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.17 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

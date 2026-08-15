@@ -738,7 +738,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.15 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.16 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -2021,8 +2021,13 @@ function scanbarSync(){
   });
   // ⚠️ 待命後**不能**把整條藏起來：display:none 的 input 會立刻失去焦點，
   //    然後又變回「未待命」→ 無限閃爍。所以只換顏色和文字。
-  var want = DB.orders.length > 0 && !$("scLoad").classList.contains("on")
-             && $("manualWrap").hidden;
+  /* ⚠️ 自我測試進行中也要讓待命條存在 —— CAP 就住在裡面，
+     被 hidden 藏起來的元素**沒辦法接收焦點**，focus() 會靜靜失敗，
+     測試就會一直回報「掃描框焦點 掉了」。（測試按鈕在載入畫面，
+     那裡待命條本來是隱藏的，這就是實機一直判定失敗的原因。） */
+  var want = !!selfTest ||
+             (DB.orders.length > 0 && !$("scLoad").classList.contains("on")
+              && $("manualWrap").hidden);
   $("armBar").hidden = !want;
   $("armBar").classList.toggle("on", on);
   $("armTxt").textContent = on ? "掃描待命中" : "點一下這裡，啟用掃描";
@@ -2160,6 +2165,7 @@ function stStart(){
   buf = ""; CAP.value = "";
   $("stCode").hidden = true; $("stChecks").hidden = true;
   stShow("wait", "測試中", "隨便掃一箱", "掃哪一箱都可以，不會影響撿貨進度");
+  scanbarSync();          // 先把待命條顯示出來，CAP 才聚焦得到（見上方註解）
   // 這是點擊事件當下，iOS 允許聚焦（見 keepFocus 註解）
   try{ CAP.focus({ preventScroll: true }); }catch(e){ try{ CAP.focus(); }catch(e2){} }
   selfTest.timer = setTimeout(stEvaluate, 10000);
@@ -2169,6 +2175,7 @@ function stStop(){
   selfTest = null;
   buf = ""; CAP.value = "";
   $("stWrap").hidden = true;
+  scanbarSync();          // 收回原本的顯示規則
   keepFocus();
 }
 /* 測試期間收到的字都往這裡送，靜置 260ms 就當作掃完一筆。
@@ -2466,7 +2473,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.15 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.16 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

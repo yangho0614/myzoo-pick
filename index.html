@@ -154,9 +154,17 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   color:var(--ok); max-height:38vh; overflow:auto;
 }
 .diag__hd{
-  display:flex; justify-content:space-between; gap:8px;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
   color:var(--amber); margin-bottom:5px; font-weight:700;
 }
+/* ⚠️ 這個面板固定在畫面最上方、會蓋住 header，
+   所以它自己一定要有關閉鍵 —— 不能只能回載入畫面才關得掉。 */
+.diag__x{
+  width:30px;height:30px;flex:none;border-radius:8px;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--ink-dim);
+  display:grid;place-items:center;
+}
+.diag__x .ico{width:1em;height:1em;fill:currentColor;display:block;font-size:17px}
 .diag__row{color:var(--ink-dim); white-space:pre-wrap; word-break:break-all}
 .diag__row b{color:var(--ok); font-weight:700}
 
@@ -622,7 +630,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">73f863b6</b></span>
+      <span>版本 <b id="verTag">d34f9430</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -809,7 +817,13 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
 <!-- 掃描器診斷面板（預設關閉，載入畫面的「🔧 掃描診斷」打開） -->
 <div class="diag" id="diag" hidden>
-  <div class="diag__hd"><span>🔧 掃描診斷</span><span id="diagFoc">焦點 —</span></div>
+  <div class="diag__hd">
+    <span>掃描診斷</span>
+    <span id="diagFoc">焦點 —</span>
+    <button class="diag__x" id="diagX" aria-label="關閉診斷">
+      <svg class="ico" aria-hidden="true"><use href="#i-close"/></svg>
+    </button>
+  </div>
   <div id="diagLog"></div>
 </div>
 
@@ -1829,6 +1843,7 @@ function setDiag(on){
   if(on) dlog("開啟", "版本 " + $("verTag").textContent + " · 訂單 " + DB.orders.length + " 張");
 }
 $("diagGo").addEventListener("click", function(){ setDiag($("diag").hidden); });
+$("diagX").addEventListener("click", function(){ setDiag(false); });
 
 // 捕獲階段：在任何其他處理之前先記錄，才看得到「有沒有進到網頁」
 document.addEventListener("keydown", function(e){
@@ -2049,7 +2064,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 73f863b6");
+      console.log("[MYZOO] 離線快取就緒 · 版本 d34f9430");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

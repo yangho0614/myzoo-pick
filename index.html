@@ -243,14 +243,17 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .role .ico{width:1em;height:1em;fill:currentColor;display:block;font-size:40px}
 .role b{font-size:21px;font-weight:800;letter-spacing:.01em}
 .role span{font-size:12px;color:var(--ink-faint);line-height:1.45}
-/* 沒選中時也保留自己的色（淡底＋彩色框），選中才整塊填滿 ——
-   三顆按鈕隨時都分得出來，而且「我現在是哪個角色」一眼可辨。
-   兩段進度是分開存的，選錯等於整輪白做，值得用顏色講清楚。 */
-#rolePick{background:var(--amber-wash);border:2px solid var(--amber-line);color:var(--amber)}
+/* 沒選到的一律灰掉，選到的整塊填滿自己的顏色（撿貨＝琥珀、對單貼標＝綠）。
+   對比拉到最大 —— 兩段進度分開存，選錯等於整輪白做，
+   走動中掃一眼就要能確定自己在哪一段。 */
+.role{background:var(--surface);border:2px solid var(--line);color:var(--ink-faint)}
+.role .ico{opacity:.55}
+.role span{color:var(--ink-faint)}
 #rolePick[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
+#rolePick[aria-pressed="true"] .ico{opacity:1}
 #rolePick[aria-pressed="true"] span{color:var(--amber-ink);opacity:.72}
-#roleLabel{background:var(--ok-wash);border:2px solid var(--ok-line);color:var(--ok)}
 #roleLabel[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--ok-ink)}
+#roleLabel[aria-pressed="true"] .ico{opacity:1}
 #roleLabel[aria-pressed="true"] span{color:var(--ok-ink);opacity:.72}
 /* 現在是哪個模式 —— 兩段的進度分開存，選錯整輪白做，所以要看得清楚。
    ⚠️「對單貼標模式」有 6 個字，header 會變擠：
@@ -652,7 +655,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v4 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v5 · 2026-08-15</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -2113,7 +2116,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v4 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v5 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

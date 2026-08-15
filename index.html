@@ -210,6 +210,14 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   background:var(--amber-wash);color:var(--amber);border:1px solid var(--amber-line);flex:none;
 }
 .rolepill[data-r="label"]{background:var(--ok-wash);color:var(--ok);border-color:var(--ok-line)}
+.resume{
+  background:var(--amber-wash);border:1.5px solid var(--amber-line);border-radius:14px;
+  padding:14px 15px;display:flex;flex-direction:column;gap:4px;
+}
+.resume__t{font-size:15.5px;font-weight:750;color:var(--amber)}
+.resume__s{font-size:12.5px;color:var(--ink-dim);font-family:var(--mono)}
+.resume__b{display:flex;gap:8px;margin-top:8px}
+.resume__b .btn{flex:1}
 .err-note{
   color:var(--err);font-size:13.5px;background:var(--err-wash);
   border:1px solid var(--err-line);border-radius:9px;padding:10px 13px;
@@ -569,9 +577,19 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <div id="loadErr" class="err-note" hidden></div>
 
+    <!-- 跨天才會出現：不能默默載入昨天的單，那會撿錯一整天 -->
+    <div class="resume" id="resume" hidden>
+      <div class="resume__t">有一份還沒做完的出貨單</div>
+      <div class="resume__s" id="resumeSub"></div>
+      <div class="resume__b">
+        <button class="btn btn--go" id="resumeGo">接續這一份</button>
+        <button class="btn" id="resumeNo">重選新的</button>
+      </div>
+    </div>
+
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">a2bf58ff</b></span>
+      <span>版本 <b id="verTag">b73f96dd</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -1784,6 +1802,37 @@ function loadErr(msg){
   show("scLoad");
 }
 
+/* 🔴 重新整理不該從頭來過。
+   原本只存「撿了幾箱」，沒存「你選的是哪一份出貨單」——
+   重整後回到載入畫面要再選一次檔案，戴手套在倉庫等於重來。
+   所以連原始資料一起存。⚠️ 只存在這支手機的 localStorage，不會上傳。
+
+   ⚠️⚠️ 跨天一定要先問，不可以默默載入：
+   隔天早上手滑重整就把昨天的單接回來，會照著錯的單撿一整天。 */
+var SKEY = LS + ".session";
+
+function today(){
+  var d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+}
+function saveSession(rows, src){
+  try{
+    localStorage.setItem(SKEY, JSON.stringify({ rows: rows, src: src || "", day: today() }));
+  }catch(e){}   // 超過容量就算了，進度本身還在
+}
+function clearSession(){ try{ localStorage.removeItem(SKEY); }catch(e){} }
+
+var pendingSession = null;
+function bootSession(){
+  var s = null;
+  try{ s = JSON.parse(localStorage.getItem(SKEY) || "null"); }catch(e){}
+  if(!s || !s.rows || !s.rows.length) return;
+  if(s.day === today()){ loadRows(s.rows, s.src); return; }   // 同一天 → 直接接續
+  pendingSession = s;                                          // 跨天 → 先問清楚
+  $("resumeSub").textContent = (s.src || "上一份出貨單") + " · " + s.day;
+  $("resume").hidden = false;
+}
+
 function loadRows(rows, srcName){
   $("loadErr").hidden = true;
   try{
@@ -1796,6 +1845,8 @@ function loadRows(rows, srcName){
     loadWays();               // 之前掃標籤當場學會的對應
     clearBind();
     renderOrders();
+    $("resume").hidden = true;
+    saveSession(rows, DB.src);
     show("scOrders");
   }catch(err){
     loadErr(err.message || String(err));
@@ -1930,7 +1981,18 @@ $("pkReset").addEventListener("click", function(){
 document.addEventListener("touchstart", function(){ audio(); }, { once: true, passive: true });
 document.addEventListener("click", function(){ audio(); }, { once: true });
 
+$("resumeGo").addEventListener("click", function(){
+  if(pendingSession) loadRows(pendingSession.rows, pendingSession.src);
+  pendingSession = null;
+});
+$("resumeNo").addEventListener("click", function(){
+  clearSession();
+  pendingSession = null;
+  $("resume").hidden = true;
+});
+
 setRole(ROLE);
+bootSession();
 </script>
 
 <script>
@@ -1940,7 +2002,7 @@ setRole(ROLE);
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 a2bf58ff");
+      console.log("[MYZOO] 離線快取就緒 · 版本 b73f96dd");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

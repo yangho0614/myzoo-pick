@@ -667,10 +667,15 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .row.scanned{
   /* ⚠️ 一定要蓋掉 .row[data-s="done"] 的 opacity:.5 ——
      掃到「已經撿完」的品項時整列是半透明的，高亮會被壓掉看不出來。 */
+  /* ⚠️ 左側色條不要動 —— 它在這套介面裡是「狀態」的固定語彙
+     （灰＝還沒撿／琥珀＝撿了一部分／綠＝已撿完）。
+     蓋成藍色等於把狀態資訊弄不見。
+     「掃到」改用整列底色 ＋ 外框表示，兩種資訊各自獨立、可以同時讀。 */
   opacity:1;
   background:rgba(91,147,245,.30);
-  border-color:var(--blue);
-  border-left:7px solid var(--blue);
+  border-top-color:var(--blue);
+  border-right-color:var(--blue);
+  border-bottom-color:var(--blue);
   box-shadow:0 0 0 2px var(--blue), 0 6px 20px rgba(91,147,245,.28);
   animation:scannedIn .28s ease-out;
 }
@@ -746,7 +751,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.25 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.26 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -2513,7 +2518,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.25 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.26 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

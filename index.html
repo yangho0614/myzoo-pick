@@ -371,7 +371,9 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   transition:background .14s,border-color .14s;
 }
 .row__name{
-  grid-column:1;font-size:15.5px;font-weight:620;line-height:1.35;
+  /* 品名是人真正拿來認貨的東西（外箱上也有中文名），不該比條碼小。
+     18px 是跟條碼後段(21px)拉近、又不會讓長品名爆成三行的折衷。 */
+  grid-column:1;font-size:18px;font-weight:650;line-height:1.35;
   overflow-wrap:anywhere;
 }
 /* 條碼：前段退到背景，後 6 碼放大。用 em 讓各畫面的字級自動跟著父層。 */
@@ -595,7 +597,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">20fc6375</b></span>
+      <span>版本 <b id="verTag">1bcdce7e</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -2030,7 +2032,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 20fc6375");
+      console.log("[MYZOO] 離線快取就緒 · 版本 1bcdce7e");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

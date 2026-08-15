@@ -57,6 +57,9 @@
   --violet-line:rgba(167,139,250,.40);
 
   --ok:#3DD68C;
+  /* ⚠️ 這個一直沒定義，導致 color:var(--ok-ink) 全部無效、字退回白色。
+     三顆填色按鈕（琥珀／藍／綠）一律用深色字，對比才夠。 */
+  --ok-ink:#04200F;
   --ok-wash:rgba(61,214,140,.12);
   --ok-line:rgba(61,214,140,.34);
 
@@ -735,7 +738,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
     <div class="brandline">
       <h1>MYZOO 撿貨核對系統</h1>
     </div>
-    <div class="verline">版本 <b id="verTag">v0.30 · 2026-08-15</b></div>
+    <div class="verline">版本 <b id="verTag">v0.31　更新日期 2026-08-15</b></div>
 
     <div class="roles">
       <div class="rolegrid">
@@ -2539,7 +2542,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.30 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.31　更新日期 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

@@ -228,7 +228,8 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .paste{
   width:100%;min-height:96px;resize:vertical;
   background:var(--surface);color:var(--ink);border:1px solid var(--line);
-  border-radius:10px;padding:11px 13px;font-family:var(--mono);font-size:12.5px;
+  border-radius:10px;padding:11px 13px;font-family:var(--mono);
+  font-size:16px;      /* 同上：< 16px 會讓 iOS 聚焦時放大整頁 */
 }
 .roles{display:flex;flex-direction:column;gap:10px}
 /* 角色是兩道獨立核對，選錯等於整輪白做 —— 所以做成一眼可辨的大方塊，
@@ -524,7 +525,10 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .manual input{
   flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);
   border-radius:9px;padding:10px 12px;color:var(--ink);
-  font-family:var(--mono);font-size:15px;letter-spacing:.06em;
+  /* ⚠️ 16px 是下限：iOS 只要聚焦的輸入框字級 < 16px 就會自動放大整個頁面。
+     不要用 maximum-scale=1 去擋 —— 那會連帶禁掉使用者的雙指縮放，
+     倉庫光線差、字看不清時反而害到人。 */
+  font-family:var(--mono);font-size:16px;letter-spacing:.06em;
 }
 
 /* ── 全屏回饋 ─────────────────────────────────────────── */
@@ -655,7 +659,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.05 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.06 · 2026-08-15</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -2116,7 +2120,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.05 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.06 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

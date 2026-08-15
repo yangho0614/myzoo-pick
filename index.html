@@ -738,7 +738,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
     <div class="brandline">
       <h1>MYZOO 撿貨核對系統</h1>
     </div>
-    <div class="verline">版本 <b id="verTag">v0.31　更新日期 2026-08-15</b></div>
+    <div class="verline">版本 <b id="verTag">v0.32　更新日期 2026-08-15</b></div>
 
     <div class="roles">
       <div class="rolegrid">
@@ -825,7 +825,9 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 <!-- ══ 2. 訂單清單 ══════════════════════════════════════ -->
 <section class="screen" id="scOrders">
   <header class="bar">
-    <button class="bar__back" id="backLoad" aria-label="重新載入出貨單"><svg class="ico" aria-hidden="true"><use href="#i-refresh"/></svg></button>
+    <!-- ⚠️ 這顆只是 show("scLoad") 回起始畫面，不會重載也不會清進度。
+         之前用「重新整理」圖示會讓人以為按下去進度就沒了，換成返回箭頭。 -->
+    <button class="bar__back" id="backLoad" aria-label="回到起始畫面"><svg class="ico" aria-hidden="true"><use href="#i-arrow_back"/></svg></button>
     <div class="bar__mid">
       <div class="bar__title">今日出貨</div>
       <div class="bar__sub" id="ordSub"></div>
@@ -2542,7 +2544,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.31　更新日期 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.32　更新日期 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

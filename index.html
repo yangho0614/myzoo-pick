@@ -135,6 +135,23 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   color:var(--ink-faint); font-size:12px;
 }
 .diagbar b{font-family:var(--mono); color:var(--ink-dim); letter-spacing:.04em}
+.imewarn{
+  position:fixed;inset:0;z-index:110;
+  background:rgba(10,11,15,.92);display:grid;place-items:center;padding:20px;
+}
+.imewarn__box{
+  width:100%;max-width:420px;
+  background:var(--surface);border:2px solid var(--err);border-radius:18px;
+  padding:20px 20px 18px;display:flex;flex-direction:column;gap:12px;
+}
+.imewarn__t{font-size:21px;font-weight:800;color:var(--err)}
+.imewarn__p{margin:0;font-size:14px;line-height:1.75;color:var(--ink-dim)}
+.imewarn__p b{color:var(--ink)}
+.imewarn__ol{
+  margin:0;padding-left:22px;display:flex;flex-direction:column;gap:7px;
+  font-size:14.5px;line-height:1.6;color:var(--ink-dim);
+}
+.imewarn__ol b{color:var(--amber)}
 .diag{
   position:fixed; left:0; right:0; top:0; z-index:90;
   background:#000; border-bottom:2px solid var(--amber);
@@ -613,7 +630,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">77001446</b></span>
+      <span>版本 <b id="verTag">b1d69d2e</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -797,6 +814,25 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 <input id="capIn" class="cap" inputmode="none" autocomplete="off"
        autocorrect="off" autocapitalize="off" spellcheck="false"
        tabindex="-1" aria-label="掃描接收">
+
+<!-- 輸入法警告：掃描器的字被中文輸入法接走時跳出來。
+     ⚠️ 網頁「無法」強制切換輸入法（iOS 系統層級，沒有任何 API），
+     所以只能偵測到之後把解法講清楚。 -->
+<div class="imewarn" id="imeWarn" hidden>
+  <div class="imewarn__box">
+    <div class="imewarn__t">輸入法不是英數</div>
+    <p class="imewarn__p">
+      掃描器的字被中文輸入法接走了，掃到的條碼會是錯的。<br>
+      <b>連著藍牙時螢幕鍵盤不會出現，所以當下切不了</b>，要照下面的順序做：
+    </p>
+    <ol class="imewarn__ol">
+      <li><b>關掉掃描器電源</b>（或到「設定 → 藍牙」點忽略此裝置）</li>
+      <li>螢幕鍵盤會回來 → <b>切換成英數</b></li>
+      <li><b>再打開掃描器</b>重新連線</li>
+    </ol>
+    <button class="btn btn--go btn--wide" id="imeOk">我知道了</button>
+  </div>
+</div>
 
 <!-- 掃描器診斷面板（預設關閉，載入畫面的「🔧 掃描診斷」打開） -->
 <div class="diag" id="diag" hidden>
@@ -1772,8 +1808,31 @@ function keepFocus(){
 
 CAP.addEventListener("focus", scanbarSync);
 
+/* 🔴 輸入法偵測。網頁沒有任何辦法「強制」切成英數（iOS 系統層級，沒 API），
+   能做的是把「安靜地掃到錯的碼」變成「大聲告訴你怎麼修」。
+
+   compositionstart 是中文輸入法開始組字時才會觸發的事件 —— 掃描器送進來的
+   數字如果被注音接走，這個事件一定會發生。這比「掃出來的碼怪怪的」可靠得多。 */
+function imeAlert(){
+  if(!$("imeWarn").hidden) return;      // 已經在顯示了就不要重複叫
+  buf = ""; clearTimeout(bufT);          // 被輸入法汙染的內容不能拿去比對
+  try{ SOUND.err(); }catch(e){}
+  buzz([90,60,90,60,140]);
+  $("imeWarn").hidden = false;
+  dlog("輸入法", "偵測到中文輸入法在組字");
+}
+CAP.addEventListener("compositionstart", imeAlert);
+document.addEventListener("compositionstart", imeAlert, true);
+$("imeOk").addEventListener("click", function(){
+  $("imeWarn").hidden = true;
+  CAP.value = "";
+  keepFocus();
+});
+
 CAP.addEventListener("input", function(){
   if(!buf) bufT0 = perfNow();
+  // 這些條碼全是數字。跑出中文或注音符號 → 幾乎一定是輸入法沒切英數
+  if(/[\u3100-\u312F\u4E00-\u9FFF]/.test(CAP.value)){ CAP.value = ""; imeAlert(); return; }
   drainCap();
   clearTimeout(bufT);
   if(earlyCommit()) return;
@@ -2049,7 +2108,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 77001446");
+      console.log("[MYZOO] 離線快取就緒 · 版本 b1d69d2e");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

@@ -208,9 +208,13 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 #roleLabel{background:var(--ok-wash);border:2px solid var(--ok-line);color:var(--ok)}
 #roleLabel[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--ok-ink)}
 #roleLabel[aria-pressed="true"] span{color:var(--ok-ink);opacity:.72}
+/* 現在是哪個模式 —— 兩段的進度分開存，選錯整輪白做，所以要看得清楚。
+   ⚠️「對單貼標模式」有 6 個字，header 會變擠：
+   .bar__mid 有 min-width:0 ＋ 標題 ellipsis，擠的時候是標題先縮，不會爆版。 */
 .rolepill{
-  font-size:11px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:999px;
-  background:var(--amber-wash);color:var(--amber);border:1px solid var(--amber-line);flex:none;
+  font-size:13px;font-weight:750;letter-spacing:.04em;padding:5px 11px;border-radius:999px;
+  background:var(--amber-wash);color:var(--amber);border:1.5px solid var(--amber-line);
+  flex:none;white-space:nowrap;
 }
 .rolepill[data-r="label"]{background:var(--ok-wash);color:var(--ok);border-color:var(--ok-line)}
 .resume{
@@ -604,7 +608,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">9c4bec0e</b></span>
+      <span>版本 <b id="verTag">c365d28e</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -654,7 +658,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
       <div class="bar__title">今日出貨</div>
       <div class="bar__sub" id="ordSub"></div>
     </div>
-    <span class="rolepill" id="rolePill">撿貨</span>
+    <span class="rolepill" id="rolePill">撿貨模式</span>
     <button class="btn btn--sm" id="goLookup"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>查條碼</button>
   </header>
 
@@ -1965,7 +1969,7 @@ function setRole(r){
   $("rolePick").setAttribute("aria-pressed", String(r === "pick"));
   $("roleLabel").setAttribute("aria-pressed", String(r === "label"));
   var p = $("rolePill");
-  p.textContent = r === "pick" ? "撿貨" : "對單貼標";
+  p.textContent = r === "pick" ? "撿貨模式" : "對單貼標模式";
   p.dataset.r = r;
   if(DB.orders.length){                    // 換角色 = 換一套進度，要重讀
     DB.orders.forEach(function(o){ o.items.forEach(function(it){ it.got = 0; }); });
@@ -2039,7 +2043,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 9c4bec0e");
+      console.log("[MYZOO] 離線快取就緒 · 版本 c365d28e");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

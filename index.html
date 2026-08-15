@@ -393,8 +393,17 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .ord[data-s="done"] .ord__dot{background:var(--ok)}
 .ord[data-s="done"]{border-color:var(--ok-line);background:var(--ok-wash)}
 .ord__mid{flex:1;min-width:0}
-.ord__name{font-size:16px;font-weight:680;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ord__meta{font-size:12px;color:var(--ink-faint);font-family:var(--mono);margin-top:1px}
+/* ⚠️ 這兩個要 display:block 才會上下排。
+   它們是 <span>（行內元素），margin-top 對行內元素無效 ——
+   以前靠銷貨單號的數字當視覺分隔看不出來，單號拿掉後名字就跟後面黏成一行。 */
+.ord__name{
+  display:block;font-size:16.5px;font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ord__meta{
+  display:block;font-size:12.5px;color:var(--ink-faint);
+  font-family:var(--mono);margin-top:3px;
+}
 .ord__right{text-align:right;flex:none}
 .ord__frac{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
 .ord__frac em{font-style:normal;color:var(--ink-faint);font-weight:600}
@@ -729,7 +738,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.14 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.15 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -2457,7 +2466,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.14 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.15 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

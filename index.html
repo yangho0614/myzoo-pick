@@ -454,7 +454,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .piles{display:grid;grid-template-columns:repeat(auto-fill,minmax(154px,1fr));gap:8px}
 .pile{
   background:var(--surface);border:1px solid var(--line-soft);
-  border-left:3px solid var(--line);border-radius:10px;padding:10px 12px;
+  border-radius:10px;padding:10px 12px;
   text-align:left;
 }
 .pile__n{
@@ -464,9 +464,9 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   font-size:13px;color:var(--ink-faint);font-family:var(--mono);
   font-variant-numeric:tabular-nums;margin-top:2px;
 }
-.pile[data-s="part"]{border-left-color:var(--amber)}
+.pile[data-s="part"]{border-color:var(--amber-line);background:var(--amber-wash)}
 .pile[data-s="part"] .pile__q{color:var(--amber)}
-.pile[data-s="done"]{border-left-color:var(--ok);background:var(--ok-wash)}
+.pile[data-s="done"]{border-color:var(--ok-line);background:var(--ok-wash)}
 .pile[data-s="done"] .pile__q{color:var(--ok)}
 .pile.hit{border-color:var(--ok-line);box-shadow:0 0 0 2px var(--ok-line)}
 
@@ -489,7 +489,6 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .row{
   display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;
   background:var(--surface);border:1px solid var(--line-soft);
-  border-left:3px solid var(--line);
   border-radius:10px;padding:11px 13px;
   transition:background .14s,border-color .14s;
 }
@@ -548,14 +547,14 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   font-size:19px;font-weight:750;font-variant-numeric:tabular-nums;white-space:nowrap;
 }
 .row__qty em{font-style:normal;color:var(--ink-faint);font-weight:600;font-size:15px}
-.row[data-s="part"]{border-left-color:var(--amber);background:var(--amber-wash)}
+.row[data-s="part"]{border-color:var(--amber-line);background:var(--amber-wash)}
 .row[data-s="part"] .row__qty{color:var(--amber)}
-.row[data-s="done"]{border-left-color:var(--ok);opacity:.5}
+.row[data-s="done"]{border-color:var(--ok-line);opacity:.5}
 .row[data-s="done"] .row__qty{color:var(--ok)}
 .row[data-s="done"] .row__name{text-decoration:line-through;text-decoration-color:var(--ink-faint)}
 .row.flash{animation:flash .5s ease-out}
 @keyframes flash{
-  0%{background:var(--ok-wash);border-left-color:var(--ok);transform:scale(1.015)}
+  0%{background:var(--ok-wash);border-color:var(--ok);transform:scale(1.015)}
   100%{transform:scale(1)}
 }
 .done-note{
@@ -645,7 +644,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .hit{
   display:flex;align-items:center;gap:12px;
   background:var(--surface);border:1px solid var(--line-soft);
-  border-left:3px solid var(--amber);border-radius:10px;padding:12px 14px;
+  border-radius:10px;padding:12px 14px;
 }
 .hit__mid{flex:1;min-width:0}
 .hit__n{font-size:15.5px;font-weight:680}
@@ -667,15 +666,11 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .row.scanned{
   /* ⚠️ 一定要蓋掉 .row[data-s="done"] 的 opacity:.5 ——
      掃到「已經撿完」的品項時整列是半透明的，高亮會被壓掉看不出來。 */
-  /* ⚠️ 左側色條不要動 —— 它在這套介面裡是「狀態」的固定語彙
-     （灰＝還沒撿／琥珀＝撿了一部分／綠＝已撿完）。
-     蓋成藍色等於把狀態資訊弄不見。
-     「掃到」改用整列底色 ＋ 外框表示，兩種資訊各自獨立、可以同時讀。 */
+  /* ⚠️ 不要用左側柱狀色塊表達狀態（Evan 的跨專案偏好）。
+     狀態一律用「整圈邊框色 ＋ 底色」表示，掃到則再加一圈外框光暈。 */
   opacity:1;
   background:rgba(91,147,245,.30);
-  border-top-color:var(--blue);
-  border-right-color:var(--blue);
-  border-bottom-color:var(--blue);
+  border-color:var(--blue);
   box-shadow:0 0 0 2px var(--blue), 0 6px 20px rgba(91,147,245,.28);
   animation:scannedIn .28s ease-out;
 }
@@ -751,7 +746,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.26 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.27 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -2518,7 +2513,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.26 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.27 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

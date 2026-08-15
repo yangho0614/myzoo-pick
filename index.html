@@ -17,6 +17,17 @@
    而且深色在昏暗倉庫不刺眼、也省電。所有顏色都明確指定，
    不繼承外層主題。
    ───────────────────────────────────────────────────────────── */
+/* 🔴🔴 這條不要刪，也不要在別的地方重複貼。
+
+   `hidden` 屬性是靠瀏覽器預設的 display:none 生效的，
+   **任何自己寫的 display 都會蓋掉它** —— 元素就永遠關不掉。
+
+   2026-08-15 踩過兩次：`.imewarn`（全屏警告，關不掉、擋住整個現場作業）
+   和 `.resume`（跨天接續面板）。原本的作法是一個元件補一行
+   `.xxx[hidden]{display:none}`，只要有人新增元件忘了補就會再中一次。
+   改成全域一條 !important，從此不會再犯。 */
+[hidden]{display:none !important}
+
 :root{
   --ground:#13151C;
   --surface:#1C1F29;
@@ -135,29 +146,6 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   color:var(--ink-faint); font-size:12px;
 }
 .diagbar b{font-family:var(--mono); color:var(--ink-dim); letter-spacing:.04em}
-.imewarn{
-  position:fixed;inset:0;z-index:110;
-  background:rgba(10,11,15,.92);display:grid;place-items:center;padding:20px;
-}
-.imewarn__box{
-  width:100%;max-width:420px;
-  background:var(--surface);border:2px solid var(--err);border-radius:18px;
-  padding:20px 20px 18px;display:flex;flex-direction:column;gap:12px;
-}
-.imewarn__t{font-size:21px;font-weight:800;color:var(--err)}
-.imewarn__p{margin:0;font-size:14px;line-height:1.75;color:var(--ink-dim)}
-.imewarn__p b{color:var(--ink)}
-.imewarn__ol{
-  margin:0;padding-left:22px;display:flex;flex-direction:column;gap:7px;
-  font-size:14.5px;line-height:1.6;color:var(--ink-dim);
-}
-.imewarn__ol b{color:var(--amber)}
-.imewarn__got{
-  font-family:var(--mono);font-size:13px;color:var(--ink-faint);
-  background:var(--surface-2);border:1px solid var(--line);border-radius:8px;
-  padding:8px 10px;word-break:break-all;
-}
-.imewarn__got b{color:var(--err);font-size:15px}
 .diag{
   position:fixed; left:0; right:0; top:0; z-index:90;
   background:#000; border-bottom:2px solid var(--amber);
@@ -296,7 +284,6 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   background:var(--amber-wash);border:1px solid var(--amber-line);
   display:flex;flex-direction:column;gap:6px;align-items:flex-start;
 }
-.bind[hidden]{display:none !important}
 .bind__k{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
 .bind__code{font-family:var(--mono);font-size:21px;letter-spacing:.08em;font-variant-numeric:tabular-nums}
 .bind__t{font-size:13px;color:var(--ink-dim);line-height:1.5}
@@ -503,7 +490,6 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   border-radius:9px;padding:10px 12px;color:var(--ink);
   font-family:var(--mono);font-size:15px;letter-spacing:.06em;
 }
-.manual[hidden]{display:none}
 
 /* ── 全屏回饋 ─────────────────────────────────────────── */
 .blast{
@@ -636,7 +622,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">4a399494</b></span>
+      <span>版本 <b id="verTag">73f863b6</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -820,27 +806,6 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 <input id="capIn" class="cap" inputmode="none" autocomplete="off"
        autocorrect="off" autocapitalize="off" spellcheck="false"
        tabindex="-1" aria-label="掃描接收">
-
-<!-- 輸入法警告：掃描器的字被中文輸入法接走時跳出來。
-     ⚠️ 網頁「無法」強制切換輸入法（iOS 系統層級，沒有任何 API），
-     所以只能偵測到之後把解法講清楚。 -->
-<div class="imewarn" id="imeWarn" hidden>
-  <div class="imewarn__box">
-    <div class="imewarn__t">輸入法不是英數</div>
-    <p class="imewarn__p">
-      掃描器的字被中文輸入法接走了，掃到的條碼會是錯的。<br>
-      <b>連著藍牙時螢幕鍵盤不會出現，所以當下切不了</b>，要照下面的順序做：
-    </p>
-    <ol class="imewarn__ol">
-      <li><b>關掉掃描器電源</b>（或到「設定 → 藍牙」點忽略此裝置）</li>
-      <li>螢幕鍵盤會回來 → <b>切換成英數</b></li>
-      <li><b>再打開掃描器</b>重新連線</li>
-    </ol>
-    <div class="imewarn__got">實際收到：<b id="imeGot">—</b></div>
-    <button class="btn btn--go btn--wide" id="imeOk">我知道了</button>
-    <button class="btn btn--wide" id="imeOff">這是誤判，不要再提醒</button>
-  </div>
-</div>
 
 <!-- 掃描器診斷面板（預設關閉，載入畫面的「🔧 掃描診斷」打開） -->
 <div class="diag" id="diag" hidden>
@@ -1816,70 +1781,21 @@ function keepFocus(){
 
 CAP.addEventListener("focus", scanbarSync);
 
-/* 🔴 輸入法偵測。網頁沒有任何辦法「強制」切成英數（iOS 系統層級，沒 API），
-   能做的是把「安靜地掃到錯的碼」變成「大聲告訴你怎麼修」。
+/* ⚠️ 這裡曾經有「中文輸入法偵測」，2026-08-15 整個拿掉了。
 
-   ⚠️⚠️ 不要用 compositionstart 判斷（2026-08-15 試過，會一直誤報）——
-   **iOS 的英文輸入也會觸發組字事件**（自動修正／預測文字會用到），
-   所以在英數模式下照樣一直跳警告。
+   做過兩版都失敗：
+     ① 用 compositionstart 判斷 → **iOS 的英文輸入也會觸發**（自動修正／
+        預測文字都走組字事件），英數模式下警告一直跳。
+     ② 改成偵測「收到中文字元」→ 現場還是關不掉，卡住工作。
 
-   唯一可靠的訊號是「實際收到的字元是不是中文／注音」。這些條碼全都是數字，
-   跑出中文就一定有問題，不會誤判。 */
-var IMECHK = true;
-try{ IMECHK = localStorage.getItem(LS + ".imechk") !== "0"; }catch(e){}
+   教訓有兩個，比功能本身重要：
+     🔴 **任何會全屏擋住畫面的東西，第一版就要有「關掉」的出口。**
+        我先做了會擋畫面的警告、後來才補逃生按鈕，順序完全反了。
+     🔴 **偵測邏輯不能只靠推論，要在真的裝置上跑過。**
+        桌機英文輸入不觸發組字事件，所以桌機永遠測不出這個誤判。
 
-function imeAlert(got){
-  if(!IMECHK) return;                   // 使用者按過「這是誤判」
-  if(!$("imeWarn").hidden) return;      // 已經在顯示了就不要重複叫
-  // ⚠️ 一定要把「實際收到什麼」印出來 —— 沒有這個就只能猜是誤判還是真的
-  $("imeGot").textContent = JSON.stringify(String(got == null ? "" : got));
-  buf = ""; clearTimeout(bufT);          // 被輸入法汙染的內容不能拿去比對
-  try{ SOUND.err(); }catch(e){}
-  buzz([90,60,90,60,140]);
-  $("imeWarn").hidden = false;
-  dlog("輸入法", "偵測到中文輸入法在組字");
-}
-$("imeOk").addEventListener("click", function(){
-  $("imeWarn").hidden = true;
-  CAP.value = ""; buf = "";
-  keepFocus();
-});
-// 逃生出口：偵測萬一又誤判，使用者要能自己關掉，不能被卡在畫面上
-$("imeOff").addEventListener("click", function(){
-  IMECHK = false;
-  try{ localStorage.setItem(LS + ".imechk", "0"); }catch(e){}
-  $("imeWarn").hidden = true;
-  CAP.value = ""; buf = "";
-  keepFocus();
-  msg("已關閉輸入法提醒");
-});
-
-CAP.addEventListener("input", function(){
-  if(!buf) bufT0 = perfNow();
-  // 這些條碼全是數字。跑出中文或注音符號 → 幾乎一定是輸入法沒切英數
-  if(IMECHK && /[\u3100-\u312F\u4E00-\u9FFF]/.test(CAP.value)){ var g = CAP.value; CAP.value = ""; imeAlert(g); return; }
-  drainCap();
-  clearTimeout(bufT);
-  if(earlyCommit()) return;
-  // 掃描器不送 Enter 時的後備：停了 180ms 又沒新字元就當作一筆
-  bufT = setTimeout(function(){ if(digits(buf).length >= 8) commit(); else buf = ""; }, 180);
-});
-
-CAP.addEventListener("keydown", function(e){
-  if(e.key === "Enter"){
-    e.preventDefault();
-    drainCap();                 // 先把還沒進 buf 的字撈乾淨再送出
-    if(buf) commit();
-  }
-});
-
-// 焦點被系統或使用者弄掉時搶回來。
-// ⚠️ 同步呼叫（見 keepFocus 的註解），delay 版只當作 iOS 拒絕時的補救。
-CAP.addEventListener("blur", function(){ scanbarSync(); setTimeout(keepFocus, 60); });
-document.addEventListener("touchend", keepFocus, { passive: true });
-document.addEventListener("click", keepFocus);
-window.addEventListener("focus", keepFocus);
-document.addEventListener("visibilitychange", function(){ if(!document.hidden) keepFocus(); });
+   輸入法這件事回到「用流程解決」：倉庫專用機把注音鍵盤刪掉，
+   或配對前先切英數（見上方「掃描器」章）。 */
 
 /* ═══ 掃描診斷 ═══════════════════════════════════════════
    現場「掃了沒反應」時，唯一能分辨這三種情況的工具：
@@ -2133,7 +2049,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 4a399494");
+      console.log("[MYZOO] 離線快取就緒 · 版本 73f863b6");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

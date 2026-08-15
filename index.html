@@ -738,7 +738,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.18 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.19 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -1957,7 +1957,7 @@ function idleCommit(){
 
 function commit(){
   clearTimeout(bufT);
-  var code = digits(buf); buf = "";
+  var code = digits(buf); buf = ""; CAP.value = "";   // 送出後才清空（見 drainCap 註解）
   if(bufT0){ dlog("送出", code + " · 收字到送出 " + Math.round(perfNow() - bufT0) + " ms"); bufT0 = 0; }
   if(code.length < 6) return;
   audio();
@@ -2003,7 +2003,7 @@ document.addEventListener("keydown", function(e){
   if(t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;   // 手動輸入自己處理
   if(e.key === "Enter"){ if(buf) { e.preventDefault(); commit(); } return; }
   if(e.key.length !== 1) return;
-  if(selfTest){ stFeed(e.key); return; }
+  if(selfTest){ selfTest.raw += e.key; stFeed(selfTest.raw); return; }   // 桌機是逐字元
   if(!buf) bufT0 = perfNow();
   idleRounds = 0;
   buf += e.key;
@@ -2019,8 +2019,13 @@ document.addEventListener("keydown", function(e){
    ⚠️ 不要「順手」把這段刪掉改回純 keydown，那樣手機上就是全廢。 */
 var CAP = $("capIn");
 
+/* 🔴 不要在 input 事件裡清空 CAP.value。
+   iOS 的文字輸入引擎在「自己的 input 事件中被改寫 value」時，
+   有機會把後續字元丟掉 —— 症狀是只收到前面一兩個字，
+   跟「掃描器很慢」長得一模一樣，很難分辨。
+   改成讓 value 自然累積、只在送出時清掉。 */
 function drainCap(){
-  if(CAP.value){ buf += CAP.value; CAP.value = ""; }
+  if(CAP.value) buf = CAP.value;
 }
 
 // 待命燈：綠＝聚焦中＝掃得動。操作員唯一能自己確認「現在掃有沒有用」的訊號
@@ -2064,7 +2069,7 @@ function keepFocus(){
    結果手機上完全掃不動（桌機的全域 keydown 在 iOS 收不到硬體鍵盤）。
    刪任何東西前先確認範圍，不要用整段切除。 */
 CAP.addEventListener("input", function(){
-  if(selfTest){ stFeed(CAP.value); CAP.value = ""; return; }   // 自我測試中獨占輸入
+  if(selfTest){ stFeed(CAP.value); return; }   // 自我測試中獨占輸入（不清 value，見 drainCap）
   if(!buf) bufT0 = perfNow();
   idleRounds = 0;                          // 有新字元進來，重新開始算等待
   drainCap();
@@ -2076,7 +2081,7 @@ CAP.addEventListener("input", function(){
 CAP.addEventListener("keydown", function(e){
   if(e.key === "Enter"){
     e.preventDefault();
-    if(selfTest){ stFeed(CAP.value); CAP.value = ""; stEvaluate(); return; }
+    if(selfTest){ stFeed(CAP.value); stEvaluate(); return; }
     drainCap();                 // 先把還沒進 buf 的字撈乾淨再送出
     if(buf) commit();
   }
@@ -2207,7 +2212,7 @@ function stFeed(chunk){
     //    焦點早就跑到面板按鈕上了，會誤報成「掉了」。
     selfTest.focused = document.activeElement === CAP;
   }
-  selfTest.raw += chunk;
+  selfTest.raw = chunk;          // value 現在自然累積，直接取代即可（不要 +=，會重複）
   clearTimeout(selfTest.idle);
   // ⚠️ 慢速掃描器每字元可能要 0.6 秒，用短逾時會在第 2 個字元就評估。
   //    湊滿 12 碼就立刻評估；沒湊滿就靠 10 秒總逾時收尾。
@@ -2493,7 +2498,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.18 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.19 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

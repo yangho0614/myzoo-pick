@@ -738,7 +738,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.20 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.21 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -2043,9 +2043,14 @@ function scanbarSync(){
   var want = !!selfTest ||
              (DB.orders.length > 0 && !$("scLoad").classList.contains("on")
               && $("manualWrap").hidden);
-  $("armBar").hidden = !want;
-  $("armBar").classList.toggle("on", on);
-  $("armTxt").textContent = on ? "掃描待命中" : "點一下這裡，啟用掃描";
+  /* ⚠️ 只在真的改變時才寫 DOM。這個函式每 800ms 跑一次，
+     而 CAP 就住在 armBar 裡面 —— 對「正在輸入的欄位」的容器做 DOM 寫入
+     有機會干擾 iOS 的按鍵處理。無謂的重複寫入要避免。 */
+  var bar = $("armBar");
+  if(bar.hidden === want) bar.hidden = !want;
+  bar.classList.toggle("on", on);
+  var txt = on ? "掃描待命中" : "點一下這裡，啟用掃描";
+  if($("armTxt").textContent !== txt) $("armTxt").textContent = txt;
 }
 function scanbarShow(){
   return DB.orders.length > 0 && !$("scLoad").classList.contains("on");
@@ -2078,6 +2083,16 @@ CAP.addEventListener("input", function(){
   bufT = setTimeout(idleCommit, IDLE_MS);
 });
 
+/* 🔬 儀器：iOS 到底送了幾個按鍵？跟輸入框最後留下的字數一比，
+   就知道字是「沒送到」還是「送到了被程式弄丟」。 */
+var keyLog = [];
+CAP.addEventListener("keydown", function(e){
+  if(e.key.length === 1){
+    keyLog.push(e.key);
+    dlog("keydown", "第 " + keyLog.length + " 鍵 " + JSON.stringify(e.key) +
+                    " · value 長度 " + CAP.value.length);
+  }
+});
 CAP.addEventListener("keydown", function(e){
   if(e.key === "Enter"){
     e.preventDefault();
@@ -2190,6 +2205,7 @@ function stStart(){
   //    會把新測試提前判定結束、時間也算錯。
   if(selfTest){ clearTimeout(selfTest.timer); clearTimeout(selfTest.idle); }
   selfTest = { t0: 0, raw: "", timer: 0, idle: 0, focused: null, done: false };
+  keyLog = [];
   buf = ""; CAP.value = "";
   $("stCode").hidden = true; $("stChecks").hidden = true;
   stShow("wait", "測試中", "隨便掃一箱", "掃哪一箱都可以，不會影響撿貨進度");
@@ -2253,7 +2269,8 @@ function stEvaluate(){
   $("stCode").innerHTML = (allDigits && lenOK) ? codeHTML(d) : esc(raw);
   $("stChecks").hidden = false;
   $("stChecks").innerHTML =
-    stRow(true,       "藍牙連線　收到按鍵", raw.length + " 個字元") +
+    stRow(true,       "iOS 送進來的按鍵",   keyLog.length + " 鍵") +
+    stRow(true,       "程式收到的字元",     raw.length + " 個") +
     stRow(allDigits,  "輸入法　全部是數字", allDigits ? "英數 ✓" : "有非數字") +
     stRow(focused,    "掃描框焦點",         focused ? "capIn" : "掉了") +
     stRow(lenOK,      "條碼長度",           d.length + " 碼") +
@@ -2504,7 +2521,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.20 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.21 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

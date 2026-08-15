@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<title>角色按鈕 三種示意 · MYZOO 撿貨核對</title>
+<title>角色按鈕示意 · MYZOO 撿貨核對</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#13151C">
 <link rel="icon" href="data:,">
@@ -15,7 +15,6 @@
   --amber-wash:rgba(255,176,32,.13); --amber-line:rgba(255,176,32,.38);
   --ok:#3DD68C; --ok-ink:#04200F;
   --ok-wash:rgba(61,214,140,.12); --ok-line:rgba(61,214,140,.34);
-  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
   --pad:16px;
 }
 *{box-sizing:border-box}
@@ -28,32 +27,20 @@ body{
 h1{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px}
 .sub{color:var(--ink-dim);font-size:13.5px;line-height:1.7;margin:0 0 26px}
 .sub b{color:var(--amber)}
+.ico{width:1em;height:1em;fill:currentColor;display:block}
 
-.block{margin-bottom:34px}
+.block{margin-bottom:30px}
 .tag{
   display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;
   color:var(--amber);background:var(--amber-wash);border:1px solid var(--amber-line);
-  padding:3px 10px;border-radius:999px;margin-bottom:5px;
+  padding:3px 10px;border-radius:999px;margin-bottom:6px;
 }
 .name{font-size:16px;font-weight:750;margin:0 0 3px}
 .why{color:var(--ink-faint);font-size:12.5px;line-height:1.65;margin:0 0 13px}
-.eyebrow{
-  font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--ink-faint);
-  text-transform:uppercase;margin-bottom:9px;
+.why code{
+  font-family:ui-monospace,Menlo,monospace;font-size:11.5px;
+  color:var(--ink-dim);background:var(--surface-2);padding:1px 5px;border-radius:4px;
 }
-
-/* ══ 現況（對照組） ══════════════════════════════════ */
-.now{background:var(--surface);border:1px solid var(--line-soft);border-radius:12px;padding:15px 16px}
-.now__row{display:flex;gap:8px}
-.role0{
-  flex:1;text-align:left;padding:11px 13px;border-radius:10px;
-  background:var(--surface-2);border:1px solid var(--line);
-  display:flex;flex-direction:column;gap:2px;color:var(--ink);
-}
-.role0 b{font-size:15px;font-weight:700}
-.role0 span{font-size:11.5px;color:var(--ink-faint);line-height:1.4}
-.role0.sel{background:var(--amber-wash);border-color:var(--amber-line)}
-.role0.sel b{color:var(--amber)}
 
 /* ══ A：並排大方塊 ══════════════════════════════════ */
 .rA{display:grid;grid-template-columns:1fr 1fr;gap:11px}
@@ -61,44 +48,17 @@ h1{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px}
   appearance:none;font:inherit;cursor:pointer;
   background:var(--surface);border:2px solid var(--line);border-radius:18px;
   padding:22px 12px 18px;color:var(--ink);
-  display:flex;flex-direction:column;align-items:center;gap:7px;
+  display:flex;flex-direction:column;align-items:center;gap:9px;
   transition:transform .1s,background .15s,border-color .15s;
 }
 .rA button:active{transform:scale(.97)}
-.rA .ic{font-size:38px;line-height:1}
+.rA .ico{font-size:40px}
 .rA .t{font-size:21px;font-weight:800;letter-spacing:.01em}
 .rA .d{font-size:12px;color:var(--ink-faint);line-height:1.45;text-align:center}
-.rA button.sel{background:var(--amber);border-color:var(--amber)}
-.rA button.sel .t,.rA button.sel .d{color:var(--amber-ink)}
-.rA button.sel .d{opacity:.72}
-.rA button.sel.lb{background:var(--ok);border-color:var(--ok)}
-.rA button.sel.lb .t,.rA button.sel.lb .d{color:var(--ok-ink)}
-
-/* ══ B：整寬橫條 ════════════════════════════════════ */
-.rB{display:flex;flex-direction:column;gap:10px}
-.rB button{
-  appearance:none;font:inherit;cursor:pointer;text-align:left;
-  background:var(--surface);border:2px solid var(--line);border-radius:16px;
-  padding:16px 18px;color:var(--ink);
-  display:flex;align-items:center;gap:15px;
-  transition:transform .1s,background .15s,border-color .15s;
-}
-.rB button:active{transform:scale(.985)}
-.rB .ic{font-size:34px;line-height:1;flex:none}
-.rB .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.rB .t{font-size:23px;font-weight:800;letter-spacing:.01em;line-height:1.15}
-.rB .d{font-size:12.5px;color:var(--ink-faint);line-height:1.45}
-.rB .chk{
-  width:26px;height:26px;border-radius:50%;flex:none;
-  border:2px solid var(--line);display:grid;place-items:center;
-  font-size:15px;font-weight:900;color:transparent;
-}
-.rB button.sel{background:var(--amber-wash);border-color:var(--amber)}
-.rB button.sel .t{color:var(--amber)}
-.rB button.sel .chk{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
-.rB button.sel.lb{background:var(--ok-wash);border-color:var(--ok)}
-.rB button.sel.lb .t{color:var(--ok)}
-.rB button.sel.lb .chk{background:var(--ok);border-color:var(--ok);color:var(--ok-ink)}
+.rA button.sel{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
+.rA button.sel .d{color:var(--amber-ink);opacity:.72}
+.rA button.sel.lb{background:var(--ok);border-color:var(--ok);color:var(--ok-ink)}
+.rA button.sel.lb .d{color:var(--ok-ink)}
 
 /* ══ C：大型分段控制 ════════════════════════════════ */
 .rC{
@@ -109,108 +69,127 @@ h1{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px}
 .rC button{
   appearance:none;font:inherit;cursor:pointer;
   background:transparent;border:0;border-radius:13px;
-  padding:18px 10px;color:var(--ink-dim);
-  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:18px 10px;color:var(--ink-faint);
+  display:flex;flex-direction:column;align-items:center;gap:7px;
   transition:background .18s,color .18s;
 }
-.rC .ic{font-size:30px;line-height:1;filter:grayscale(1);opacity:.5}
+.rC .ico{font-size:32px}
 .rC .t{font-size:20px;font-weight:800}
-.rC .d{font-size:11.5px;line-height:1.4;text-align:center;opacity:.8}
+.rC .d{font-size:11.5px;line-height:1.4;text-align:center;opacity:.85}
 .rC button.sel{background:var(--amber);color:var(--amber-ink)}
-.rC button.sel .ic{filter:none;opacity:1}
 .rC button.sel.lb{background:var(--ok);color:var(--ok-ink)}
 
-.note{
-  margin-top:12px;padding:11px 13px;border-radius:10px;
-  background:var(--surface);border:1px solid var(--line-soft);
-  color:var(--ink-faint);font-size:12px;line-height:1.65;
+/* ══ 圖示備選 ═══════════════════════════════════════ */
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px}
+.gal div{
+  background:var(--surface);border:1px solid var(--line-soft);border-radius:12px;
+  padding:14px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:7px;
+  color:var(--ink-dim);
 }
-.note b{color:var(--ink-dim)}
+.gal .ico{font-size:30px}
+.gal span{
+  font-family:ui-monospace,Menlo,monospace;font-size:10px;
+  color:var(--ink-faint);text-align:center;word-break:break-all;line-height:1.35;
+}
 .foot{
-  margin-top:38px;padding-top:18px;border-top:1px solid var(--line-soft);
+  margin-top:34px;padding-top:18px;border-top:1px solid var(--line-soft);
   color:var(--ink-faint);font-size:12.5px;line-height:1.8;
 }
 .foot b{color:var(--amber)}
 </style>
 </head>
 <body>
+
+<!-- Material Symbols（Apache 2.0），路徑直接內嵌 —— 不連外部 CDN，離線也畫得出來 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-inventory_2" viewBox="0 -960 960 960"><path d="M200-80q-33 0-56.5-23.5T120-160v-451q-18-11-29-28.5T80-680v-120q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v120q0 23-11 40.5T840-611v451q0 33-23.5 56.5T760-80H200Zm0-520v440h560v-440H200Zm-40-80h640v-120H160v120Zm200 280h240v-80H360v80Zm120 20Z"/></symbol>
+<symbol id="i-package_2" viewBox="0 -960 960 960"><path d="M440-183v-274L200-596v274l240 139Zm80 0 240-139v-274L520-457v274Zm-80 92L160-252q-19-11-29.5-29T120-321v-318q0-22 10.5-40t29.5-29l280-161q19-11 40-11t40 11l280 161q19 11 29.5 29t10.5 40v318q0 22-10.5 40T800-252L520-91q-19 11-40 11t-40-11Zm200-528 77-44-237-137-78 45 238 136Zm-160 93 78-45-237-137-78 45 237 137Z"/></symbol>
+<symbol id="i-label" viewBox="0 -960 960 960"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h440q19 0 36 8.5t28 23.5l216 288-216 288q-11 15-28 23.5t-36 8.5H160Zm0-80h440l180-240-180-240H160v480Zm220-240Z"/></symbol>
+<symbol id="i-fact_check" viewBox="0 -960 960 960"><path d="M160-120q-33 0-56.5-23.5T80-200v-560q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v560q0 33-23.5 56.5T800-120H160Zm0-80h640v-560H160v560Zm40-80h200v-80H200v80Zm382-80 198-198-57-57-141 142-57-57-56 57 113 113Zm-382-80h200v-80H200v80Zm0-160h200v-80H200v80Zm-40 400v-560 560Z"/></symbol>
+<symbol id="i-barcode_scanner" viewBox="0 -960 960 960"><path d="M40-120v-200h80v120h120v80H40Zm680 0v-80h120v-120h80v200H720ZM160-240v-480h80v480h-80Zm120 0v-480h40v480h-40Zm120 0v-480h80v480h-80Zm120 0v-480h120v480H520Zm160 0v-480h40v480h-40Zm80 0v-480h40v480h-40ZM40-640v-200h200v80H120v120H40Zm800 0v-120H720v-80h200v200h-80Z"/></symbol>
+<symbol id="i-local_shipping" viewBox="0 -960 960 960"><path d="M155-195q-35-35-35-85H40v-440q0-33 23.5-56.5T120-800h560v160h120l120 160v200h-80q0 50-35 85t-85 35q-50 0-85-35t-35-85H360q0 50-35 85t-85 35q-50 0-85-35Zm113.5-56.5Q280-263 280-280t-11.5-28.5Q257-320 240-320t-28.5 11.5Q200-297 200-280t11.5 28.5Q223-240 240-240t28.5-11.5ZM120-360h32q17-18 39-29t49-11q27 0 49 11t39 29h272v-360H120v360Zm628.5 108.5Q760-263 760-280t-11.5-28.5Q737-320 720-320t-28.5 11.5Q680-297 680-280t11.5 28.5Q703-240 720-240t28.5-11.5ZM680-440h170l-90-120h-80v120ZM360-540Z"/></symbol>
+<symbol id="i-checklist" viewBox="0 -960 960 960"><path d="M222-200 80-342l56-56 85 85 170-170 56 57-225 226Zm0-320L80-662l56-56 85 85 170-170 56 57-225 226Zm298 240v-80h360v80H520Zm0-320v-80h360v80H520Z"/></symbol>
+<symbol id="i-warehouse" viewBox="0 -960 960 960"><path d="M160-200h80v-320h480v320h80v-426L480-754 160-626v426Zm-80 80v-560l400-160 400 160v560H640v-320H320v320H80Zm280 0v-80h80v80h-80Zm80-120v-80h80v80h-80Zm80 120v-80h80v80h-80ZM240-520h480-480Z"/></symbol>
+</defs></svg>
+
 <div class="wrap">
 
-  <h1>角色按鈕 · 三種示意</h1>
+  <h1>角色按鈕 · A ／ C 版</h1>
   <p class="sub">
-    每一組都可以<b>直接點點看</b>（會切換選取狀態，跟真的一樣）。<br>
-    看完告訴我要 A／B／C 哪一個，我再套進正式頁面。
+    圖示全部換成 <b>Google Material Symbols</b>（真的檔案，不是 emoji），
+    而且是<b>內嵌的</b> —— 不連外部網站，離線一樣畫得出來。<br>
+    每一組都可以<b>直接點點看</b>。
   </p>
 
-  <!-- 現況 -->
+  <!-- A-1 -->
   <div class="block">
-    <span class="tag">現況</span>
-    <p class="name">目前線上的樣子</p>
-    <p class="why">小、字級 15px，戴手套或走動中不好按。放這裡當對照組。</p>
-    <div class="now">
-      <div class="eyebrow">你現在做哪一段</div>
-      <div class="now__row">
-        <button class="role0 sel"><b>撿貨</b><span>撿齊、分成一堆一堆</span></button>
-        <button class="role0"><b>對單貼標</b><span>覆核一堆、貼物流標</span></button>
-      </div>
+    <span class="tag">A · 配對 1</span>
+    <p class="name">並排大方塊　<code>inventory_2</code> ＋ <code>label</code></p>
+    <p class="why">最直白的一組：一個是<b>箱子</b>、一個是<b>標籤</b>，不用想就知道哪個是哪個。</p>
+    <div class="rA" data-g>
+      <button class="sel"><svg class="ico"><use href="#i-inventory_2"/></svg><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></button>
+      <button class="lb"><svg class="ico"><use href="#i-label"/></svg><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></button>
     </div>
   </div>
 
-  <!-- A -->
+  <!-- A-2 -->
   <div class="block">
-    <span class="tag">A</span>
-    <p class="name">並排大方塊</p>
-    <p class="why">最像 App 首頁。選中的整塊填色，遠遠一眼就知道自己在哪個模式 —— 這點在現場很重要，兩段的進度是分開存的，選錯等於白做。</p>
-    <div class="rA" data-g="A">
-      <button class="sel" data-r="pick"><span class="ic">📦</span><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></button>
-      <button class="lb" data-r="label"><span class="ic">🏷️</span><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></button>
+    <span class="tag">A · 配對 2</span>
+    <p class="name">並排大方塊　<code>package_2</code> ＋ <code>fact_check</code></p>
+    <p class="why">強調「<b>覆核</b>」而不是「貼」—— 對單貼標真正的價值是第二道檢查，貼標只是體力活。圖示講的是這件事。</p>
+    <div class="rA" data-g>
+      <button class="sel"><svg class="ico"><use href="#i-package_2"/></svg><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></button>
+      <button class="lb"><svg class="ico"><use href="#i-fact_check"/></svg><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></button>
     </div>
   </div>
 
-  <!-- B -->
+  <!-- C-1 -->
   <div class="block">
-    <span class="tag">B</span>
-    <p class="name">整寬橫條</p>
-    <p class="why">字可以放到最大（23px），也最好按 —— 整條都是熱區。右邊有勾勾明示選取，不用靠顏色判斷，強光下也看得懂。</p>
-    <div class="rB" data-g="B">
-      <button class="sel" data-r="pick">
-        <span class="ic">📦</span>
-        <span class="mid"><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></span>
-        <span class="chk">✓</span>
-      </button>
-      <button class="lb" data-r="label">
-        <span class="ic">🏷️</span>
-        <span class="mid"><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></span>
-        <span class="chk">✓</span>
-      </button>
+    <span class="tag">C · 配對 1</span>
+    <p class="name">分段控制　<code>inventory_2</code> ＋ <code>label</code></p>
+    <p class="why">最省空間。沒選到的那半整個變暗，對比很強烈。</p>
+    <div class="rC" data-g>
+      <button class="sel"><svg class="ico"><use href="#i-inventory_2"/></svg><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></button>
+      <button class="lb"><svg class="ico"><use href="#i-label"/></svg><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></button>
     </div>
   </div>
 
-  <!-- C -->
+  <!-- C-2 -->
   <div class="block">
-    <span class="tag">C</span>
-    <p class="name">大型分段控制</p>
-    <p class="why">最像 iOS 原生的切換器，最省空間。沒選到的那半會變灰階，對比很強烈。缺點是整體比 A／B 小一點。</p>
-    <div class="rC" data-g="C">
-      <button class="sel" data-r="pick"><span class="ic">📦</span><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></button>
-      <button class="lb" data-r="label"><span class="ic">🏷️</span><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></button>
+    <span class="tag">C · 配對 2</span>
+    <p class="name">分段控制　<code>package_2</code> ＋ <code>fact_check</code></p>
+    <p class="why">同上，換成強調覆核的那組圖示。</p>
+    <div class="rC" data-g>
+      <button class="sel"><svg class="ico"><use href="#i-package_2"/></svg><span class="t">撿貨</span><span class="d">撿齊、分成一堆一堆</span></button>
+      <button class="lb"><svg class="ico"><use href="#i-fact_check"/></svg><span class="t">對單貼標</span><span class="d">覆核一堆、貼物流標</span></button>
     </div>
-    <div class="note">
-      <b>三個都用了顏色區分角色</b>：撿貨＝琥珀、對單貼標＝綠。
-      正式頁面右上角本來就有個小標籤顯示現在的角色，配色會一起對齊。
+  </div>
+
+  <!-- 備選 -->
+  <div class="block">
+    <span class="tag">備選圖示</span>
+    <p class="name">還有這些可以換</p>
+    <p class="why">看到喜歡的直接報名字給我，例如「撿貨用 warehouse」。</p>
+    <div class="gal">
+      <div><svg class="ico"><use href="#i-inventory_2"/></svg><span>inventory_2</span></div>
+      <div><svg class="ico"><use href="#i-package_2"/></svg><span>package_2</span></div>
+      <div><svg class="ico"><use href="#i-warehouse"/></svg><span>warehouse</span></div>
+      <div><svg class="ico"><use href="#i-label"/></svg><span>label</span></div>
+      <div><svg class="ico"><use href="#i-fact_check"/></svg><span>fact_check</span></div>
+      <div><svg class="ico"><use href="#i-checklist"/></svg><span>checklist</span></div>
+      <div><svg class="ico"><use href="#i-local_shipping"/></svg><span>local_shipping</span></div>
+      <div><svg class="ico"><use href="#i-barcode_scanner"/></svg><span>barcode_scanner</span></div>
     </div>
   </div>
 
   <div class="foot">
-    要 <b>A</b> / <b>B</b> / <b>C</b>？<br>
-    也可以混：例如「B 的尺寸 ＋ A 的整塊填色」，講一聲就好。<br>
-    圖示（📦🏷️）不喜歡也能換成純文字或線條圖示。
+    告訴我 <b>A-1 / A-2 / C-1 / C-2</b> 哪一個，我就套進正式頁面。<br>
+    也可以指定「版型用 A、圖示用 warehouse ＋ fact_check」這種組合。
   </div>
 
 </div>
 
 <script>
-// 讓三組都能實際點看看，比純圖片好判斷
 document.querySelectorAll("[data-g]").forEach(function(g){
   g.addEventListener("click", function(e){
     var b = e.target.closest("button");

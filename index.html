@@ -652,7 +652,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v3 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v4 · 2026-08-15</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -680,11 +680,13 @@ button:focus-visible,input:focus-visible,label:focus-visible{
     <div class="howto">
       <div class="eyebrow">一天的流程</div>
       <ol>
-        <li>把 <code>YYYYMMDD達新出貨明細.xlsx</code> 放進 iCloud 雲碟（或 AirDrop 到手機）</li>
-        <li>在這裡選它 —— <b style="color:var(--ink)">原檔直接吃，不用先整理成 CSV</b></li>
-        <li>照揀貨總表把貨撿齊、疊在一起</li>
-        <li>按「開始分揀」，一箱一箱掃，照它說的放堆</li>
-        <li>掃物流標籤上的條碼，可以隨時切到那一堆複查箱數</li>
+        <li>電腦執行 <code>送檔到手機.py</code>，當天出貨明細會推到手機（約 1 秒）</li>
+        <li>手機「檔案」App →「下載項目」→ 在這裡選它
+            <b style="color:var(--ink)">（ERP 原檔直接讀，不用先整理）</b></li>
+        <li>選角色：撿貨　／　對單貼標</li>
+        <li><b style="color:var(--amber)">點一下畫面底部的待命條</b>，變綠色才掃得動</li>
+        <li>點一張單逐箱掃；或按「分揀模式」批次撿完再分堆</li>
+        <li>掃物流標籤上的條碼，可隨時切換到該張單複查箱數</li>
       </ol>
       <p style="margin:10px 0 0;color:var(--ink-faint);font-size:12.5px;line-height:1.6">
         欄名靠 <code>品項編碼</code> <code>品項名稱</code> <code>數量</code> <code>銷貨單單號</code> <code>客戶/供應商名稱</code> 對位，順序不拘。<br>
@@ -2111,7 +2113,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v3 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v4 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

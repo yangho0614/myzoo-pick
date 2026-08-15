@@ -171,6 +171,49 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .armbar.on{background:var(--ok);color:var(--ok-ink)}
 .armbar.on .armbar__dot{background:var(--ok-ink);opacity:.8;animation:none}
 @keyframes armpulse{0%,100%{opacity:.25;transform:scale(.85)}50%{opacity:.9;transform:scale(1)}}
+.btn--test{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.btn--test:hover{background:var(--blue);filter:brightness(1.08)}
+.stwrap{
+  position:fixed;inset:0;z-index:105;background:rgba(10,11,15,.92);
+  display:grid;place-items:center;padding:20px;
+}
+.stpanel{
+  width:100%;max-width:420px;border-radius:18px;padding:22px 18px 18px;
+  background:var(--surface);border:2px solid var(--blue);
+  display:flex;flex-direction:column;align-items:center;gap:11px;text-align:center;
+}
+.stpanel[data-s="ok"]{background:var(--ok-wash);border-color:var(--ok)}
+.stpanel[data-s="err"]{background:var(--err-wash);border-color:var(--err)}
+.stpanel__eye{font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--ink-faint)}
+.stpanel[data-s="ok"] .stpanel__eye{color:var(--ok)}
+.stpanel[data-s="err"] .stpanel__eye{color:var(--err)}
+.stpanel__big{font-size:26px;font-weight:800;line-height:1.25}
+.stpanel[data-s="ok"] .stpanel__big{color:var(--ok)}
+.stpanel[data-s="err"] .stpanel__big{color:var(--err)}
+.stpanel__code{font-family:var(--mono);font-size:15px;color:var(--ink-dim);letter-spacing:.06em}
+.stpanel__code b{font-size:21px;font-weight:800;color:var(--ink);margin-left:.35em}
+.stpanel__hint{margin:0;color:var(--ink-faint);font-size:12.5px;line-height:1.7}
+.stchecks{
+  width:100%;display:flex;flex-direction:column;gap:1px;
+  background:rgba(0,0,0,.18);border-radius:10px;padding:8px 10px;
+}
+.stchk{display:flex;align-items:center;gap:9px;font-size:13px;line-height:1.9;color:var(--ink-dim);text-align:left}
+.stchk s{
+  width:17px;height:17px;flex:none;border-radius:50%;display:grid;place-items:center;
+  font-size:11px;font-weight:900;text-decoration:none;background:var(--ok);color:var(--ok-ink);
+}
+.stchk.bad{color:var(--err)}
+.stchk.bad s{background:var(--err);color:#fff}
+.stchk em{margin-left:auto;font-style:normal;font-family:var(--mono);font-size:12px;color:var(--ink-faint)}
+.ststeps{width:100%;margin:0;padding-left:20px;text-align:left;color:var(--ink-dim);font-size:13px;line-height:1.85}
+.ststeps b{color:var(--amber)}
+.stdots{display:flex;gap:6px}
+.stdots i{width:8px;height:8px;border-radius:50%;background:var(--blue);animation:stbl 1.2s ease-in-out infinite}
+.stdots i:nth-child(2){animation-delay:.15s}
+.stdots i:nth-child(3){animation-delay:.3s}
+@keyframes stbl{0%,100%{opacity:.25}50%{opacity:1}}
+.stbtns{display:flex;gap:8px;width:100%}
+.stbtns .btn{flex:1}
 .diag{
   position:fixed; left:0; right:0; top:0; z-index:90;
   background:#000; border-bottom:2px solid var(--amber);
@@ -665,8 +708,11 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.08 · 2026-08-15</b></span>
-      <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
+      <span>版本 <b id="verTag">v0.09 · 2026-08-15</b></span>
+      <span style="display:flex;gap:8px">
+        <button class="btn btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
+        <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
+      </span>
     </div>
 
     <details>
@@ -861,6 +907,34 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   <span class="armbar__txt" id="armTxt">點一下這裡，啟用掃描</span>
   <input id="capIn" class="armbar__in" inputmode="none" autocomplete="off"
          autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="掃描接收">
+</div>
+
+<!--
+  掃描器自我測試。⚠️ 這不是「偵測藍牙有沒有連上」——
+  網頁看不到系統藍牙（iOS 不支援 Web Bluetooth，鍵盤類裝置也刻意對網頁隱形）。
+  改成用一次真實掃描，同時驗證四件事：
+    有沒有收到按鍵（藍牙）／收到的是不是數字（輸入法）／焦點在不在／花多久
+  藍牙連著但輸入法跑掉、或焦點沒進掃描框，一樣掃不動 —— 所以驗「結果」比驗「連線」有用。
+-->
+<div class="stwrap" id="stWrap" hidden>
+  <div class="stpanel" id="stPanel" data-s="wait">
+    <div class="stpanel__eye" id="stEye">測試中</div>
+    <div class="stpanel__big" id="stBig">隨便掃一箱</div>
+    <div class="stpanel__code" id="stCode" hidden></div>
+    <div class="stchecks" id="stChecks" hidden></div>
+    <p class="stpanel__hint" id="stHint">掃哪一箱都可以，不會影響撿貨進度</p>
+    <ol class="ststeps" id="stSteps" hidden>
+      <li>掃描器<b>電源開著</b>嗎？螢幕會亮</li>
+      <li>掃描器上顯示<b>已連線</b>嗎？</li>
+      <li>手機「設定 → 藍牙」裡是不是<b>已連接</b>？</li>
+      <li>掃描器模式要是 <b>1：藍牙HID</b>（選單 8-1）</li>
+    </ol>
+    <div class="stdots" id="stDots"><i></i><i></i><i></i></div>
+    <div class="stbtns">
+      <button class="btn btn--test" id="stRetry" hidden>再試一次</button>
+      <button class="btn" id="stClose">關閉</button>
+    </div>
+  </div>
 </div>
 
 <!-- 掃描器診斷面板（預設關閉，載入畫面的「🔧 掃描診斷」打開） -->
@@ -1807,6 +1881,7 @@ document.addEventListener("keydown", function(e){
   if(t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;   // 手動輸入自己處理
   if(e.key === "Enter"){ if(buf) { e.preventDefault(); commit(); } return; }
   if(e.key.length !== 1) return;
+  if(selfTest){ stFeed(e.key); return; }
   if(!buf) bufT0 = perfNow();
   buf += e.key;
   clearTimeout(bufT);
@@ -1857,12 +1932,44 @@ function keepFocus(){
   scanbarSync();
 }
 
+/* 🔴🔴 掃描接收的核心：iOS 只走這條路。
+   ⚠️ 2026-08-15 曾經因為「切掉兩個註解之間的區塊」把這三個處理器一起刪掉，
+   結果手機上完全掃不動（桌機的全域 keydown 在 iOS 收不到硬體鍵盤）。
+   刪任何東西前先確認範圍，不要用整段切除。 */
+CAP.addEventListener("input", function(){
+  if(selfTest){ stFeed(CAP.value); CAP.value = ""; return; }   // 自我測試中獨占輸入
+  if(!buf) bufT0 = perfNow();
+  drainCap();
+  clearTimeout(bufT);
+  if(earlyCommit()) return;
+  // 掃描器不送 Enter 時的後備：停了 180ms 又沒新字元就當作一筆
+  bufT = setTimeout(function(){ if(digits(buf).length >= 8) commit(); else buf = ""; }, 180);
+});
+
+CAP.addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    e.preventDefault();
+    if(selfTest){ stFeed(CAP.value); CAP.value = ""; stEvaluate(); return; }
+    drainCap();                 // 先把還沒進 buf 的字撈乾淨再送出
+    if(buf) commit();
+  }
+});
+
+// 焦點被系統或使用者弄掉時搶回來。⚠️ 同步呼叫，delay 版只當 iOS 拒絕時的補救
+CAP.addEventListener("blur", function(){ scanbarSync(); setTimeout(keepFocus, 60); });
+
 CAP.addEventListener("focus", scanbarSync);
 // input 已經鋪滿整條，手指點下去就是原生聚焦；這裡只是桌機滑鼠的後備
 $("armBar").addEventListener("click", function(e){
   if(e.target !== CAP){ try{ CAP.focus({ preventScroll: true }); }catch(err){} }
   scanbarSync();
 });
+// 使用者一碰螢幕就把焦點搶回來。⚠️ 必須同步呼叫（見 keepFocus 註解）
+document.addEventListener("touchend", keepFocus, { passive: true });
+document.addEventListener("click", keepFocus);
+window.addEventListener("focus", keepFocus);
+document.addEventListener("visibilitychange", function(){ if(!document.hidden) keepFocus(); });
+
 // 焦點可能被系統默默拿走（切 App、鍵盤收起），定期對一下狀態
 setInterval(scanbarSync, 800);
 
@@ -1914,6 +2021,101 @@ function setDiag(on){
   if(on) dlog("開啟", "版本 " + $("verTag").textContent + " · 訂單 " + DB.orders.length + " 張");
 }
 $("diagGo").addEventListener("click", function(){ setDiag($("diag").hidden); });
+
+/* ═══ 掃描器自我測試 ═══════════════════════════════════════
+   ⚠️ 這不是「偵測藍牙有沒有連上」—— 網頁看不到系統藍牙。
+   改成用一次真實掃描同時驗四件事：收到按鍵（藍牙）／是不是數字（輸入法）／
+   焦點在不在／花多久。藍牙連著但輸入法跑掉一樣掃不動，驗「結果」比驗「連線」有用。
+   測試期間獨占掃描輸入，不會進 commit()，所以不影響撿貨進度。 */
+var selfTest = null;
+
+function stShow(kind, eye, big, hint){
+  $("stPanel").dataset.s = kind;
+  $("stEye").textContent = eye;
+  $("stBig").textContent = big;
+  $("stHint").textContent = hint || "";
+  $("stHint").hidden  = !hint;
+  $("stDots").hidden  = kind !== "wait";
+  $("stSteps").hidden = !(kind === "err" && !(selfTest && selfTest.raw));
+  $("stRetry").hidden = kind === "wait";
+  $("stWrap").hidden  = false;
+}
+function stStart(){
+  selfTest = { t0: 0, raw: "", timer: 0, idle: 0 };
+  buf = ""; CAP.value = "";
+  $("stCode").hidden = true; $("stChecks").hidden = true;
+  stShow("wait", "測試中", "隨便掃一箱", "掃哪一箱都可以，不會影響撿貨進度");
+  // 這是點擊事件當下，iOS 允許聚焦（見 keepFocus 註解）
+  try{ CAP.focus({ preventScroll: true }); }catch(e){ try{ CAP.focus(); }catch(e2){} }
+  selfTest.timer = setTimeout(stEvaluate, 10000);
+}
+function stStop(){
+  if(selfTest){ clearTimeout(selfTest.timer); clearTimeout(selfTest.idle); }
+  selfTest = null;
+  buf = ""; CAP.value = "";
+  $("stWrap").hidden = true;
+  keepFocus();
+}
+// 測試期間收到的字都往這裡送，靜置 260ms 就當作掃完一筆
+function stFeed(chunk){
+  if(!selfTest || !chunk) return;
+  if(!selfTest.t0) selfTest.t0 = perfNow();
+  selfTest.raw += chunk;
+  clearTimeout(selfTest.idle);
+  selfTest.idle = setTimeout(stEvaluate, 260);
+}
+function stRow(ok, label, val){
+  return '<div class="stchk' + (ok ? '' : ' bad') + '"><s>' + (ok ? '✓' : '✕') + '</s>' +
+         esc(label) + '<em>' + esc(val) + '</em></div>';
+}
+function stEvaluate(){
+  if(!selfTest) return;
+  clearTimeout(selfTest.timer); clearTimeout(selfTest.idle);
+  var raw = selfTest.raw.replace(/[\r\n\t]/g, "");
+  var ms  = selfTest.t0 ? Math.round(perfNow() - selfTest.t0) : 0;
+  var d   = digits(raw);
+  var focused = document.activeElement === CAP;
+
+  if(!raw){                                    // 完全沒收到任何字
+    $("stCode").hidden = true; $("stChecks").hidden = true;
+    stShow("err", "沒有收到任何訊號", "掃描器沒接上", "");
+    try{ SOUND.err(); }catch(e){} buzz([90,60,90,60,140]);
+    return;
+  }
+
+  var allDigits = !/[^0-9]/.test(raw);
+  var longEnough = d.length >= 8;
+
+  $("stCode").hidden = false;
+  $("stCode").innerHTML = (allDigits && longEnough) ? codeHTML(d) : esc(JSON.stringify(raw));
+  $("stChecks").hidden = false;
+  $("stChecks").innerHTML =
+    stRow(true,       "藍牙連線　收到按鍵", raw.length + " 個字元") +
+    stRow(allDigits,  "輸入法　全部是數字", allDigits ? "英數 ✓" : "有非數字") +
+    stRow(focused,    "掃描框焦點",         focused ? "capIn" : "掉了") +
+    stRow(longEnough, "條碼長度",           d.length + " 碼") +
+    stRow(true,       "反應速度",           ms + " ms");
+
+  if(allDigits && longEnough){
+    var hit = DB.byCode[d];
+    stShow("ok", "掃描器正常", "可以開工了",
+      hit ? "這個條碼是今天的品項：" + hit[0].item.name
+          : (DB.orders.length ? "這個條碼不在今天的出貨單上（不影響測試結果）" : ""));
+    try{ SOUND.ok(); }catch(e){} buzz(45);
+  }else if(!allDigits){
+    stShow("err", "收到的不是數字", "輸入法沒切英數",
+      "關掉掃描器 → 切成英數 → 再打開掃描器");
+    try{ SOUND.err(); }catch(e){} buzz([90,60,90]);
+  }else{
+    stShow("err", "條碼太短", "只收到 " + d.length + " 碼",
+      "可能是藍牙掉字。放著 10 秒不碰再掃一次試試");
+    try{ SOUND.err(); }catch(e){} buzz([90,60,90]);
+  }
+}
+
+$("stGo").addEventListener("click", stStart);
+$("stRetry").addEventListener("click", stStart);
+$("stClose").addEventListener("click", stStop);
 $("diagX").addEventListener("click", function(){ setDiag(false); });
 
 // 捕獲階段：在任何其他處理之前先記錄，才看得到「有沒有進到網頁」
@@ -2135,7 +2337,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.08 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.09 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

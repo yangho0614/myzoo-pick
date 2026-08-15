@@ -1,7 +1,7 @@
 /* MYZOO 撿貨核對頁 — 離線快取
    由 發布到web.py 產生，不要手改。
-   版本 1bcdce7e（內容雜湊，index.html 一變就換一組快取） */
-var CACHE = "myzoo-pick-1bcdce7e";
+   版本 93fe8227（內容雜湊，index.html 一變就換一組快取） */
+var CACHE = "myzoo-pick-93fe8227";
 var ASSETS = ["./", "./index.html"];
 var NET_TIMEOUT = 3000;
 

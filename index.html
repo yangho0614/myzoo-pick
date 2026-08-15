@@ -402,13 +402,17 @@ button:focus-visible,input:focus-visible,label:focus-visible{
    客戶名長短差很多（「Three little meow香港代理」vs「林慧敏」），
    用「·」串起來換行後會斷在名字中間，現場根本讀不出誰要幾箱。 */
 .row__whos{
-  flex-basis:100%;margin-top:3px;
+  /* 寬度貼著「最長的那一行」，不撐滿整列 ——
+     最長的客戶名就是「Three little meow香港代理」，其餘都短得多，
+     撐滿的話箱數會被推到很遠，眼睛要橫著掃過一大片空白。 */
+  grid-column:1;justify-self:start;width:fit-content;max-width:100%;
+  margin-top:3px;
   display:flex;flex-direction:column;gap:1px;
   background:var(--ok-wash);border:1px solid var(--ok-line);
-  border-radius:7px;padding:5px 8px;
+  border-radius:7px;padding:5px 9px;
 }
 .row__whos .who{
-  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  display:flex;align-items:baseline;justify-content:space-between;gap:26px;
   font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;
   font-size:13px;font-weight:650;color:var(--ok);letter-spacing:0;
   line-height:1.55;
@@ -417,7 +421,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .row[data-s="done"] .row__whos{opacity:.5}
 .row[data-s="done"] .row__multi{opacity:.5}
 .row__qty{
-  grid-column:2;grid-row:1 / span 2;text-align:right;
+  grid-column:2;grid-row:1 / -1;align-self:center;text-align:right;
   font-size:19px;font-weight:750;font-variant-numeric:tabular-nums;white-space:nowrap;
 }
 .row__qty em{font-style:normal;color:var(--ink-faint);font-weight:600;font-size:15px}
@@ -597,7 +601,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">1bcdce7e</b></span>
+      <span>版本 <b id="verTag">93fe8227</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -1304,8 +1308,8 @@ function renderSummary(){
     d.className = "row"; d.dataset.s = st;
     d.innerHTML =
       '<div class="row__name"></div>' +
-      '<div class="row__code"><span class="row__sku"></span><span class="u"></span>' +
-        '<div class="row__whos"></div></div>' +
+      '<div class="row__code"><span class="row__sku"></span><span class="u"></span></div>' +
+      '<div class="row__whos"></div>' +
       '<div class="row__qty"><span class="a"></span><em> / ' + m.need + '</em></div>';
     d.querySelector(".row__name").textContent = m.name;
     d.querySelector(".u").innerHTML = codeHTML(code);
@@ -2032,7 +2036,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 1bcdce7e");
+      console.log("[MYZOO] 離線快取就緒 · 版本 93fe8227");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

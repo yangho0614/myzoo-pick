@@ -630,7 +630,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">b1d69d2e</b></span>
+      <span>版本 <b id="verTag">bc785313</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -1811,8 +1811,12 @@ CAP.addEventListener("focus", scanbarSync);
 /* 🔴 輸入法偵測。網頁沒有任何辦法「強制」切成英數（iOS 系統層級，沒 API），
    能做的是把「安靜地掃到錯的碼」變成「大聲告訴你怎麼修」。
 
-   compositionstart 是中文輸入法開始組字時才會觸發的事件 —— 掃描器送進來的
-   數字如果被注音接走，這個事件一定會發生。這比「掃出來的碼怪怪的」可靠得多。 */
+   ⚠️⚠️ 不要用 compositionstart 判斷（2026-08-15 試過，會一直誤報）——
+   **iOS 的英文輸入也會觸發組字事件**（自動修正／預測文字會用到），
+   所以在英數模式下照樣一直跳警告。
+
+   唯一可靠的訊號是「實際收到的字元是不是中文／注音」。這些條碼全都是數字，
+   跑出中文就一定有問題，不會誤判。 */
 function imeAlert(){
   if(!$("imeWarn").hidden) return;      // 已經在顯示了就不要重複叫
   buf = ""; clearTimeout(bufT);          // 被輸入法汙染的內容不能拿去比對
@@ -1821,8 +1825,6 @@ function imeAlert(){
   $("imeWarn").hidden = false;
   dlog("輸入法", "偵測到中文輸入法在組字");
 }
-CAP.addEventListener("compositionstart", imeAlert);
-document.addEventListener("compositionstart", imeAlert, true);
 $("imeOk").addEventListener("click", function(){
   $("imeWarn").hidden = true;
   CAP.value = "";
@@ -2108,7 +2110,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 b1d69d2e");
+      console.log("[MYZOO] 離線快取就緒 · 版本 bc785313");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

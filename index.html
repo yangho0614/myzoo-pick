@@ -72,9 +72,10 @@
          "Microsoft JhengHei",system-ui,sans-serif;
 
   --pad:16px;
-  /* 底部掃描待命條要讓開的高度。取「已待命」時的細線高度即可 ——
-     未待命時那條會變高並蓋住一點內容，但它是要你點的東西，點完就縮回去。 */
-  --armh:12px;
+  /* 底部掃描待命條要讓開的高度。這只是「JS 量到實際高度之前」的預設值，
+     取未待命時的較大值比較安全 —— 預留太少會讓那條透明輸入框蓋住按鈕。
+     實際值由 scanbarSync() 依 offsetHeight 動態寫入。 */
+  --armh:56px;
   color-scheme:dark;
 }
 
@@ -738,7 +739,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
     <div class="brandline">
       <h1>MYZOO 撿貨核對系統</h1>
     </div>
-    <div class="verline">版本 <b id="verTag">v0.32　更新日期 2026-08-15</b></div>
+    <div class="verline">版本 <b id="verTag">v0.33　更新日期 2026-08-15</b></div>
 
     <div class="roles">
       <div class="rolegrid">
@@ -2052,6 +2053,7 @@ function drainCap(){
 }
 
 // 待命燈：綠＝聚焦中＝掃得動。操作員唯一能自己確認「現在掃有沒有用」的訊號
+var armH = -1;
 function scanbarSync(){
   var on = document.activeElement === CAP;
   ["armSort","armPick"].forEach(function(id){
@@ -2074,6 +2076,18 @@ function scanbarSync(){
   bar.classList.toggle("on", on);
   var txt = on ? "掃描待命中" : "點一下這裡，啟用掃描";
   if($("armTxt").textContent !== txt) $("armTxt").textContent = txt;
+
+  /* 🔴 依待命條的「實際高度」動態預留空間。
+     ⚠️ 這條是固定在畫面底部、而且**整條都是透明的輸入框**。
+     預留不夠時它會蓋住底部的內容 —— 被蓋住的按鈕點下去只會「啟用掃描」，
+     使用者看到的是「按了沒反應」，而且完全看不出被什麼擋住。
+     未待命時它約 56px（琥珀＋文字），待命時縮到約 12px，
+     寫死任何一個數字都會錯，所以量實際高度。 */
+  var h = bar.hidden ? 0 : bar.offsetHeight;
+  if(armH !== h){
+    armH = h;
+    document.documentElement.style.setProperty("--armh", h + "px");
+  }
 }
 function scanbarShow(){
   return DB.orders.length > 0 && !$("scLoad").classList.contains("on");
@@ -2544,7 +2558,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.32　更新日期 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.33　更新日期 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

@@ -97,6 +97,27 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .btn--wide{width:100%}
 .btn--sm{padding:8px 13px;font-size:13.5px;border-radius:8px}
 
+/* 掃描器診斷。現場掃不動時，這是唯一能判斷「字有沒有進到網頁」的東西。 */
+.diagbar{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin-top:14px; padding-top:12px; border-top:1px solid var(--line-soft);
+  color:var(--ink-faint); font-size:12px;
+}
+.diagbar b{font-family:var(--mono); color:var(--ink-dim); letter-spacing:.04em}
+.diag{
+  position:fixed; left:0; right:0; bottom:0; z-index:90;
+  background:#000; border-top:2px solid var(--amber);
+  padding:9px 12px calc(9px + env(safe-area-inset-bottom));
+  font-family:var(--mono); font-size:11.5px; line-height:1.5;
+  color:var(--ok); max-height:38vh; overflow:auto;
+}
+.diag__hd{
+  display:flex; justify-content:space-between; gap:8px;
+  color:var(--amber); margin-bottom:5px; font-weight:700;
+}
+.diag__row{color:var(--ink-dim); white-space:pre-wrap; word-break:break-all}
+.diag__row b{color:var(--ok); font-weight:700}
+
 /* ── 載入畫面 ─────────────────────────────────────────── */
 .load{padding:34px var(--pad) 40px;display:flex;flex-direction:column;gap:22px}
 .brandline{display:flex;align-items:baseline;gap:10px}
@@ -440,6 +461,12 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <div id="loadErr" class="err-note" hidden></div>
 
+    <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
+    <div class="diagbar">
+      <span>版本 <b id="verTag">6c1c09e6</b></span>
+      <button class="btn btn--ghost" id="diagGo" aria-pressed="false">🔧 掃描診斷</button>
+    </div>
+
     <details>
       <summary style="cursor:pointer;color:var(--ink-dim);font-size:13.5px">貼上新竹物流託運總表（選填，掃物流標籤切單要用）</summary>
       <div style="display:flex;flex-direction:column;gap:9px;margin-top:10px">
@@ -616,6 +643,12 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 <input id="capIn" class="cap" inputmode="none" autocomplete="off"
        autocorrect="off" autocapitalize="off" spellcheck="false"
        tabindex="-1" aria-hidden="true">
+
+<!-- 掃描器診斷面板（預設關閉，載入畫面的「🔧 掃描診斷」打開） -->
+<div class="diag" id="diag" hidden>
+  <div class="diag__hd"><span>🔧 掃描診斷</span><span id="diagFoc">焦點 —</span></div>
+  <div id="diagLog"></div>
+</div>
 
 <!-- 全屏回饋 -->
 <div class="blast" id="blast" role="status" aria-live="assertive">
@@ -1526,6 +1559,51 @@ document.addEventListener("click", function(){ setTimeout(keepFocus, 60); });
 window.addEventListener("focus", keepFocus);
 document.addEventListener("visibilitychange", function(){ if(!document.hidden) keepFocus(); });
 
+/* ═══ 掃描診斷 ═══════════════════════════════════════════
+   現場「掃了沒反應」時，唯一能分辨這三種情況的工具：
+     ① 完全沒有事件      → 掃描器的字根本沒進到瀏覽器（藍牙／輸入法／掃描器設定問題）
+     ② 有事件但焦點不對   → 頁面的問題，focus 沒搶到
+     ③ 有事件也有 buf     → 是比對邏輯的問題，不是輸入的問題
+   ⚠️ 不要因為「畫面上多一個按鈕不好看」就拿掉。 */
+var DIAG = false;
+try{ DIAG = localStorage.getItem(LS + ".diag") === "1"; }catch(e){}
+
+function focName(){
+  var a = document.activeElement;
+  if(!a || a === document.body) return "body（沒有輸入框）";
+  return (a.id || a.tagName.toLowerCase()) + (a === CAP ? " ✓" : " ⚠");
+}
+function dlog(kind, detail){
+  if(!DIAG) return;
+  var box = $("diagLog");
+  var d = document.createElement("div");
+  d.className = "diag__row";
+  d.innerHTML = "<b>" + kind + "</b> " + detail;
+  box.insertBefore(d, box.firstChild);
+  while(box.childNodes.length > 14) box.removeChild(box.lastChild);
+  $("diagFoc").textContent = "焦點 " + focName();
+}
+function setDiag(on){
+  DIAG = on;
+  $("diag").hidden = !on;
+  $("diagGo").setAttribute("aria-pressed", String(on));
+  try{ localStorage.setItem(LS + ".diag", on ? "1" : "0"); }catch(e){}
+  if(on) dlog("開啟", "版本 " + $("verTag").textContent + " · 訂單 " + DB.orders.length + " 張");
+}
+$("diagGo").addEventListener("click", function(){ setDiag($("diag").hidden); });
+
+// 捕獲階段：在任何其他處理之前先記錄，才看得到「有沒有進到網頁」
+document.addEventListener("keydown", function(e){
+  dlog("keydown", "key=" + JSON.stringify(e.key) + " code=" + e.code +
+       " → " + ((e.target && (e.target.id || e.target.tagName)) || "?"));
+}, true);
+document.addEventListener("input", function(e){
+  dlog("input", "值=" + JSON.stringify(e.target && e.target.value) +
+       " → " + ((e.target && (e.target.id || e.target.tagName)) || "?"));
+}, true);
+setInterval(function(){ if(DIAG) $("diagFoc").textContent = "焦點 " + focName(); }, 700);
+setDiag(DIAG);
+
 /* ═══ 綁事件 ═══════════════════════════════════════════ */
 function loadErr(msg){
   $("loadErr").textContent = msg;
@@ -1686,7 +1764,7 @@ setRole(ROLE);
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 9b3dff31");
+      console.log("[MYZOO] 離線快取就緒 · 版本 6c1c09e6");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

@@ -48,6 +48,13 @@
      動作與模式用不同色系分開，三顆按鈕才不會互相干擾。 */
   --blue:#5B93F5;
   --blue-ink:#05122C;
+  --blue-wash:rgba(91,147,245,.14);
+  --blue-line:rgba(91,147,245,.42);
+
+  /* 紫：只給「診斷」用 —— 它不是日常操作，要跟其他顏色分開 */
+  --violet:#A78BFA;
+  --violet-wash:rgba(167,139,250,.13);
+  --violet-line:rgba(167,139,250,.40);
 
   --ok:#3DD68C;
   --ok-wash:rgba(61,214,140,.12);
@@ -137,20 +144,28 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 /* ghost 只負責顏色，尺寸一律交給 btn--sm ——
    自己另外寫 padding/font-size 會跟旁邊同一列的按鈕對不齊。 */
 .btn--ghost{
-  background:transparent;border-color:var(--line-soft);color:var(--ink-faint);
-  font-weight:600;
+  background:var(--violet-wash);border-color:var(--violet-line);color:var(--violet);
+  font-weight:700;
 }
 .btn--ghost[aria-pressed="true"]{
-  background:var(--amber-wash);border-color:var(--amber-line);color:var(--amber);
+  background:var(--violet);border-color:var(--violet);color:#1A1033;
 }
 
 /* 掃描器診斷。現場掃不動時，這是唯一能判斷「字有沒有進到網頁」的東西。 */
-.diagbar{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  margin-top:14px; padding-top:12px; border-top:1px solid var(--line-soft);
-  color:var(--ink-faint); font-size:12px;
+.verline{
+  text-align:center;margin-top:-14px;
+  color:var(--ink-faint);font-size:12px;
 }
-.diagbar b{font-family:var(--mono); color:var(--ink-dim); letter-spacing:.04em}
+.verline b{font-family:var(--mono);color:var(--ink-dim);font-weight:600;letter-spacing:.02em}
+.diagbar{
+  display:flex; justify-content:center;
+  margin-top:14px; padding-top:12px; border-top:1px solid var(--line-soft);
+}
+.diagbar__btns{display:flex; gap:10px}
+/* 測試掃描器＝綠（開工前的確認動作，成功就是綠燈）
+   掃描診斷＝紫（除錯工具，刻意跟日常操作的顏色分開） */
+.btn--test{background:var(--ok-wash);border-color:var(--ok-line);color:var(--ok);font-weight:700}
+.btn--test:hover{background:var(--ok-wash);filter:brightness(1.15)}
 .armbar{
   position:fixed;left:0;right:0;bottom:0;z-index:80;
   padding:13px var(--pad) calc(13px + env(safe-area-inset-bottom));
@@ -185,8 +200,6 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .armbar.on .armbar__dot,
 .armbar.on .armbar__txt{display:none}
 @keyframes armpulse{0%,100%{opacity:.25;transform:scale(.85)}50%{opacity:.9;transform:scale(1)}}
-.btn--test{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
-.btn--test:hover{background:var(--blue);filter:brightness(1.08)}
 .stwrap{
   position:fixed;inset:0;z-index:105;background:rgba(10,11,15,.92);
   display:grid;place-items:center;padding:20px;
@@ -261,9 +274,9 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
 /* 選檔案：每天第一個動作，做成整寬大方塊。藍色＝動作，不跟角色的琥珀／綠搶。 */
 .drop{
-  border:2px solid var(--blue);border-radius:18px;
+  border:2px solid var(--amber);border-radius:18px;
   padding:24px 16px 20px;text-align:center;
-  background:var(--blue);color:var(--blue-ink);cursor:pointer;
+  background:var(--amber);color:var(--amber-ink);cursor:pointer;
   display:flex;flex-direction:column;align-items:center;gap:9px;
   transition:transform .1s,filter .15s;
 }
@@ -316,9 +329,9 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .role{background:var(--surface);border:2px solid var(--line);color:var(--ink-faint)}
 .role .ico{opacity:.55}
 .role span{color:var(--ink-faint)}
-#rolePick[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
+#rolePick[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
 #rolePick[aria-pressed="true"] .ico{opacity:1}
-#rolePick[aria-pressed="true"] span{color:var(--amber-ink);opacity:.72}
+#rolePick[aria-pressed="true"] span{color:var(--blue-ink);opacity:.72}
 #roleLabel[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--ok-ink)}
 #roleLabel[aria-pressed="true"] .ico{opacity:1}
 #roleLabel[aria-pressed="true"] span{color:var(--ok-ink);opacity:.72}
@@ -327,7 +340,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
    .bar__mid 有 min-width:0 ＋ 標題 ellipsis，擠的時候是標題先縮，不會爆版。 */
 .rolepill{
   font-size:13px;font-weight:750;letter-spacing:.04em;padding:5px 11px;border-radius:999px;
-  background:var(--amber-wash);color:var(--amber);border:1.5px solid var(--amber-line);
+  background:var(--blue-wash);color:var(--blue);border:1.5px solid var(--blue-line);
   flex:none;white-space:nowrap;
 }
 .rolepill[data-r="label"]{background:var(--ok-wash);color:var(--ok);border-color:var(--ok-line)}
@@ -722,13 +735,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
     <div class="brandline">
       <h1>MYZOO 撿貨核對系統</h1>
     </div>
-
-    <label class="drop" id="drop">
-      <svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>
-      <b>選擇出貨明細</b>
-      <p>今天的 xlsx 原檔，不用先整理</p>
-      <input type="file" id="file" accept=".xlsx,.csv,.txt" hidden>
-    </label>
+    <div class="verline">版本 <b id="verTag">v0.29 · 2026-08-15</b></div>
 
     <div class="roles">
       <div class="rolegrid">
@@ -744,6 +751,13 @@ button:focus-visible,input:focus-visible,label:focus-visible{
       <p class="dualnote">兩段作業進度<b>各自獨立記錄</b>，對單貼標為第二道覆核。</p>
     </div>
 
+    <label class="drop" id="drop">
+      <svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>
+      <b>選擇出貨明細</b>
+      <p>今天的 xlsx 原檔，不用先整理</p>
+      <input type="file" id="file" accept=".xlsx,.csv,.txt" hidden>
+    </label>
+
     <div id="loadErr" class="err-note" hidden></div>
 
     <!-- 跨天才會出現：不能默默載入昨天的單，那會撿錯一整天 -->
@@ -758,8 +772,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.28 · 2026-08-15</b></span>
-      <span style="display:flex;gap:8px">
+      <span class="diagbar__btns">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
       </span>
@@ -2525,7 +2538,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.28 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.29 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

@@ -739,7 +739,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
     <div class="brandline">
       <h1>MYZOO 撿貨核對系統</h1>
     </div>
-    <div class="verline">版本 <b id="verTag">v0.33　更新日期 2026-08-15</b></div>
+    <div class="verline">版本 <b id="verTag">v0.34　更新日期 2026-08-16</b></div>
 
     <div class="roles">
       <div class="rolegrid">
@@ -2083,8 +2083,11 @@ function scanbarSync(){
      使用者看到的是「按了沒反應」，而且完全看不出被什麼擋住。
      未待命時它約 56px（琥珀＋文字），待命時縮到約 12px，
      寫死任何一個數字都會錯，所以量實際高度。 */
+  /* ⚠️ 只增不減。待命條展開(約56px)／收合(約12px)時若讓預留跟著變，
+     底部的 dock 會上下跳 —— 使用者點按鈕的第一下會先「啟用掃描」，
+     按鈕就在手指底下跑掉，看起來像「按了沒反應」。位置必須固定。 */
   var h = bar.hidden ? 0 : bar.offsetHeight;
-  if(armH !== h){
+  if(h > armH){
     armH = h;
     document.documentElement.style.setProperty("--armh", h + "px");
   }
@@ -2558,7 +2561,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.33　更新日期 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.34　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

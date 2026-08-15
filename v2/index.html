@@ -346,7 +346,7 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 
 /* 次要入口放拇指區 */
 .tabbar{
-  position:fixed;left:0;right:0;bottom:calc(var(--armh) + var(--safe));z-index:30;
+  position:fixed;left:0;right:0;bottom:calc(var(--armh-open) + var(--safe));z-index:30;   /* 固定用展開高度，不隨待命狀態移動 */
   max-width:560px;margin:0 auto;transition:bottom .12s;
   display:flex;gap:8px;padding:10px var(--pad) 12px;
   background:linear-gradient(var(--bg-fade),var(--bg) 45%);
@@ -444,7 +444,7 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 
 /* ═══ 底部進度座 ═══ */
 .dock{
-  position:fixed;left:0;right:0;bottom:calc(var(--armh) + var(--safe));z-index:30;
+  position:fixed;left:0;right:0;bottom:calc(var(--armh-open) + var(--safe));z-index:30;   /* 固定用展開高度，不隨待命狀態移動 */
   max-width:560px;margin:0 auto;transition:bottom .12s;
   background:var(--dock-bg);
   backdrop-filter:saturate(180%) blur(20px);
@@ -496,7 +496,9 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 .armbar.on .armbar__dot{width:34px;height:3px;border-radius:2px;
   background:rgba(255,255,255,.65);animation:none}
 /* 待命條的三種狀態，由 scanbarSync 寫在 body[data-arm] 上 */
-body[data-arm="off"] .tabbar,body[data-arm="off"] .dock{bottom:calc(var(--armh-open) + var(--safe))}
+/* ⚠️ 這條刻意拿掉了：原本待命條展開／收合時，.tabbar 與 .dock 會跟著上下移動 50px。
+   使用者點底部按鈕的第一下會先「啟用掃描」→ 待命條收合 → 按鈕在手指底下往下跑掉，
+   看起來就是「按了沒反應」，再點一次才會中。按鈕位置必須固定不動。 */
 body[data-arm="none"] .tabbar,body[data-arm="none"] .dock{bottom:var(--safe)}
 
 /* ═══ 全屏回饋：走動撿貨看不到螢幕，聲音是主、整片色是副 ═══ */

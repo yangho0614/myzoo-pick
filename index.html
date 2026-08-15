@@ -485,6 +485,9 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 }
 
 .sumhit{
+  /* 釘在 header 下方不隨清單捲動 —— 現場是「掃一箱、抬頭看是誰的、去拿下一箱」，
+     結果要一直看得到，不能捲一下就不見。 */
+  position:sticky;top:0;z-index:15;
   margin:10px var(--pad) 0;padding:12px 14px;border-radius:13px;
   background:var(--ok-wash);border:1.5px solid var(--ok-line);
   display:flex;flex-direction:column;gap:4px;
@@ -738,7 +741,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.21 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.22 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -1548,7 +1551,10 @@ function renderSummary(){
     box.appendChild(p);
   }
   $("sumSub").textContent = keys.length + " 品項 · " + boxes + " 箱 · 跨單 " + multi + " 項";
-  $("sumHit").hidden = true;      // 重繪就把上一次的掃描結果收掉，避免看到過期資訊
+  /* ⚠️ 這裡刻意「不」收掉掃描結果 ——
+     現場的用法是「掃一箱、抬頭看是誰的、去拿下一箱」，
+     結果必須停在畫面上直到掃下一個。切換「只看跨單」也不該把它弄不見。
+     只有換一份出貨單時才清（在 loadRows 裡）。 */
 }
 
 /* ═══ 分揀 ═══════════════════════════════════════════════
@@ -2364,6 +2370,7 @@ function loadRows(rows, srcName){
     loadWays();               // 之前掃標籤當場學會的對應
     clearBind();
     renderOrders();
+    $("sumHit").hidden = true;      // 換一份出貨單，上一份的掃描結果要清掉
     $("resume").hidden = true;
     saveSession(rows, DB.src);
     show("scOrders");
@@ -2521,7 +2528,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.21 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.22 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

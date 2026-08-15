@@ -33,6 +33,11 @@
   --amber-wash:rgba(255,176,32,.13);
   --amber-line:rgba(255,176,32,.38);
 
+  /* 藍＝「動作」（選檔案）。琥珀／綠是「模式」（你現在是哪個角色）。
+     動作與模式用不同色系分開，三顆按鈕才不會互相干擾。 */
+  --blue:#5B93F5;
+  --blue-ink:#05122C;
+
   --ok:#3DD68C;
   --ok-wash:rgba(61,214,140,.12);
   --ok-line:rgba(61,214,140,.34);
@@ -127,14 +132,19 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .brandline span{font-size:12px;color:var(--ink-faint);font-family:var(--mono)}
 .lede{margin:0;color:var(--ink-dim);font-size:14.5px;max-width:46ch}
 
+/* 選檔案：每天第一個動作，做成整寬大方塊。藍色＝動作，不跟角色的琥珀／綠搶。 */
 .drop{
-  border:1.5px dashed var(--line);border-radius:14px;
-  padding:30px 20px;text-align:center;background:var(--surface);
-  display:flex;flex-direction:column;align-items:center;gap:12px;
-  transition:border-color .15s,background .15s;
+  border:2px solid var(--blue);border-radius:18px;
+  padding:24px 16px 20px;text-align:center;
+  background:var(--blue);color:var(--blue-ink);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+  transition:transform .1s,filter .15s;
 }
-.drop.hot{border-color:var(--amber);background:var(--amber-wash)}
-.drop p{margin:0;color:var(--ink-dim);font-size:13.5px}
+.drop:active{transform:scale(.98)}
+.drop.hot{filter:brightness(1.12)}          /* 電腦拖檔案進來時 */
+.drop .ico{width:1em;height:1em;fill:currentColor;display:block;font-size:42px}
+.drop b{font-size:21px;font-weight:800;letter-spacing:.01em}
+.drop p{margin:0;font-size:12.5px;line-height:1.45;opacity:.75}
 
 .howto{
   background:var(--surface);border:1px solid var(--line-soft);border-radius:12px;
@@ -150,16 +160,28 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   background:var(--surface);color:var(--ink);border:1px solid var(--line);
   border-radius:10px;padding:11px 13px;font-family:var(--mono);font-size:12.5px;
 }
-.roles{background:var(--surface);border:1px solid var(--line-soft);border-radius:12px;padding:15px 16px}
+.roles{display:flex;flex-direction:column;gap:10px}
+/* 角色是兩道獨立核對，選錯等於整輪白做 —— 所以做成一眼可辨的大方塊，
+   選中的整塊填色（撿貨＝琥珀、對單貼標＝綠），走動中掃一眼就知道自己在哪。 */
+.rolegrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .role{
-  flex:1;text-align:left;padding:11px 13px;border-radius:10px;
-  background:var(--surface-2);border:1px solid var(--line);
-  display:flex;flex-direction:column;gap:2px;
+  text-align:center;padding:22px 12px 18px;border-radius:18px;
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+  transition:transform .1s,background .15s,border-color .15s;
 }
-.role b{font-size:15px;font-weight:700}
-.role span{font-size:11.5px;color:var(--ink-faint);line-height:1.4}
-.role[aria-pressed="true"]{background:var(--amber-wash);border-color:var(--amber-line)}
-.role[aria-pressed="true"] b{color:var(--amber)}
+.role:active{transform:scale(.97)}
+.role .ico{width:1em;height:1em;fill:currentColor;display:block;font-size:40px}
+.role b{font-size:21px;font-weight:800;letter-spacing:.01em}
+.role span{font-size:12px;color:var(--ink-faint);line-height:1.45}
+/* 沒選中時也保留自己的色（淡底＋彩色框），選中才整塊填滿 ——
+   三顆按鈕隨時都分得出來，而且「我現在是哪個角色」一眼可辨。
+   兩段進度是分開存的，選錯等於整輪白做，值得用顏色講清楚。 */
+#rolePick{background:var(--amber-wash);border:2px solid var(--amber-line);color:var(--amber)}
+#rolePick[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
+#rolePick[aria-pressed="true"] span{color:var(--amber-ink);opacity:.72}
+#roleLabel{background:var(--ok-wash);border:2px solid var(--ok-line);color:var(--ok)}
+#roleLabel[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--ok-ink)}
+#roleLabel[aria-pressed="true"] span{color:var(--ok-ink);opacity:.72}
 .rolepill{
   font-size:11px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:999px;
   background:var(--amber-wash);color:var(--amber);border:1px solid var(--amber-line);flex:none;
@@ -444,6 +466,14 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 }
 </style></head>
 <body>
+<!-- Google Material Symbols（Apache 2.0）。⚠️ 路徑直接內嵌，不連 CDN ——
+     這頁在倉庫要能離線跑，連外部字型或圖示檔就會破功。 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-file" viewBox="0 -960 960 960"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h240l80 80h320q33 0 56.5 23.5T880-640H447l-80-80H160v480l96-320h684L837-217q-8 26-29.5 41.5T760-160H160Zm84-80h516l72-240H316l-72 240Zm0 0 72-240-72 240Zm-84-400v-80 80Z"/></symbol>
+<symbol id="i-pick" viewBox="0 -960 960 960"><path d="M440-183v-274L200-596v274l240 139Zm80 0 240-139v-274L520-457v274Zm-80 92L160-252q-19-11-29.5-29T120-321v-318q0-22 10.5-40t29.5-29l280-161q19-11 40-11t40 11l280 161q19 11 29.5 29t10.5 40v318q0 22-10.5 40T800-252L520-91q-19 11-40 11t-40-11Zm200-528 77-44-237-137-78 45 238 136Zm-160 93 78-45-237-137-78 45 237 137Z"/></symbol>
+<symbol id="i-label" viewBox="0 -960 960 960"><path d="M160-120q-33 0-56.5-23.5T80-200v-560q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v560q0 33-23.5 56.5T800-120H160Zm0-80h640v-560H160v560Zm40-80h200v-80H200v80Zm382-80 198-198-57-57-141 142-57-57-56 57 113 113Zm-382-80h200v-80H200v80Zm0-160h200v-80H200v80Zm-40 400v-560 560Z"/></symbol>
+</defs></svg>
+
 <div class="app">
 
 <!-- ══ 1. 載入 ══════════════════════════════════════════ -->
@@ -456,19 +486,21 @@ button:focus-visible,input:focus-visible,label:focus-visible{
       照揀貨總表撿完之後一箱一箱掃，它會大字告訴你這箱放哪一堆。</p>
 
     <label class="drop" id="drop">
-      <span style="font-size:34px;line-height:1">📄</span>
-      <span class="btn btn--go" style="pointer-events:none">選擇出貨明細 xlsx</span>
-      <p>或把檔案拖進這個框（CSV 也吃）</p>
+      <svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>
+      <b>選擇出貨明細</b>
+      <p>今天的 xlsx 原檔，不用先整理</p>
       <input type="file" id="file" accept=".xlsx,.csv,.txt" hidden>
     </label>
 
     <div class="roles">
-      <div class="eyebrow" style="margin-bottom:8px">你現在做哪一段</div>
-      <div style="display:flex;gap:8px">
+      <div class="eyebrow">你現在做哪一段</div>
+      <div class="rolegrid">
         <button class="role" id="rolePick" aria-pressed="true">
+          <svg class="ico" aria-hidden="true"><use href="#i-pick"/></svg>
           <b>撿貨</b><span>撿齊、分成一堆一堆</span>
         </button>
         <button class="role" id="roleLabel" aria-pressed="false">
+          <svg class="ico" aria-hidden="true"><use href="#i-label"/></svg>
           <b>對單貼標</b><span>覆核一堆、貼物流標</span>
         </button>
       </div>
@@ -482,7 +514,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">21c51c82</b></span>
+      <span>版本 <b id="verTag">b62cbb8c</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false">🔧 掃描診斷</button>
     </div>
 
@@ -1833,7 +1865,7 @@ setRole(ROLE);
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 21c51c82");
+      console.log("[MYZOO] 離線快取就緒 · 版本 b62cbb8c");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

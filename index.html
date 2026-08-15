@@ -738,7 +738,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.17 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.18 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -1936,14 +1936,23 @@ function earlyCommit(){
    「10 碼＝託運單號」的規則誤認，跳出「這個託運單號還沒認得 640-841-9707」——
    而 6408419707 其實是商品條碼 640841970768 的前 10 碼。
    👉 切一半的條碼比慢半拍危險得多，所以放寬到 400ms。 */
-var IDLE_MS = 400;
+var IDLE_MS  = 400;    // 每輪等多久
+var STALE_MS = 3000;   // 距離「最後一個字元」超過這麼久還沒湊滿 → 當作殘留丟掉
+var idleRounds = 0;    // 已經空等幾輪（每收到新字元就歸零）
 
+/* 🔴🔴 這支掃描器**每個字元要 ~640ms**（2026-08-15 實機量到：2 字元花 1285ms）。
+   12 碼要送 7〜8 秒。所以絕對不能用「靜置一小段時間就送出」當主要判斷 ——
+   那會在第 1〜2 個字元就切斷，症狀是「有時有反應有時沒有」。
+
+   規則改成：**湊滿 12 碼（或對得上託運單號）才送出**；沒湊滿就繼續等，
+   一直等到距離最後一個字元超過 3 秒才放棄。這樣多慢的掃描器都吃得下。
+   ⚠️ 不要「為了反應快」把 STALE_MS 調小 —— 殘缺的碼比慢半拍危險得多。 */
 function idleCommit(){
   var d = digits(buf);
-  // 長度不像完整的一筆就再等一輪，避免把還在傳的條碼從中間切斷
-  if(d.length >= 12 || (d.length >= 8 && DB.byWay[d])) commit();
-  else if(d.length >= 8) bufT = setTimeout(function(){ if(digits(buf).length >= 8) commit(); else buf = ""; }, IDLE_MS);
-  else buf = "";
+  if(d.length >= 12 || (d.length >= 8 && DB.byWay[d])){ idleRounds = 0; commit(); return; }
+  idleRounds++;
+  if(idleRounds * IDLE_MS >= STALE_MS){ buf = ""; idleRounds = 0; return; }
+  bufT = setTimeout(idleCommit, IDLE_MS);   // 還在傳，再等一輪
 }
 
 function commit(){
@@ -1996,6 +2005,7 @@ document.addEventListener("keydown", function(e){
   if(e.key.length !== 1) return;
   if(selfTest){ stFeed(e.key); return; }
   if(!buf) bufT0 = perfNow();
+  idleRounds = 0;
   buf += e.key;
   clearTimeout(bufT);
   if(earlyCommit()) return;
@@ -2056,6 +2066,7 @@ function keepFocus(){
 CAP.addEventListener("input", function(){
   if(selfTest){ stFeed(CAP.value); CAP.value = ""; return; }   // 自我測試中獨占輸入
   if(!buf) bufT0 = perfNow();
+  idleRounds = 0;                          // 有新字元進來，重新開始算等待
   drainCap();
   clearTimeout(bufT);
   if(earlyCommit()) return;
@@ -2198,7 +2209,10 @@ function stFeed(chunk){
   }
   selfTest.raw += chunk;
   clearTimeout(selfTest.idle);
-  selfTest.idle = setTimeout(stEvaluate, 260);
+  // ⚠️ 慢速掃描器每字元可能要 0.6 秒，用短逾時會在第 2 個字元就評估。
+  //    湊滿 12 碼就立刻評估；沒湊滿就靠 10 秒總逾時收尾。
+  if(digits(selfTest.raw).length >= 12){ stEvaluate(); return; }
+  selfTest.idle = setTimeout(stEvaluate, STALE_MS);
 }
 function stRow(ok, label, val){
   return '<div class="stchk' + (ok ? '' : ' bad') + '"><s>' + (ok ? '✓' : '✕') + '</s>' +
@@ -2479,7 +2493,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.17 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.18 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

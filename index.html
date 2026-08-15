@@ -360,6 +360,18 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .blast[data-k="ok"]{background:#0B3B26}
 .blast__mark{font-size:66px;line-height:1}
 .blast__head{font-size:28px;font-weight:780;letter-spacing:-.01em;margin:0}
+/* 掃描接收框：看不見但必須「可聚焦」。
+   ⚠️ 不能用 display:none／visibility:hidden／hidden 屬性 —— 那些都沒辦法聚焦。
+   固定在畫面中央附近，避免 iOS 聚焦時把頁面捲走。 */
+.cap{
+  position:fixed; top:50%; left:0;
+  width:1px; height:1px;
+  padding:0; margin:0; border:0; outline:0;
+  opacity:0; background:transparent; color:transparent;
+  font-size:16px;              /* < 16px 會讓 iOS 自動放大整個頁面 */
+  pointer-events:none;         /* 不擋任何點擊，只由程式聚焦 */
+  z-index:-1;
+}
 .blast__code{
   font-family:var(--mono);font-size:24px;letter-spacing:.1em;
   padding:8px 16px;border-radius:9px;background:rgba(0,0,0,.3);
@@ -592,6 +604,18 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 </section>
 
 </div>
+
+<!--
+  掃描接收框。⚠️ 不要刪，也不要改成 hidden／display:none。
+  iOS Safari 跟桌機不一樣：沒有任何輸入框被聚焦時，藍牙鍵盤（掃描器）按鍵
+  「不會」送到 document，全域 keydown 收不到 → 掃了完全沒反應。
+  解法是永遠讓這個看不見的框保持聚焦，讓掃描器的字打進來。
+  inputmode="none" 是關鍵：告訴 iOS 不要彈出螢幕小鍵盤，
+  否則沒接掃描器的人一開頁面就被鍵盤蓋掉半個畫面。
+-->
+<input id="capIn" class="cap" inputmode="none" autocomplete="off"
+       autocorrect="off" autocapitalize="off" spellcheck="false"
+       tabindex="-1" aria-hidden="true">
 
 <!-- 全屏回饋 -->
 <div class="blast" id="blast" role="status" aria-live="assertive">
@@ -971,6 +995,8 @@ function show(id){
     $(s).classList.toggle("on", s === id);
   });
   window.scrollTo(0, 0);
+  // 換畫面後把掃描焦點搶回來（iOS 沒焦點就收不到掃描器，見下方 keepFocus）
+  if(typeof keepFocus === "function") setTimeout(keepFocus, 0);
 }
 
 /* ═══ 訂單清單 ═══════════════════════════════════════════ */
@@ -1456,6 +1482,50 @@ document.addEventListener("keydown", function(e){
   bufT = setTimeout(function(){ if(digits(buf).length >= 8) commit(); else buf = ""; }, 180);
 });
 
+/* ═══ iOS：藍牙掃描器要靠一個永遠聚焦的隱形輸入框才收得到 ═══════
+   桌機的全域 keydown 在 iOS Safari 上收不到硬體鍵盤 ——
+   沒有輸入框被聚焦時按鍵根本不會送進網頁，症狀就是「掃了完全沒反應」。
+   所以掃描畫面上一律把 #capIn 保持聚焦，字打進去再走同一條 commit() 路徑。
+   ⚠️ 不要「順手」把這段刪掉改回純 keydown，那樣手機上就是全廢。 */
+var CAP = $("capIn");
+
+function drainCap(){
+  if(CAP.value){ buf += CAP.value; CAP.value = ""; }
+}
+
+// 只有掃描相關的畫面才搶焦點；使用者正在打字的框不能被搶走
+function keepFocus(){
+  if(!CAP) return;                                    // 初始化途中被叫到
+  if(!DB.orders.length) return;                       // 還沒載入檔案，沒東西可掃
+  if(!$("manualWrap").hidden) return;                 // 手動輸入開著，讓它自己收
+  var a = document.activeElement;
+  if(a && a !== CAP && (a.tagName === "INPUT" || a.tagName === "TEXTAREA")) return;
+  if($("scLoad").classList.contains("on")) return;    // 載入畫面不需要
+  try{ CAP.focus({ preventScroll: true }); }catch(e){ try{ CAP.focus(); }catch(e2){} }
+}
+
+CAP.addEventListener("input", function(){
+  drainCap();
+  clearTimeout(bufT);
+  // 掃描器不送 Enter 時的後備：停了 180ms 又夠長就當作一筆
+  bufT = setTimeout(function(){ if(digits(buf).length >= 8) commit(); else buf = ""; }, 180);
+});
+
+CAP.addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    e.preventDefault();
+    drainCap();                 // 先把還沒進 buf 的字撈乾淨再送出
+    if(buf) commit();
+  }
+});
+
+// 焦點被系統或使用者弄掉時搶回來（切 App、關鍵盤、點到空白處都會掉）
+CAP.addEventListener("blur", function(){ setTimeout(keepFocus, 60); });
+document.addEventListener("touchend", function(){ setTimeout(keepFocus, 60); }, { passive: true });
+document.addEventListener("click", function(){ setTimeout(keepFocus, 60); });
+window.addEventListener("focus", keepFocus);
+document.addEventListener("visibilitychange", function(){ if(!document.hidden) keepFocus(); });
+
 /* ═══ 綁事件 ═══════════════════════════════════════════ */
 function loadErr(msg){
   $("loadErr").textContent = msg;
@@ -1616,7 +1686,7 @@ setRole(ROLE);
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 b558b49b");
+      console.log("[MYZOO] 離線快取就緒 · 版本 9b3dff31");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

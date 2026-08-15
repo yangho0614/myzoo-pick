@@ -738,7 +738,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">v0.19 · 2026-08-15</b></span>
+      <span>版本 <b id="verTag">v0.20 · 2026-08-15</b></span>
       <span style="display:flex;gap:8px">
         <button class="btn btn--sm btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
         <button class="btn btn--sm btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
@@ -2106,8 +2106,14 @@ document.addEventListener("visibilitychange", function(){ if(!document.hidden) k
 /* 焦點可能被系統默默拿走（切 App、鍵盤收起、掃描後換畫面）。
    ⚠️ 換畫面是被「掃描」觸發的、不是使用者手勢，iOS 會拒絕那次 focus()，
    所以巡邏時順手再試一次 —— 成功就省下使用者多點一下，失敗也沒有壞處。 */
+/* ⚠️ 正在收字的時候不要去碰焦點。
+   對輸入中的欄位呼叫 focus() 有機會讓後續按鍵被丟掉 ——
+   2026-08-15 實機收到「644」（真實碼是 640841970768，中間的 0、8 不見了），
+   掉字的間隔跟這個 800ms 巡邏很接近，所以先讓它避開。 */
 setInterval(function(){
-  if(document.activeElement !== CAP) keepFocus();
+  var busy = (buf && buf.length) || (selfTest && selfTest.raw) ||
+             (bufT0 && perfNow() - bufT0 < 3000);
+  if(!busy && document.activeElement !== CAP) keepFocus();
   scanbarSync();
 }, 800);
 
@@ -2498,7 +2504,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.19 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.20 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

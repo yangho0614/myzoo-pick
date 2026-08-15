@@ -152,6 +152,12 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   font-size:14.5px;line-height:1.6;color:var(--ink-dim);
 }
 .imewarn__ol b{color:var(--amber)}
+.imewarn__got{
+  font-family:var(--mono);font-size:13px;color:var(--ink-faint);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;word-break:break-all;
+}
+.imewarn__got b{color:var(--err);font-size:15px}
 .diag{
   position:fixed; left:0; right:0; top:0; z-index:90;
   background:#000; border-bottom:2px solid var(--amber);
@@ -630,7 +636,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">bc785313</b></span>
+      <span>版本 <b id="verTag">4a399494</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -830,7 +836,9 @@ button:focus-visible,input:focus-visible,label:focus-visible{
       <li>螢幕鍵盤會回來 → <b>切換成英數</b></li>
       <li><b>再打開掃描器</b>重新連線</li>
     </ol>
+    <div class="imewarn__got">實際收到：<b id="imeGot">—</b></div>
     <button class="btn btn--go btn--wide" id="imeOk">我知道了</button>
+    <button class="btn btn--wide" id="imeOff">這是誤判，不要再提醒</button>
   </div>
 </div>
 
@@ -1817,8 +1825,14 @@ CAP.addEventListener("focus", scanbarSync);
 
    唯一可靠的訊號是「實際收到的字元是不是中文／注音」。這些條碼全都是數字，
    跑出中文就一定有問題，不會誤判。 */
-function imeAlert(){
+var IMECHK = true;
+try{ IMECHK = localStorage.getItem(LS + ".imechk") !== "0"; }catch(e){}
+
+function imeAlert(got){
+  if(!IMECHK) return;                   // 使用者按過「這是誤判」
   if(!$("imeWarn").hidden) return;      // 已經在顯示了就不要重複叫
+  // ⚠️ 一定要把「實際收到什麼」印出來 —— 沒有這個就只能猜是誤判還是真的
+  $("imeGot").textContent = JSON.stringify(String(got == null ? "" : got));
   buf = ""; clearTimeout(bufT);          // 被輸入法汙染的內容不能拿去比對
   try{ SOUND.err(); }catch(e){}
   buzz([90,60,90,60,140]);
@@ -1827,14 +1841,23 @@ function imeAlert(){
 }
 $("imeOk").addEventListener("click", function(){
   $("imeWarn").hidden = true;
-  CAP.value = "";
+  CAP.value = ""; buf = "";
   keepFocus();
+});
+// 逃生出口：偵測萬一又誤判，使用者要能自己關掉，不能被卡在畫面上
+$("imeOff").addEventListener("click", function(){
+  IMECHK = false;
+  try{ localStorage.setItem(LS + ".imechk", "0"); }catch(e){}
+  $("imeWarn").hidden = true;
+  CAP.value = ""; buf = "";
+  keepFocus();
+  msg("已關閉輸入法提醒");
 });
 
 CAP.addEventListener("input", function(){
   if(!buf) bufT0 = perfNow();
   // 這些條碼全是數字。跑出中文或注音符號 → 幾乎一定是輸入法沒切英數
-  if(/[\u3100-\u312F\u4E00-\u9FFF]/.test(CAP.value)){ CAP.value = ""; imeAlert(); return; }
+  if(IMECHK && /[\u3100-\u312F\u4E00-\u9FFF]/.test(CAP.value)){ var g = CAP.value; CAP.value = ""; imeAlert(g); return; }
   drainCap();
   clearTimeout(bufT);
   if(earlyCommit()) return;
@@ -2110,7 +2133,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 bc785313");
+      console.log("[MYZOO] 離線快取就緒 · 版本 4a399494");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

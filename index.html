@@ -735,7 +735,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
     <div class="brandline">
       <h1>MYZOO 撿貨核對系統</h1>
     </div>
-    <div class="verline">版本 <b id="verTag">v0.29 · 2026-08-15</b></div>
+    <div class="verline">版本 <b id="verTag">v0.30 · 2026-08-15</b></div>
 
     <div class="roles">
       <div class="rolegrid">
@@ -748,7 +748,6 @@ button:focus-visible,input:focus-visible,label:focus-visible{
           <b>對單貼標</b><span>覆核一堆、貼物流標</span>
         </button>
       </div>
-      <p class="dualnote">兩段作業進度<b>各自獨立記錄</b>，對單貼標為第二道覆核。</p>
     </div>
 
     <label class="drop" id="drop">
@@ -757,6 +756,8 @@ button:focus-visible,input:focus-visible,label:focus-visible{
       <p>今天的 xlsx 原檔，不用先整理</p>
       <input type="file" id="file" accept=".xlsx,.csv,.txt" hidden>
     </label>
+
+    <p class="dualnote">兩段作業進度<b>各自獨立記錄</b>，對單貼標為第二道覆核。</p>
 
     <div id="loadErr" class="err-note" hidden></div>
 
@@ -2538,7 +2539,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.29 · 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.30 · 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

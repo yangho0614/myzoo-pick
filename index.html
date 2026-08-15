@@ -247,7 +247,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 /* ── 訂單清單 ─────────────────────────────────────────── */
 .list{flex:1;overflow-y:auto;padding:14px var(--pad) 30px;display:flex;flex-direction:column;gap:9px}
 .summary{
-  display:flex;gap:10px;padding:0 var(--pad) 4px;
+  display:flex;gap:10px;padding:12px var(--pad) 4px;   /* 上緣留白：header 是 sticky，0 會黏在一起 */
 }
 .stat{
   flex:1;background:var(--surface);border:1px solid var(--line-soft);
@@ -362,7 +362,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   background:var(--amber-wash);border-color:var(--amber-line);color:var(--amber);
 }
 
-.rowlist{flex:1;overflow-y:auto;padding:9px var(--pad) 120px;display:flex;flex-direction:column;gap:7px}
+.rowlist{flex:1;overflow-y:auto;padding:12px var(--pad) 120px;display:flex;flex-direction:column;gap:7px}
 .row{
   display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;
   background:var(--surface);border:1px solid var(--line-soft);
@@ -589,7 +589,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">b73f96dd</b></span>
+      <span>版本 <b id="verTag">9d043e83</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -2002,7 +2002,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 b73f96dd");
+      console.log("[MYZOO] 離線快取就緒 · 版本 9d043e83");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

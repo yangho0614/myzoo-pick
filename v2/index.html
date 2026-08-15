@@ -668,7 +668,11 @@ body[data-arm="none"] .tabbar,body[data-arm="none"] .dock{bottom:var(--safe)}
       <div id="loadedNow" hidden style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span style="font-size:15px;color:var(--ok)">目前已載入</span>
         <b id="loadedWhat" style="font-size:15.5px;font-weight:600"></b>
-        <button class="btn btn--sm btn--ghost" id="dropSession" style="margin-left:auto">清掉，重新開始</button>
+        <!-- 🔴 沒有這顆的話，從訂單清單返回首頁之後就「回不去」了 ——
+             資料明明還在（這一列自己都寫著 8 張單），卻只能重選檔案或清掉重來。
+             使用者的心智模型是「返回＝看一下，還能回去」，一定要給回頭路。 -->
+        <button class="btn btn--sm btn--go" id="goBackList" style="margin-left:auto">繼續這一份</button>
+        <button class="btn btn--sm btn--ghost" id="dropSession">清掉，重新開始</button>
       </div>
     </div>
 
@@ -2380,6 +2384,15 @@ function loadedSync(){
   if(n) $("loadedWhat").textContent = (DB.src || "上一份出貨單") + " · " + n + " 張單";
 }
 
+// 回到訂單清單。⚠️ 這是使用者手勢，順便把掃描焦點帶回去（iOS 只在手勢當下允許）
+document.addEventListener("DOMContentLoaded", function(){});
+function goBackToList(){
+  if(!(DB.orders && DB.orders.length)) return;
+  renderOrders();
+  show("scOrders");
+  if(typeof keepFocus === "function") keepFocus();
+}
+
 function loadRows(rows, srcName, fromPick){
   $("loadErr").hidden = true;
   try{
@@ -2542,6 +2555,7 @@ $("resumeGo").addEventListener("click", function(){
   if(pendingSession) loadRows(pendingSession.rows, pendingSession.src);
   pendingSession = null;
 });
+$("goBackList").addEventListener("click", goBackToList);
 $("dropSession").addEventListener("click", function(){
   clearSession();
   location.reload();      // 整份狀態歸零最乾淨（各角色的進度另外存，不受影響）

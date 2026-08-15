@@ -249,7 +249,12 @@ button:focus-visible,input:focus-visible,label:focus-visible{
   font-size:16.5px;font-weight:700;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis;
 }
-.bar__sub{font-size:12px;color:var(--ink-faint);font-family:var(--mono)}
+/* ⚠️ 一定要 nowrap：模式標籤改成「對單貼標模式」後，390px 寬的手機上
+   副標題會被擠到換行（最後一個字掉到第二行），header 高度就跳掉了。 */
+.bar__sub{
+  font-size:12px;color:var(--ink-faint);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
 
 /* ── 訂單清單 ─────────────────────────────────────────── */
 .list{flex:1;overflow-y:auto;padding:14px var(--pad) 30px;display:flex;flex-direction:column;gap:9px}
@@ -608,7 +613,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">c365d28e</b></span>
+      <span>版本 <b id="verTag">304fa94a</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -2043,7 +2048,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 c365d28e");
+      console.log("[MYZOO] 離線快取就緒 · 版本 304fa94a");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

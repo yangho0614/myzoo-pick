@@ -549,7 +549,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 
     <!-- 掃描器診斷：現場掃不動時唯一能遠端判斷問題的東西，不要刪 -->
     <div class="diagbar">
-      <span>版本 <b id="verTag">102790dd</b></span>
+      <span>版本 <b id="verTag">a9e68523</b></span>
       <button class="btn btn--ghost" id="diagGo" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-build"/></svg>掃描診斷</button>
     </div>
 
@@ -801,18 +801,26 @@ function decode(buf){
   return s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
 }
 
+/* 🔴 分隔符號一定要「先決定好」，不可以逗號和 TAB 同時都認。
+   商品名稱本身就含逗號（太空計劃-Gamma左開(黑色)(Black,Left)）。
+   兩種都認的話，從 Excel 複製貼上（TAB 分隔）時名稱會在逗號處被切斷，
+   後面欄位整列往前擠一格 → 數量欄被名稱的後半段佔走，
+   **數量會安靜地變成錯的**（實測 2 箱變 1 箱）。錯得像真的，比直接報錯危險得多。
+   規則：內容裡有 TAB 就是 TAB 分隔（Excel 複製貼上都是），否則才當 CSV。 */
 function splitRows(text){
-  // 逐字掃描，處理引號內的逗號與換行
-  var rows = [], row = [], cell = "", q = false, i = 0;
   text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-  for(; i < text.length; i++){
+  var SEP = text.indexOf("\t") >= 0 ? "\t" : ",";
+  var QUOTED = SEP === ",";      // TSV 不做引號處理 —— 名稱裡的 " 是尺寸符號不是引號
+
+  var rows = [], row = [], cell = "", q = false;
+  for(var i = 0; i < text.length; i++){
     var c = text[i];
     if(q){
       if(c === '"'){ if(text[i+1] === '"'){ cell += '"'; i++; } else q = false; }
       else cell += c;
     }else{
-      if(c === '"') q = true;
-      else if(c === "," || c === "\t"){ row.push(cell); cell = ""; }
+      if(QUOTED && c === '"') q = true;
+      else if(c === SEP){ row.push(cell); cell = ""; }
       else if(c === "\n"){ row.push(cell); rows.push(row); row = []; cell = ""; }
       else cell += c;
     }
@@ -1900,7 +1908,7 @@ setRole(ROLE);
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 102790dd");
+      console.log("[MYZOO] 離線快取就緒 · 版本 a9e68523");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

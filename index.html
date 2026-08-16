@@ -83,6 +83,12 @@
   --scrim:rgba(0,0,0,.62);
   --bg-fade:rgba(18,20,23,0);
 
+  /* 🔴 選擇出貨明細那顆的橘（2026-08-16 從 v2 測試版移植，取自 Evan 的參考圖）。
+     為什麼是橘：載入畫面已經有「撿貨／對單貼標／一人作業」三顆角色按鈕，
+     選檔是**動作**不是角色，給它一個誰都不撞的顏色最清楚。 */
+  --file-c:#E8822E;
+  --file-c-2:#E8A03A;
+
   --pad:16px;
   --r:14px;
   /* 底部待命條在「已待命」時只剩一條細線。未待命時它會變高並蓋住一點內容，
@@ -239,14 +245,17 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 
 .drop{
   display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:26px 16px;border-radius:var(--r);text-align:center;
-  background:var(--card);cursor:pointer;
-  box-shadow:inset 0 0 0 1.5px var(--tint-soft);
+  padding:25px 16px;border-radius:var(--r);text-align:center;
+  background:linear-gradient(135deg,var(--file-c),var(--file-c-2));
+  color:#fff;cursor:pointer;border:0;
 }
-.drop.hot{background:var(--tint-soft)}
-.drop .ico{width:28px;height:28px;color:var(--tint)}
-.drop b{font-size:17px;font-weight:600;color:var(--tint)}
-.drop p{margin:0;width:100%;font-size:13.5px;color:var(--ink-3)}
+/* ⚠️ 這三條原本各自指定顏色又寫在後面，會把上面的設定蓋掉
+   （同分特異性後者勝）。所以顏色一次寫在這裡，不要再拆開。 */
+.drop .ico{width:28px;height:28px;color:#fff}
+.drop b{font-size:17px;font-weight:600;color:#fff}
+.drop p{margin:0;width:100%;font-size:13.5px;color:rgba(255,255,255,.74)}
+.drop:active{filter:brightness(.92)}
+.drop.hot{filter:brightness(1.12)}
 
 .err-note{
   padding:13px 15px;border-radius:12px;white-space:pre-line;
@@ -340,12 +349,20 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
   display:flex;gap:8px;padding:10px var(--pad) 12px;
   background:var(--bg);border-top:.5px solid var(--sep);
 }
-.tabbar .btn{flex:1;min-height:48px;padding:0 6px;font-size:15px;font-weight:500}
+/* 🔴 2026-08-16 從 v2 移植：**純圖示直排、不加底色**（照 LG ThinQ 那套）。
+   原本每顆都是深灰方塊，四個長一樣、掃一眼分不出來；
+   拿掉底色之後靠圖示辨識，選中的那顆變純白。 */
+.tabbar .btn{flex:1;min-height:48px;padding:0 4px;font-size:11.5px;font-weight:600;
+  background:none;border:0;flex-direction:column;gap:3px;color:var(--ink-3)}
+.tabbar .btn .ico{font-size:22px}
 /* 查條碼只留圖示：它是「偶爾查一下」，不需要跟主要入口搶寬度 */
-.tabbar .btn--icon{flex:0 0 58px;gap:0}
+.tabbar .btn--icon{flex:1}
 .tabbar .btn--icon .ico{font-size:22px}
 /* 目前所在的那一頁高亮 */
-.tabbar .btn[aria-current="page"]{background:var(--tint-soft);color:var(--tint)}
+/* 選中＝**純白**，不是主色。底部四個入口回答的是「我在哪」，不是「這個可以點」——
+   用主色會讓它跟返回鍵、進度條那些真正的互動元件混在一起。
+   白 vs 淺灰是純明度對比，昏暗倉庫最好分辨。 */
+.tabbar .btn[aria-current="page"]{background:none;color:#FFF}
 /* 沒有載入出貨明細時，這三個入口是空的 —— 直接停用並壓暗，
    否則點過去是一片空白，使用者會以為按鈕壞了（2026-08-16 回報）。 */
 .tabbar .btn[disabled]{opacity:.35;color:var(--ink-3)}
@@ -758,7 +775,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.40　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.41　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -1743,7 +1760,8 @@ function scanSummary(code){
   if(!hits.length){
     SOUND.err(); buzz([90,60,90,60,140]);
     blast("err", "✕", "不在今天的出貨單上", pretty(code),
-          "整份出貨單裡都沒有這個條碼");
+          scopeText() +
+          '<span class="blast__todo">放回貨架 —— 可能是撿錯，或是別天的貨</span>');
     return;
   }
 
@@ -1787,7 +1805,8 @@ function scanSort(code){
   if(!hits.length){
     SOUND.err(); buzz([90,60,90,60,140]);
     sortCard("err", "不在今天的出貨單上", "這箱不該在這裡", "", "",
-             codeHTML(code), "整份出貨單裡都沒有這個條碼 —— 先確認是不是撿錯了");
+             codeHTML(code), scopeText().replace(/<\/?strong>/g, ""), "", "",
+             "放回貨架 —— 可能是撿錯，或是別天的貨");
     $("sortMsg").textContent = "掃到出貨單上沒有的品項";
     return;
   }
@@ -1995,6 +2014,19 @@ function msg(html, kind){
   m.style.color = kind === "err" ? "var(--err)" : kind === "ok" ? "var(--ok)" : "var(--ink-dim)";
 }
 
+
+/* 「不在今天的出貨單上」的內文：講**查過的範圍**，不要把標題再講一次。
+   原本三行都在講同一件事（標題／內文／待辦），資訊量等於一行。
+   現在：標題＝問題是什麼、內文＝查了多大範圍、待辦＝該怎麼做。
+   （2026-08-16 從 v2 測試版移植） */
+function scopeText(){
+  var n = 0, seen = {};
+  DB.orders.forEach(function(o){ o.items.forEach(function(i){
+    if(!seen[i.code]){ seen[i.code] = 1; n++; }
+  }); });
+  return "今天 <strong>" + DB.orders.length + "</strong> 張單、<strong>" + n +
+         "</strong> 個品項裡都沒有它";
+}
 /* ═══ 掃到一筆 ═══════════════════════════════════════════ */
 function scanPick(code){
   var idx = -1;
@@ -2005,14 +2037,17 @@ function scanPick(code){
     var other = (DB.byCode[code] || []).filter(function(h){ return h.ord !== cur; });
     SOUND.err(); buzz([90,60,90,60,140]);
     var oth = other.length ? other[0] : null;
-    blast("err", "✕", "不是這張單的", code,
+    /* ⚠️ 標題要看情況：這個條碼**在別張單上**才叫「不是這張單的」；
+       整份出貨單都查不到時那句話會跟下面的內文自相矛盾
+       （標題說「不是這張單」暗示它屬於別張，內文卻說「整份都沒有」）。 */
+    blast("err", "✕", oth ? "不是這張單的" : "不在今天的出貨單上", code,
       (oth
         ? (oth.item.sku ? esc(oth.item.sku) + " " : "") + esc(oth.item.name) +
           "<br>這箱是 <strong>" + esc(oth.ord.cust) + "</strong> 的" +
           (oth.ord.pile ? "，第 <strong>" + oth.ord.pile + "</strong> 疊" : "")
-        : "整份出貨單裡都沒有這個條碼") +
+        : scopeText()) +
       '<span class="blast__todo">' +
-      (oth ? "放回原位，或切到那張單再掃這一箱" : "先確認是不是撿錯了 —— 今天不出這個品項") +
+      (oth ? "放回原位，或切到那張單再掃這一箱" : "放回貨架 —— 可能是撿錯，或是別天的貨") +
       "</span>",
       oth ? [{ label: "切到 " + oth.ord.cust, kind: "go", fn: function(){ jumpToOrder(oth.ord); } },
              { label: "放回去，繼續撿" }]
@@ -2910,7 +2945,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.40　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.41　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

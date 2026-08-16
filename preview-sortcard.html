@@ -77,7 +77,7 @@ h1{font-size:21px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
 .v .sortcard__code .uhead{font-size:15px;color:var(--ink-3);opacity:1;letter-spacing:.02em}
 .v .sortcard__code .utail{font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
 .v .sortcard__item{font-size:20px;font-weight:650;margin-top:6px;line-height:1.32}
-.v .sortcard__ids{font-family:var(--mono);font-size:13.5px;color:var(--ink-3);
+.v .sortcard__ids{display:block;font-family:var(--mono);font-size:13.5px;color:var(--ink-3);
   margin-top:11px;letter-spacing:.02em;font-variant-numeric:tabular-nums}
 .v .sortcard__ids s{text-decoration:none;opacity:.5;margin:0 .5em}
 
@@ -165,7 +165,7 @@ h1{font-size:21px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
 
   <!-- 乙 -->
   <div class="opt pick">
-    <span class="tag">乙 · 建議</span>
+    <span class="tag">乙 · 已採用</span>
     <h2>品名在上、條碼在下</h2>
     <p class="why">維持<b>現在的閱讀順序</b>（先認東西、再核號碼），只調字級與分組。改動最小，同事不需要重新適應。</p>
     <div class="ph v">
@@ -173,9 +173,9 @@ h1{font-size:21px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
         <div class="sortcard__pile"><i>4</i><u>疊</u></div>
         <div class="sortcard__eye">放到這一堆</div>
         <div class="sortcard__who">林世宸</div>
-        <div class="sortcard__item" style="margin-top:11px">貓踏板Lack橡木色(S)(Oak)(2pcs)</div>
-        <div class="sortcard__code" style="margin-top:7px"><span class="uhead">640841</span> <span class="utail">970799</span></div>
-        <div class="sortcard__ids">MZ0015<s>·</s>202608188</div>
+        <div class="sortcard__line">202608188</div>
+        <div class="sortcard__item" style="margin-top:7px">貓踏板Lack橡木色(S)(Oak)(2pcs)</div>
+        <div class="sortcard__code" style="margin-top:3px"><span class="uhead">640841</span> <span class="utail">970799</span><span class="sortcard__ids" style="margin-top:13px">MZ0015</span></div>
         <div class="sortcard__note">這位還要 2 箱</div>
       </div>
     </div>
@@ -240,15 +240,15 @@ h1{font-size:21px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
     </div>
   </div>
   <div class="opt pick">
-    <span class="tag">乙 · 建議</span>
+    <span class="tag">乙 · 已採用</span>
     <div class="ph v">
       <div class="sortcard">
         <div class="sortcard__pile"><i>2</i><u>疊</u></div>
         <div class="sortcard__eye">放到這一堆</div>
         <div class="sortcard__who">Three little meow香港代理</div>
-        <div class="sortcard__item" style="margin-top:11px">太空計劃Gamma左開(白色)(White,Left)</div>
-        <div class="sortcard__code" style="margin-top:7px"><span class="uhead">641361</span> <span class="utail">328565</span></div>
-        <div class="sortcard__ids">MZ0073<s>·</s>202608182</div>
+        <div class="sortcard__line">202608182</div>
+        <div class="sortcard__item" style="margin-top:7px">太空計劃Gamma左開(白色)(White,Left)</div>
+        <div class="sortcard__code" style="margin-top:3px"><span class="uhead">641361</span> <span class="utail">328565</span><span class="sortcard__ids" style="margin-top:13px">MZ0073</span></div>
         <div class="sortcard__note">這位還要 1 箱</div>
       </div>
     </div>
@@ -272,7 +272,7 @@ h1{font-size:21px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
 </div>
 
 <div class="foot">
-  <h3>我推薦 乙</h3>
+  <h3>已採用 乙（2026-08-16 上線）</h3>
   <ul>
     <li>三種都達成你要的層級，差別只在<b>條碼與品名誰在上面</b>。</li>
     <li>乙 維持現在的順序 —— 同事已經看習慣「人名 → 品名 → 號碼」，只是字變大、單號歸位，<b>不用重新學</b>。</li>
@@ -280,7 +280,7 @@ h1{font-size:21px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
   </ul>
   <p style="margin:12px 0 0">
     三種共通的改動：<br>
-    ① 訂單編號從人名底下移走，跟 MZ 併成最後一行小字（<b>同階就放同一行</b>）<br>
+    ① 訂單編號<b>維持在人名下方</b>（乙的定案）；MZ 從條碼行的粗體前綴改成條碼下方自己一行<br>
     ② 品名 17 → <b>20px</b>；尾 6 碼 20 → <b>24px</b>、前 6 碼 13 → <b>15px</b> 且不再壓成半透明<br>
     ③ MZ 從「條碼行的粗體前綴」改成「跟訂單編號並列的參考編號」
   </p>

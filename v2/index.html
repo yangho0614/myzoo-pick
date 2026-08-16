@@ -335,8 +335,8 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 
 /* 次要入口放拇指區 */
 .tabbar{
-  position:fixed;left:0;right:0;bottom:calc(var(--armh-open) + var(--safe));z-index:30;   /* 固定用展開高度 */
-  max-width:560px;margin:0 auto;transition:bottom .12s;
+  position:fixed;left:0;right:0;bottom:var(--armh-live, calc(var(--armh) + var(--safe)));z-index:30;
+  max-width:560px;margin:0 auto;
   display:flex;gap:8px;padding:10px var(--pad) 12px;
   background:var(--bg);border-top:.5px solid var(--sep);
 }
@@ -372,9 +372,18 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 /* 前 6 ／後 6 之間的空隙：逐字對外箱貼紙時，分組比連成一串好唸 */
 .usp{display:inline-block;width:.55em}
 .ucode{display:inline-flex;align-items:baseline;white-space:nowrap}
-.row__multi{grid-column:2;grid-row:2;justify-self:start;margin-top:2px;
-  font-size:12.5px;color:var(--attn);background:transparent;white-space:nowrap;
-  box-shadow:inset 0 0 0 1px var(--attn);border-radius:999px;padding:2px 9px}
+.row__multi{grid-column:2;grid-row:2;justify-self:start;margin-top:7px;
+  color:var(--attn);background:var(--attn-soft);
+  box-shadow:inset 0 0 0 1px var(--attn-line);border-radius:10px;padding:7px 11px 8px;
+  display:grid;gap:3px}
+.row__multi u{text-decoration:none;font-size:11.5px;font-weight:600;
+  letter-spacing:.08em;color:var(--attn);opacity:.7}
+/* 一人一行；箱數緊跟在最長的人名之後、同一張卡內對齊 */
+.row__multi span{display:grid;grid-template-columns:minmax(0,max-content) auto;
+  gap:14px;align-items:baseline}
+.row__multi b{font-size:15.5px;font-weight:600;line-height:1.35;color:var(--attn)}
+.row__multi n{font-size:15px;font-style:normal;font-variant-numeric:tabular-nums;
+  color:var(--attn)}
 /* 跟品名同一列、垂直置中對齊（同彙總表） */
 .row__qty{grid-column:3;grid-row:1;align-self:center;text-align:right;white-space:nowrap;
   font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:-.02em}
@@ -382,10 +391,24 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 .row__qty em{font-size:15px;font-style:normal;color:var(--ink-3);margin-left:.28em}
 .row[data-s="part"] .row__qty .a{color:var(--attn)}
 .row[data-s="done"] .row__qty .a{color:var(--good)}
+/* 分段控制：選中那顆填湖水綠淡底＋描邊，未選中只是文字 */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px var(--pad) 0}
+.seg button{
+  min-height:44px;padding:0 12px;border-radius:10px;text-align:center;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15.5px;font-weight:600;color:var(--ink-2);background:var(--fill);
+}
+.seg button[aria-pressed="true"]{
+  color:var(--tint);background:var(--tint-soft);box-shadow:inset 0 0 0 1.5px var(--tint);
+}
+.seg button:active{background:var(--fill-2)}
+
 /* ══ 今日彙總的列：品號固定在最左欄（像對帳表，同一欄的數字最好掃視），
    跨單品項排在最前面，跨單的收貨人一人一行。 ══ */
 #sumRows{display:block;padding-left:0;padding-right:0;gap:0}
-.sgrp{padding:18px 20px 7px;font-size:12.5px;font-weight:600;letter-spacing:.07em;color:var(--ink-3)}
+/* 分組標題是標籤不是卡片 —— 要拿掉繼承來的卡片底色，並對齊卡片內的文字邊 */
+.sgrp{background:none;border-radius:0;padding:18px 30px 7px;
+  font-size:12.5px;font-weight:600;letter-spacing:.07em;color:var(--ink-3)}
 .sgrp:first-child{padding-top:10px}
 .sgrp b{color:var(--attn);font-weight:600}
 /* 一列一張卡，卡之間留空 —— 黏在一起時分不出這幾行屬於哪一項 */
@@ -494,8 +517,8 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 
 /* ═══ 底部進度座 ═══ */
 .dock{
-  position:fixed;left:0;right:0;bottom:calc(var(--armh-open) + var(--safe));z-index:30;   /* 固定用展開高度 */
-  max-width:560px;margin:0 auto;transition:bottom .12s;
+  position:fixed;left:0;right:0;bottom:var(--armh-live, calc(var(--armh) + var(--safe)));z-index:30;
+  max-width:560px;margin:0 auto;
   background:var(--dock-bg);
   backdrop-filter:saturate(180%) blur(20px);
   -webkit-backdrop-filter:saturate(180%) blur(20px);
@@ -545,11 +568,10 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 }
 .armbar.on .armbar__dot{width:34px;height:3px;border-radius:2px;
   background:rgba(11,13,16,.5);animation:none}
-/* 待命條的三種狀態，由 scanbarSync 寫在 body[data-arm] 上 */
-/* ⚠️ 已停用：這條會讓 .tabbar/.dock 隨待命條展開收合移動 ——
-   點底部按鈕的第一下先觸發「啟用掃描」，按鈕就在手指底下跑掉，看起來按了沒反應。
-   （這是第三次交付都出現的同一個問題，接手時固定要檢查。） */
-body[data-arm="none"] .tabbar,body[data-arm="none"] .dock{bottom:var(--safe)}
+/* 🔴 底部兩條（tabbar／進度座）要貼齊待命條的上緣。
+   高度不能用 CSS 算 —— iOS Safari 底部網址列出現時 env(safe-area-inset-bottom)
+   報的值跟待命條實際佔的高度對不上，就會在兩者之間留一道縫，
+   清單從縫裡透出來。改由 scanbarSync 量實際高度寫進 --armh-live。 */
 
 /* ═══ 全屏回饋：走動撿貨看不到螢幕，聲音是主、整片色是副 ═══ */
 .blast{
@@ -830,8 +852,12 @@ body[data-arm="none"] .tabbar,body[data-arm="none"] .dock{bottom:var(--safe)}
       <div class="bar__title">今日彙總</div>
       <div class="bar__sub" id="sumSub"></div>
     </div>
-    <button class="btn btn--sm" id="chipMulti" aria-pressed="false">只看跨單</button>
   </header>
+  <!-- 兩顆並排、目前在哪一邊一眼看得到 —— 單顆切換要先讀文字才知道現在是什麼狀態 -->
+  <div class="seg" role="group" aria-label="顯示範圍">
+    <button id="segAll" aria-pressed="true">全部</button>
+    <button id="segMulti" aria-pressed="false">只看跨單</button>
+  </div>
   <div class="rowlist" id="sumRows" style="padding-bottom:120px"></div>
 </section>
 
@@ -843,7 +869,7 @@ body[data-arm="none"] .tabbar,body[data-arm="none"] .dock{bottom:var(--safe)}
       <div class="bar__title">分揀</div>
       <div class="bar__sub">掃一箱，告訴你放哪一堆</div>
     </div>
-    <button class="btn btn--sm" id="sortUndo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg>退回</button>
+    <button class="btn btn--sm" id="sortUndo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg>取消上一筆</button>
   </header>
 
   <div class="sortwrap">
@@ -892,8 +918,12 @@ body[data-arm="none"] .tabbar,body[data-arm="none"] .dock{bottom:var(--safe)}
     </div>
   </div>
 
+  <div class="seg">
+    <button id="segAllItems" aria-pressed="true">顯示全部</button>
+    <button id="segLeft" aria-pressed="false">只看未撿</button>
+  </div>
+
   <div class="chips">
-    <button class="chip" id="chipLeft" aria-pressed="false">只看未撿</button>
     <button class="chip" id="chipManual" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-keyboard"/></svg>手動輸入</button>
     <button class="chip" id="pkReset"><svg class="ico" aria-hidden="true"><use href="#i-restart"/></svg>歸零</button>
   </div>
@@ -1564,6 +1594,12 @@ function renderSummary(){
     addLabel("跨單 <b>" + multiKeys.length + " 項</b> — 同一款要分給幾位");
     multiKeys.forEach(function(c){ addRow(c, map[c]); });
   }
+  if(onlyMulti && !multiKeys.length){
+    var e = document.createElement("div");
+    e.className = "done-note";
+    e.textContent = "今天沒有跨單品項 —— 每一款都只給一位";
+    box.appendChild(e);
+  }
   if(!onlyMulti && soloKeys.length){
     addLabel("只給一位 " + soloKeys.length + " 項");
     soloKeys.forEach(function(c){ addRow(c, map[c]); });
@@ -1714,7 +1750,7 @@ function scanSort(code){
 function undoSort(){
   var h = sortHistory.pop();
   if(!h){
-    sortCard("idle", "沒有可以退回的", "—", "", "這一輪還沒掃過任何一箱");
+    sortCard("idle", "沒有可以取消的", "—", "", "這一輪還沒掃過任何一箱");
     return;
   }
   h.item.got = Math.max(0, h.item.got - 1);
@@ -1727,10 +1763,9 @@ function undoSort(){
 
 /* ═══ 撿貨畫面 ═══════════════════════════════════════════ */
 function openOrder(o){
-  cur = o; onlyLeft = false;
-  $("chipLeft").setAttribute("aria-pressed","false");
-  $("chipLeft").lastChild.textContent = "只看未撿";   // 換單時標籤要跟著回到預設，不然文字與狀態相反
-  renderPick(); show("scPick");
+  cur = o;
+  setPickFilter(false);          // 換單一律回到「顯示全部」
+  show("scPick");
 }
 
 /* 🔴 焦點卡：走動中看不清楚整份清單，所以把「現在該撿哪一箱」單獨放大。
@@ -1789,9 +1824,16 @@ function renderPick(){
     // 今天還有別張單也要這一項 → 標出來，就是「順便一起撿」的提示
     var mu = d.querySelector(".row__multi"), other = othersFor(it.code, cur);
     if(other.length){
-      mu.textContent = "另 " + other.length + " 單共 " +
-        other.reduce(function(s, h){ return s + h.item.need; }, 0) + " 箱";
-      mu.title = other.map(function(h){ return h.ord.cust + " " + h.item.need; }).join("、");
+      /* 講「是誰、要幾箱」而不是總數 ——「另 1 單共 1 箱」的「共」會被讀成
+         「這一款總共只有 1 箱」。順便去拿的時候，要的是人名。 */
+      /* 一人一行 —— 併成一行時要在人名之間找箱數（跟今日彙總同一個道理） */
+      mu.innerHTML = '<u>順便</u>' + other.map(function(h){
+        return '<span><b></b><n>' + h.item.need + ' 箱</n></span>';
+      }).join("");
+      other.forEach(function(h, i){
+        mu.querySelectorAll("span b")[i].textContent = h.ord.cust;
+      });
+      mu.title = other.map(function(h){ return h.ord.cust + " " + h.item.need + " 箱"; }).join("、");
     }else mu.remove();
     d.querySelector(".a").textContent = it.got;
     box.appendChild(d);
@@ -2118,6 +2160,8 @@ function drainCap(){
   if(CAP.value) buf = CAP.value;
 }
 
+var armhLive = "";
+var armhMax = 0;   // 待命條出現過的最大高度（見 scanbarSync）   // 上一次寫進 --armh-live 的值，避免每 800ms 重複寫 DOM
 // 待命燈：綠＝聚焦中＝掃得動。操作員唯一能自己確認「現在掃有沒有用」的訊號
 function scanbarSync(){
   var on = document.activeElement === CAP;
@@ -2141,6 +2185,18 @@ function scanbarSync(){
   bar.classList.toggle("on", on);
   var arm = !want ? "none" : (on ? "on" : "off");
   if(document.body.dataset.arm !== arm) document.body.dataset.arm = arm;
+  // 量待命條真正佔了多高（見 CSS 註解）。隱藏時只要讓開 home indicator。
+  /* 🔴 只增不減。待命條未待命時約 64px、待命後縮到約 14px，
+     若讓預留跟著縮，底部的 tabbar/dock 會往下掉 ——
+     使用者點底部按鈕的第一下會先「啟用掃描」，按鈕就在手指底下跑掉，
+     症狀是「按了沒反應，再按一次才中」。按鈕位置必須固定。 */
+  var _h = bar.hidden ? 0 : Math.round(bar.getBoundingClientRect().height);
+  if(_h > armhMax) armhMax = _h;
+  var live = bar.hidden ? "var(--safe)" : armhMax + "px";
+  if(armhLive !== live){
+    armhLive = live;
+    document.documentElement.style.setProperty("--armh-live", live);
+  }
   var txt = on ? "可以掃了" : "點一下這裡，才掃得動";
   if($("armTxt").textContent !== txt) $("armTxt").textContent = txt;
 }
@@ -2216,6 +2272,9 @@ document.addEventListener("touchend", keepFocus, { passive: true });
 document.addEventListener("click", keepFocus);
 window.addEventListener("focus", keepFocus);
 document.addEventListener("visibilitychange", function(){ if(!document.hidden) keepFocus(); });
+// 網址列伸縮、轉向、鍵盤收合都會改變待命條的實際高度
+window.addEventListener("resize", scanbarSync);
+if(window.visualViewport) window.visualViewport.addEventListener("resize", scanbarSync);
 
 /* 焦點可能被系統默默拿走（切 App、鍵盤收起、掃描後換畫面）。
    ⚠️ 換畫面是被「掃描」觸發的、不是使用者手勢，iOS 會拒絕那次 focus()，
@@ -2528,13 +2587,14 @@ $("goSort").addEventListener("click", function(){ audio(); openSort(); });
 $("backOrders3").addEventListener("click", function(){ renderOrders(); show("scOrders"); });
 $("backOrders4").addEventListener("click", function(){ renderOrders(); show("scOrders"); });
 $("goSummary").addEventListener("click", function(){ audio(); renderSummary(); show("scSum"); });
-$("chipMulti").addEventListener("click", function(){
-  onlyMulti = !onlyMulti;
-  this.setAttribute("aria-pressed", String(onlyMulti));
-  // 文字說「按下去會發生什麼」，不是說「現在是什麼狀態」—— 現場不用猜
-  this.lastChild.textContent = onlyMulti ? "顯示全部" : "只看跨單";
+function setSumFilter(m){
+  onlyMulti = m;
+  $("segAll").setAttribute("aria-pressed", String(!m));
+  $("segMulti").setAttribute("aria-pressed", String(m));
   renderSummary();
-});
+}
+$("segAll").addEventListener("click", function(){ setSumFilter(false); });
+$("segMulti").addEventListener("click", function(){ setSumFilter(true); });
 $("sortUndo").addEventListener("click", undoSort);
 
 $("mfGo").addEventListener("click", function(){
@@ -2594,12 +2654,15 @@ $("goLookup").addEventListener("click", function(){
   audio(); show("scLookup");
 });
 
-$("chipLeft").addEventListener("click", function(){
-  onlyLeft = !onlyLeft;
-  this.setAttribute("aria-pressed", String(onlyLeft));
-  this.lastChild.textContent = onlyLeft ? "顯示全部" : "只看未撿";
+/* 兩顆各自代表一個狀態 —— 單顆切換鈕看不出「現在是哪一種」（跟今日彙總一致） */
+function setPickFilter(v){
+  onlyLeft = v;
+  $("segAllItems").setAttribute("aria-pressed", String(!v));
+  $("segLeft").setAttribute("aria-pressed", String(v));
   renderPick();
-});
+}
+$("segAllItems").addEventListener("click", function(){ setPickFilter(false); });
+$("segLeft").addEventListener("click", function(){ setPickFilter(true); });
 $("chipManual").addEventListener("click", function(){
   var on = $("manualWrap").hidden;
   $("manualWrap").hidden = !on;
@@ -2655,7 +2718,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.38　更新日期 2026-08-15");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.40　更新日期 2026-08-15");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

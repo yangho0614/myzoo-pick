@@ -736,7 +736,7 @@ body[data-role="label"] #goSort{display:none}
 .srow[data-s="part"] .tick{background:rgba(0,0,0,.14);box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.3)}
 .srow[data-s="part"] .tick::after{border-color:rgba(0,0,0,.55)}
 /* 分堆數超過取下數的提示 */
-.srow__gap{grid-column:1 / -1;margin-top:6px;font-size:13px;color:var(--attn)}
+.srow__gap{grid-column:1 / -1;margin-top:8px;padding-left:118px;font-size:13px;color:var(--attn)}
 .srow[data-s="part"] .srow__gap{color:rgba(0,0,0,.62)}
 /* ⚠️ 這裡原本有「已取下」小標，2026-08-16 拿掉（Evan）。
    兩個計數器都會走到同一個總數，但**畫面本身就分得出來** ——
@@ -967,7 +967,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.72　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.73　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -1929,8 +1929,11 @@ function renderSummary(){
     if(m.got > tk){
       var w = document.createElement("div");
       w.className = "srow__gap";
-      w.textContent = "已分堆 " + m.got + " 箱，比取下的多";
-      d.querySelector(".srow__qty").after(w);
+      w.textContent = "⚠ 已分堆 " + m.got + " 箱，比取下的多";
+      /* ⚠️ 放在**卡片最後面**，不要插在品名與收件人清單中間。
+         它是附註不是主要資訊，夾在中間會把「這一款要分給誰」硬生生切開。
+         縮排跟收件人清單一致（118px），所以跟品名對齊。 */
+      d.appendChild(w);
     }
     var sk = d.querySelector(".sk");
     if(m.sku) sk.textContent = m.sku; else sk.remove();
@@ -3269,7 +3272,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.72　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.73　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

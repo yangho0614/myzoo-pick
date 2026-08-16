@@ -41,58 +41,37 @@
    關鍵數字（箱數、疊號、進度）額外放大，並用等寬數字對位。
    ───────────────────────────────────────────────────────────── */
 :root{
-  /* 🔴 2026-08-16 改版：純黑底 + 深灰卡片。
-     原本 #0E1012 底配 #1C1E21 卡只差 14 級灰，所有東西貼在同一個平面上；
-     純黑之後卡片才浮得起來，昏暗倉庫的對比也更好，OLED 還省電。 */
-  --bg:#000;
-  --card:#191919;
-  --fill:#242424;
-  --fill-2:#2E2E2E;
-  --sep:rgba(255,255,255,.11);
-  --sep-strong:rgba(255,255,255,.20);
+  /* 中性深灰底（不帶藍也不帶綠），讓湖水綠與黃跳得出來 */
+  --bg:#0E1012;
+  --card:#1C1E21;
+  --fill:#26282C;
+  --fill-2:#31343A;
+  --sep:rgba(255,255,255,.09);
+  --sep-strong:rgba(255,255,255,.19);
 
-  --ink:#FFFFFF;
-  --ink-2:#B4B4B4;
-  --ink-3:#8A8A8A;
+  --ink:#F2F3F4;
+  --ink-2:#A8ABB0;
+  --ink-3:#75787E;
 
-  /* 主色＝可點的東西（返回鍵、選中的篩選、進度條、目前所在的頁、角色：撿貨）
-     🔴 2026-08-16 取自 Evan 提供的參考圖（四張堆疊卡片的紫）。 */
-  --tint:#7B4FE0;
-  --tint-soft:rgba(123,79,224,.18);
-  --tint-line:rgba(123,79,224,.55);
+  --tint:#21C7BA;
+  --tint-soft:rgba(33,199,186,.15);
+  --tint-ink:#062220;
 
-  /* 🔴 載入畫面四顆按鈕的專屬色（2026-08-16，Evan 指定＋參考圖取色）：
-       撿貨＝紫（＝主色）　對單貼標＝綠　一人作業＝藍　選擇出貨明細＝橘
-     ⚠️ 這四個色**只用在載入畫面**。作業畫面的綠仍然是「完成」、
-        琥珀仍然是「未完成」—— 不要把這四個色帶進作業畫面，會語意打架。 */
-  --role-pick:#7B4FE0;   --role-pick-2:#9163F0;
-  --role-label:#3FA57E;  --role-label-2:#4CB88A;
-  --role-solo:#4477D0;   --role-solo-2:#4E92DC;
-  --file-c:#E8822E;      --file-c-2:#E8A03A;
-  /* 輔助色＝資訊性強調（疊號、次要按鈕、分組標題的數字、角色：對單貼標） */
-  --accent:#46B8F0;
-  --accent-soft:rgba(70,184,240,.16);
+  --good:#4f9b6f;
+  --good-soft:rgba(33,199,186,.15);
+  --bad:#E8354F;
+  --bad-soft:rgba(232,53,79,.14);
+  --attn:#FFD230;
+  --attn-soft:rgba(255,210,48,.14);
+  --attn-line:rgba(255,210,48,.55);   /* 進行中的卡片描邊（CLAUDE.md：整圈邊框＋淡底，不用左緣色柱） */
 
-  --good:#3DDC6B;
-  /* ⚠️ 這裡原本寫成青色 rgba(33,199,186,.15)，跟 --tint-soft 一模一樣 ——
-     「已完成」的淡底跟「可點」的淡底同色。2026-08-16 修正。 */
-  --good-soft:rgba(61,220,107,.14);
-  --bad:#F04A5E;
-  --bad-soft:rgba(240,74,94,.14);
-  --attn:#FFC400;
-  --attn-soft:rgba(255,196,0,.14);
-  --attn-line:rgba(255,196,0,.55);
+  /* 填在湖水綠或黃色塊上的文字：深色，不要純黑 */
+  --on-fill:#0B0D10;
 
-  /* 🔴 填在色塊上的文字要分開定義 ——
-     主色是深藍紫（要白字）、琥珀是亮黃（要黑字）。共用一個變數會有一邊看不見。 */
-  --on-tint:#FFFFFF;
-  --on-attn:#000000;
-  --on-fill:var(--on-attn);   /* 舊名保留，指向琥珀那邊 */
-
-  /* 角色識別色（2026-08-16 改）：撿貨＝主色、對單貼標＝輔助色、一人作業＝兩色並置。
-     ⚠️ 不要拿黃／綠／紅來標角色 —— 那三個是通用警示色，
-     在作業畫面已經是「未完成／完成／掃錯」，借去標角色會語意重疊。 */
-  --role:var(--tint);
+  /* 身分色只有一個：青。用在「選角色」與標題列的角色膠囊 ——
+     選錯角色等於整輪白做，所以要用顏色標記「這是模式」，但三個角色不需要三種顏色，
+     分辨靠的是名稱與圖示。青跟藍（可點）、綠（掃對）、琥珀（未完成）、紅（掃錯）都不撞。 */
+  --role:var(--tint);   /* 選中的角色＝可點／選中同一個色，不另立色相 */
 
   --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"Roboto Mono",monospace;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",
@@ -104,8 +83,26 @@
   --scrim:rgba(0,0,0,.62);
   --bg-fade:rgba(18,20,23,0);
 
+  /* 🔴 選擇出貨明細那顆的橘（2026-08-16 從 v2 測試版移植，取自 Evan 的參考圖）。
+     為什麼是橘：載入畫面已經有「撿貨／對單貼標／一人作業」三顆角色按鈕，
+     選檔是**動作**不是角色，給它一個誰都不撞的顏色最清楚。 */
+  /* 填在琥珀色塊上的字：純黑。琥珀夠亮，深灰字會看不見。 */
+  --on-attn:#000000;
+
+  /* 載入畫面兩顆動作鈕。
+     ⚠️ 2026-08-16 試過莫蘭迪（帶灰低飽和）版本 #84A7C4 / #C08D88，
+        Evan 看過實機後決定**恢復高飽和**。原因是入口畫面的三顆動作鈕
+        （橘卡／回到今日出貨／清掉）互相之間要一眼分得開，
+        降飽和之後彼此太接近。要再試莫蘭迪的話色碼留在這裡。
+     ⚠️ 明度都選在配**黑字**有足夠對比的範圍，昏暗倉庫才讀得清楚。 */
+  --resume-c:#46B8F0;   /* 亮藍 · 對黑字 9.8:1 */
+  --danger-c:#E8354F;   /* 警示紅 */
+
+  --file-c:#E8822E;
+  --file-c-2:#E8A03A;
+
   --pad:16px;
-  --r:12px;   /* 2026-08-16：方一點＝更明確（倉庫優先） */
+  --r:14px;
   /* 底部待命條在「已待命」時只剩一條細線。未待命時它會變高並蓋住一點內容，
      但那正是要你點的東西，點完就縮回細線。 */
   --armh:14px;
@@ -182,22 +179,45 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 .btn--big{min-height:52px;width:100%}
 .btn--wide{width:100%}
 /* 主要動作：唯一的實心藍 */
-.btn--go{background:var(--tint);color:var(--on-tint);font-weight:600}
+.btn--go{background:var(--tint);color:var(--on-fill);font-weight:600}
 .btn--go:active{background:#1BAAA0}
-/* 灰底白字（2026-08-16 Evan 指定）。這兩顆是「工具／說明」，
-   不是主要動作，也不該再多一個彩色 —— 載入畫面已經有紫綠藍橘四張色卡了。 */
+/* 灰底白字（2026-08-16）。這兩顆是「工具／說明」，不是主要動作，
+   也不該再多一個彩色 —— 載入畫面已經有角色色與橘色選檔卡了。 */
 .btn--test{background:var(--fill);color:var(--ink)}
-/* 🔴 載入畫面的兩顆（2026-08-16）。入口畫面不背作業畫面的顏色語意（Evan 確認），
-   但也不該再多一個彩色 —— 那裡已經有紫／綠／藍／橘四張色卡了。
-   ⚠️ 所以這兩顆走「非彩色」路線，用明度而不是色相來分主次：
-     · 回到今日出貨＝**白色實心**：資料已經在手上時，這是最該按的一顆。
-       畫面上唯一的白，不用搶任何一個色卡的注意力就贏了。
-     · 清掉＝深底＋紅字細框：破壞性動作要看得懂，但不該顯眼到會被誤觸。 */
-.btn--resume{background:#FFF;color:#000;font-weight:700}
-.btn--resume:active{background:#DDD}
-.btn--danger{background:var(--card);color:var(--bad);font-weight:600;
-  box-shadow:inset 0 0 0 1.5px rgba(240,74,94,.42)}
-.btn--danger:active{background:var(--bad-soft)}
+/* 🔴 載入畫面「已載入」那一列的兩顆（2026-08-16 Evan 指定）：
+     · 回到今日出貨＝**黃底黑字**：資料在手上時這是最該按的一顆
+     · 清掉＝**紅底黑字**：破壞性動作，看得懂它不一樣
+   ⚠️ 兩顆都用**黑字** —— 琥珀與這個紅都夠亮，白字反而糊。
+   ⚠️ 入口畫面不背作業畫面的顏色語意（黃＝未完成／紅＝掃錯），這是 Evan 確認過的。 */
+/* 主要動作：加高、加大字、配圖示。
+   ⚠️ 圖示刻意用跟底部分頁「今日出貨」**同一個** i-arrow_back ——
+   兩顆按鈕去的是同一個地方，用同一個圖示才建立得起「← ＝ 今日出貨」的聯想。
+   換一個更「漂亮」的圖示反而會讓人以為是不同功能。 */
+.btn--resume{background:var(--resume-c);color:#000;font-weight:700;
+  min-height:58px;font-size:18px;gap:9px}
+.btn--resume .ico{width:22px;height:22px}
+.btn--resume:active{filter:brightness(.9)}
+/* 「清掉」＝破壞性動作。**紅字＋細框、不填實色** ——
+   填實色會讓它跟旁邊的主要動作搶注意力，而且誤觸的代價是整份資料沒了。
+   ⚠️ 但也不能只有純文字沒有框：現場戴手套、走動中，看不出那是可以點的。 */
+.btn--drop{
+  flex:none;min-height:38px;padding:0 15px;border-radius:10px;
+  background:transparent;color:var(--danger-c);font-size:14px;font-weight:600;
+  box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--danger-c) 46%, transparent);
+}
+.btn--drop:active{background:var(--bad-soft)}
+/* ⚠️ 兩欄：左邊文字可換行（檔名很長：20260814達新出貨明細.xlsx · 8 張單），
+   右邊按鈕固定寬。用 min-width:0 才讓左欄真的縮得下去。 */
+.loaded{display:flex;flex-direction:column;gap:10px;
+  margin-top:13px;padding-bottom:15px;border-bottom:.5px solid var(--sep)}
+#resumeBar{margin-bottom:12px}
+/* 髮絲線畫在整塊的**下方**（2026-08-16 Evan 指定）——
+   「目前已載入 … 清掉」是這一個步驟的結尾，線把它跟下面的工具區隔開。 */
+.loaded__row{display:flex;align-items:flex-start;gap:10px}
+.loaded__txt{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+  padding-top:7px}
+.loaded__lb{font-size:14px;font-weight:600;color:var(--good);flex:none}
+.loaded__txt b{font-size:15px;font-weight:600;min-width:0;word-break:break-all}
 .btn--ghost{background:transparent;color:var(--tint)}
 
 .chips{display:flex;gap:8px;flex-wrap:wrap;padding:14px var(--pad) 2px}
@@ -206,7 +226,7 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
   border-radius:999px;background:var(--card);color:var(--ink-2);
   font-size:15px;font-weight:500;
 }
-.chip[aria-pressed="true"]{background:var(--tint);color:var(--on-tint);font-weight:600}
+.chip[aria-pressed="true"]{background:var(--tint);color:var(--on-fill);font-weight:600}
 
 /* ═══ 分組列表：一列一張卡 ═══
    原本用髮絲線分列，資料一多（實測 43 品項／82 箱）根本分不出段落 ——
@@ -262,46 +282,27 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 /* 置中的 flex 子元素會縮成 fit-content 而提早斷行 —— 給滿寬才不會斷在莫名的位置 */
 .role__d{width:100%;font-size:13px;color:var(--ink-3);line-height:1.4;text-wrap:pretty}
 .role b{width:100%}
-/* 🔴 2026-08-16：角色顏色從「琥珀／綠」改成「主色／輔助色」。
-   原因：琥珀＝未完成、綠＝完成、紅＝掃錯，這三個是**通用警示色**，
-   在作業畫面已經有明確語意。角色識別不是警示，借用警示色會語意重疊。
-   現在：撿貨＝主色、對單貼標＝輔助色、一人作業＝兩色並置。 */
-.role{--rc:var(--role-pick)}
-#roleLabel{--rc:var(--role-label)}
-#roleSolo{--rc:var(--role-solo)}
+/* 每個角色一個顏色：沒選中時圖示帶色＋淡色描邊，選中時整塊填滿 */
+.role{--rc:var(--role)}
 .role{box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--rc) 34%, transparent)}
 .role .ico{color:var(--rc)}
-/* 一人作業＝撿貨＋對單一起做，兩個圖示各自帶那個角色的顏色 */
-#roleSolo .role__two .ico:first-child{color:var(--role-pick)}
-#roleSolo .role__two .ico:last-child{color:var(--role-label)}
-/* 選中＝整塊填滿。參考圖是漸層卡片，這裡沿用同樣的手法（只在載入畫面出現）。 */
-.role[aria-pressed="true"]{background:linear-gradient(135deg,var(--rc),var(--rc2,var(--rc)));box-shadow:none}
-#rolePick{--rc2:var(--role-pick-2)}
-#roleLabel{--rc2:var(--role-label-2)}
-#roleSolo{--rc2:var(--role-solo-2)}
-.role[aria-pressed="true"] b,.role[aria-pressed="true"] .ico{color:var(--on-tint)}
-/* ⚠️ 填滿時底色是深藍紫／天青，說明文字要用**白色半透明**。
-   原本寫 rgba(11,13,16,.72)（深色）是給湖水綠底用的，在新的底色上會看不見。 */
-.role[aria-pressed="true"] .role__d{color:rgba(255,255,255,.74)}
-#roleSolo[aria-pressed="true"] .role__two .ico{color:var(--on-tint)}
+.role[aria-pressed="true"]{background:var(--rc);box-shadow:none}
+.role[aria-pressed="true"] b,.role[aria-pressed="true"] .ico{color:var(--on-fill)}
+.role[aria-pressed="true"] .role__d{color:rgba(11,13,16,.72)}
 .role:focus-visible{outline:2.5px solid var(--rc);outline-offset:2px}
 
-/* 🔴 2026-08-16：改成**虛線拖放區**（提案「乙」）。
-   為什麼不是實心主色：那會跟「撿貨」角色選中時同色又同形，
-   兩個藍色方塊上下相鄰會被當成同一組東西。
-   換形狀不換顏色 —— 實心方塊 vs 虛線框，一眼就知道是兩種不同的東西。
-   而且虛線框本來就是「選檔案／拖進來」的通用語彙，這顆底層真的是 <label> 包 file input。 */
 .drop{
   display:flex;flex-direction:column;align-items:center;gap:3px;
   padding:25px 16px;border-radius:var(--r);text-align:center;
   background:linear-gradient(135deg,var(--file-c),var(--file-c-2));
-  color:var(--on-tint);cursor:pointer;border:0;
+  color:#000;cursor:pointer;border:0;
 }
-/* ⚠️ 下面這三條原本寫在後面、又各自指定顏色，會把上面的設定蓋掉
-   （同分特異性後者勝，這個坑今天踩第二次了）。所以直接合併成一組。 */
-.drop .ico{width:28px;height:28px;color:var(--on-tint)}
-.drop b{font-size:17px;font-weight:600;color:var(--on-tint)}
-.drop p{margin:0;width:100%;font-size:13.5px;color:rgba(255,255,255,.74)}
+/* ⚠️ 這三條原本各自指定顏色又寫在後面，會把上面的設定蓋掉
+   （同分特異性後者勝）。所以顏色一次寫在這裡，不要再拆開。
+   🔴 黑字（2026-08-16 Evan 指定）—— 橘夠亮，白字會糊。 */
+.drop .ico{width:28px;height:28px;color:#000}
+.drop b{font-size:17px;font-weight:600;color:#000}
+.drop p{margin:0;width:100%;font-size:13.5px;color:rgba(0,0,0,.62)}
 .drop:active{filter:brightness(.92)}
 .drop.hot{filter:brightness(1.12)}
 
@@ -319,17 +320,15 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 .resume__b .btn--go{background:var(--tint)}
 
 .adv{background:var(--fill);border-radius:var(--r);overflow:hidden}
-/* 文字置中、箭頭靠右。⚠️ 用 position:absolute 把箭頭抽離文件流，
-   不然它會佔一個 flex 欄位，文字就永遠置中不了（margin-left:auto 那招會把文字推左）。 */
-.adv>summary{padding:16px;font-size:16px;font-weight:500;color:var(--tint);
+/* 文字置中、箭頭靠右。⚠️ 箭頭要用 position:absolute 抽離文件流，
+   不然它會佔一個 flex 欄位，margin-left:auto 那招會把文字推到左邊，永遠置不了中。 */
+.adv>summary{padding:16px;font-size:16px;font-weight:500;color:var(--ink);
   cursor:pointer;list-style:none;position:relative;text-align:center}
-.adv>summary{color:var(--ink)}
 .adv>summary::-webkit-details-marker{display:none}
-/* ⚠️ 箭頭是「一個正方形只留右邊與下邊的框、再轉 45°」做出來的。
-   轉完之後**它的視覺重心不在方框中心** —— 尖端會跑到中心下方約 0.71×半邊長的位置。
-   9px 的方框半邊 4.5px → 尖端落在中心下方 6.36px，兩隻手臂在中心高度，
-   所以視覺重心大約在中心下方 3.2px。
-   要看起來置中，就得把方框中心再往上推那 3.2px（展開時方向相反）。
+/* ⚠️ 箭頭是「正方形只留右邊與下邊的框、再轉 45°」做的，
+   轉完之後**視覺重心不在方框中心** —— 尖端會落在中心下方約 6.4px，
+   兩隻手臂在中心高度，所以視覺重心約在中心下方 3.2px。
+   要看起來置中就得把方框中心再往上推那 3.2px（展開時方向相反）。
    直接寫 translateY(-50%) 會看起來偏低，這就是原因。 */
 .adv>summary::after{
   content:"";position:absolute;right:18px;top:50%;width:9px;height:9px;
@@ -353,7 +352,11 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 /* ═══ 2. 今日出貨 ═══ */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);margin:0;
   border-top:.5px solid var(--sep);border-bottom:.5px solid var(--sep)}
-.stat{padding:14px var(--pad)}
+/* 🔴 內容置中（2026-08-16）。原本靠左，量起來三格都是等寬、數字也都距左緣 16px，
+   技術上沒問題 —— 但**看起來是歪的**：標籤字數不一（訂單／總箱數／未撿）、
+   數字又只有 1 位，每格變成「一小撮內容擠在左邊」，最後一格右側空一大塊。
+   置中之後分隔線才是真正的等分線，三個數字也讀起來像同一組。 */
+.stat{padding:14px 10px;text-align:center}
 .stat+.stat{border-left:.5px solid var(--sep)}
 .stat b{display:block;font-size:27px;font-weight:600;font-variant-numeric:tabular-nums;
   letter-spacing:-.02em;line-height:1.2}
@@ -377,7 +380,7 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
   border-right:2px solid var(--ink-3);border-top:2px solid var(--ink-3);
   transform:rotate(45deg);
 }
-/* 🔴 進行中＝**整片琥珀色塊**（2026-08-16 定案）。
+/* 🔴 進行中＝**整片琥珀色塊**（2026-08-16 從 v2 移植）。
    原本是「淡底＋整圈描邊」，改成整片實色是為了 1 公尺外（平板固定在推車上）也一眼看到。
    ⚠️ 不要改回「左緣一條色柱」—— 使用者已多次要求不用那個做法。
    ⚠️ 色塊上的字一律 var(--on-attn)＝純黑，琥珀夠亮，深灰字會看不見。 */
@@ -387,8 +390,8 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 .row[data-s="part"] .row__code i,.row[data-s="part"] .row__sku,
 .row[data-s="part"] .row__qty em{ color:rgba(0,0,0,.58) }
 .ord[data-s="part"] .ord__pile{ color:rgba(0,0,0,.72) }
-/* ⚠️ MZ 自編碼在一般卡片上是深灰膠囊；到了黃色塊上那個底色會變成
-   「黃底上冒出一塊深灰」。色塊上一律改成透明底＋黑框。 */
+/* ⚠️ MZ 自編碼在一般卡片上是深灰膠囊；到了黃色塊上會變成「黃底上冒出一塊深灰」。
+   色塊上改成極淡的黑底。 */
 .row[data-s="part"] .row__sku,.srow[data-s="part"] .srow__code .sk{
   background:rgba(0,0,0,.10);color:rgba(0,0,0,.62)
 }
@@ -416,19 +419,19 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
   display:flex;gap:8px;padding:10px var(--pad) 12px;
   background:var(--bg);border-top:.5px solid var(--sep);
 }
-/* 🔴 2026-08-16：改成**純圖示、不加底色**（照 LG ThinQ 那套）。
+/* 🔴 2026-08-16 從 v2 移植：**純圖示直排、不加底色**（照 LG ThinQ 那套）。
    原本每顆都是深灰方塊，四個長一樣、掃一眼分不出來；
-   拿掉底色之後靠圖示辨識，選中的那顆變主色。 */
+   拿掉底色之後靠圖示辨識，選中的那顆變純白。 */
 .tabbar .btn{flex:1;min-height:48px;padding:0 4px;font-size:11.5px;font-weight:600;
   background:none;border:0;flex-direction:column;gap:3px;color:var(--ink-3)}
 .tabbar .btn .ico{font-size:22px}
+/* 查條碼只留圖示：它是「偶爾查一下」，不需要跟主要入口搶寬度 */
 .tabbar .btn--icon{flex:1}
 .tabbar .btn--icon .ico{font-size:22px}
-/* 目前所在的那一頁：只換顏色，不加底色。
-   🔴 選中＝**純白**，不是主色（2026-08-16 Evan 指定，跟 LG ThinQ 一樣）。
-   理由站得住：底部四個入口是「我在哪」，不是「可以點的動作」——
+/* 目前所在的那一頁高亮 */
+/* 選中＝**純白**，不是主色。底部四個入口回答的是「我在哪」，不是「這個可以點」——
    用主色會讓它跟返回鍵、進度條那些真正的互動元件混在一起。
-   白 vs 淺灰是純粹的明度對比，在昏暗倉庫也最容易分辨。 */
+   白 vs 淺灰是純明度對比，昏暗倉庫最好分辨。 */
 .tabbar .btn[aria-current="page"]{background:none;color:#FFF}
 /* 沒有載入出貨明細時，這三個入口是空的 —— 直接停用並壓暗，
    否則點過去是一片空白，使用者會以為按鈕壞了（2026-08-16 回報）。 */
@@ -471,7 +474,15 @@ body[data-role="label"] #goSort{display:none}
 /* 前 6 ／後 6 之間的空隙：逐字對外箱貼紙時，分組比連成一串好唸 */
 .usp{display:inline-block;width:.55em}
 .ucode{display:inline-flex;align-items:baseline;white-space:nowrap}
-.row__multi{grid-column:2;grid-row:2;justify-self:start;margin-top:7px;
+/* 🔴 橫跨整張卡（2026-08-16）。原本鎖在第 2 欄（≈143px），
+   「Three little meow香港代理」在 15.5px 下需要約 182px，加上箱數欄與內距要 258px ——
+   關在那一欄裡怎麼樣都會斷成兩行。
+   ⚠️ 只縮排 20px 不對齊品名：這個膠囊已經有琥珀底＋描邊，
+      「屬於上面那一項」的歸屬感靠的是那個框，不是縮排。
+      為了保留縮排而讓名字斷行，是拿真的看不懂換不重要的整齊。
+   ⚠️ justify-self:start 保留 —— 短名字的膠囊還是只有內容那麼寬，不會拉成一整條。 */
+.row__multi{grid-column:1 / -1;grid-row:2;justify-self:start;margin-top:7px;margin-left:20px;
+  max-width:calc(100% - 20px);
   color:var(--attn);background:var(--attn-soft);
   box-shadow:inset 0 0 0 1px var(--attn-line);border-radius:10px;padding:7px 11px 8px;
   display:grid;gap:3px}
@@ -480,7 +491,8 @@ body[data-role="label"] #goSort{display:none}
 /* 一人一行；箱數緊跟在最長的人名之後、同一張卡內對齊 */
 .row__multi span{display:grid;grid-template-columns:minmax(0,max-content) auto;
   gap:14px;align-items:baseline}
-.row__multi b{font-size:15.5px;font-weight:600;line-height:1.35;color:var(--attn)}
+.row__multi b{font-size:15.5px;font-weight:600;line-height:1.35;color:var(--attn);
+  min-width:0;word-break:break-word}
 .row__multi n{font-size:15px;font-style:normal;font-variant-numeric:tabular-nums;
   color:var(--attn)}
 /* 跟品名同一列、垂直置中對齊（同彙總表） */
@@ -499,19 +511,14 @@ body[data-role="label"] #goSort{display:none}
   background:var(--fill);border-radius:10px;
 }
 .seg--hd button{min-height:34px;padding:0 10px;font-size:12.5px;border-radius:8px;background:transparent}
-/* 顏色統一由上面的 .seg button[aria-pressed] 決定，這裡不重複宣告 */
+.seg--hd button[aria-pressed="true"]{background:var(--tint-soft);color:var(--tint);box-shadow:none}
 .seg button{
   min-height:44px;padding:0 12px;border-radius:10px;text-align:center;
   display:flex;align-items:center;justify-content:center;
   font-size:15.5px;font-weight:600;color:var(--ink-2);background:var(--fill);
 }
-/* 🔴 選中＝**主色實心**（2026-08-16）。原本是「淡底＋描邊」，
-   在純黑底＋深灰底座上幾乎看不出哪一顆被選中。
-   ⚠️ 這條要寫在通用的 .seg 上，不要只改 .seg--hd ——
-   `.seg--hd button[aria-pressed]` 跟 `.seg button[aria-pressed]` **特異性同分**，
-   誰寫在後面誰贏。第一次只改 .seg--hd 完全沒生效（實機確認過）。 */
 .seg button[aria-pressed="true"]{
-  color:var(--on-tint);background:var(--tint);box-shadow:none;
+  color:var(--tint);background:var(--tint-soft);box-shadow:inset 0 0 0 1.5px var(--tint);
 }
 .seg button:active{background:var(--fill-2)}
 
@@ -558,12 +565,19 @@ body[data-role="label"] #goSort{display:none}
 .srow.scanned{background:var(--tint-soft);box-shadow:inset 0 0 0 1.5px var(--tint);opacity:1}
 /* 跨單：一人一行 —— 併成一行時要在人名之間找箱數，一人一行掃視最快 */
 /* 兩欄格線：箱數緊跟在最長的人名之後，同一張卡片內對齊，不推到最右邊 */
-.srow__whos{grid-column:2;display:grid;grid-template-columns:minmax(0,max-content) auto;
-  gap:1px 14px;margin-top:6px}
+/* 🔴 橫跨整張卡（2026-08-16）。原本只佔中間那一欄（1fr ≈ 164px），
+   「Three little meow香港代理」需要 170px 才排得下一行 —— **差 47px**，
+   從 padding／間距／條碼欄總共只擠得出 36px，怎麼調都不夠。
+   改成跨整列之後可用寬度變成約 330px，長客戶名一行就放得下。
+   ⚠️ 左邊留 104+14 的內縮，維持「這是那個品項底下的細目」的層次感；
+      內縮是 padding 不是 grid 欄位，所以名字長的時候能一路用到卡片右緣。 */
+.srow__whos{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:1px 14px;margin-top:6px;padding-left:118px}
 .swho{display:contents;font-size:14.5px}
 /* ⚠️ .swho 是 display:contents（格線要橫跨兩欄），它本身沒有框，
    所以分隔線畫在格子上，不能寫在 .swho 上 */
-.swho>span,.swho>n{padding:5px 0;color:var(--ink)}
+.swho>span,.swho>n{padding:5px 0;color:var(--ink);min-width:0}
+.swho>span{word-break:break-word}
 .swho:not(:first-child)>span,.swho:not(:first-child)>n{border-top:.5px solid var(--sep)}
 .swho n{font-style:normal;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
 
@@ -643,11 +657,45 @@ body[data-role="label"] #goSort{display:none}
   background:rgba(0,0,0,.20);font-size:15px;font-weight:600;color:var(--ink)}
 .sortcard__todo:empty{display:none}
 
+/* ═══ 商品彙總：取貨勾選 ═══ */
+.tick{
+  display:block;margin:7px 0 0 auto;width:30px;height:30px;border-radius:9px;
+  background:var(--fill);box-shadow:inset 0 0 0 1.5px var(--sep-strong);
+}
+.tick::after{
+  content:"";display:block;width:11px;height:6px;margin:9px auto 0;
+  border-left:2.5px solid var(--ink-3);border-bottom:2.5px solid var(--ink-3);
+  transform:rotate(-45deg);
+}
+.srow[data-s="done"] .tick{background:var(--good);box-shadow:none}
+.srow[data-s="done"] .tick::after{border-color:#000}
+/* 黃色塊上的方塊要看得見 —— 深灰底在琥珀上會糊掉 */
+.srow[data-s="part"] .tick{background:rgba(0,0,0,.14);box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.3)}
+.srow[data-s="part"] .tick::after{border-color:rgba(0,0,0,.55)}
+/* 分堆數超過取下數的提示 */
+.srow__gap{grid-column:1 / -1;margin-top:6px;font-size:13px;color:var(--attn)}
+.srow[data-s="part"] .srow__gap{color:rgba(0,0,0,.62)}
+/* 進度座裡的「已取下」小標 —— 跟分揀的「已分堆」分開，避免兩個 82 搞混 */
+.dock__count em{display:block;font-style:normal;font-size:11px;font-weight:600;
+  color:var(--ink-3);letter-spacing:.06em;text-align:right;margin-bottom:1px}
+.sumnext{padding:0 var(--pad) 12px}
+
 .piles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;padding:0}
 .pile{padding:12px 13px;border-radius:12px;background:var(--card);position:relative}
-.pile[data-s="part"]{box-shadow:inset 0 0 0 1.5px var(--attn-soft)}
+/* 🔴 分揀中的那一疊＝**整片琥珀色塊**（2026-08-16）。
+   ⚠️ 原本是 inset 0 0 0 1.5px var(--attn-soft) —— 用「淡色」當邊框，
+      14% 透明度的琥珀畫在深灰卡片上幾乎看不見，實機回報「外框不是很明顯」。
+      淡色只適合當**底**，不適合當**線**。
+   改成整片實色，跟今日出貨、商品彙總、單張核對的「未完成」語彙一致。 */
+.pile[data-s="part"]{background:var(--attn);box-shadow:none}
+.pile[data-s="part"] .pile__n{color:var(--on-attn)}
+.pile[data-s="part"] .pile__i,.pile[data-s="part"] .pile__q{color:rgba(0,0,0,.62)}
 .pile[data-s="done"]{opacity:.5}
-.pile.hit{background:var(--good-soft);opacity:1}
+/* ⚠️ .hit 要寫在 part 後面才蓋得過去 —— 剛掃到的那一疊要閃綠，
+   不能被上面的琥珀底壓住（同分特異性，後者勝）。 */
+.pile.hit{background:var(--good-soft);opacity:1;box-shadow:inset 0 0 0 2px var(--good)}
+.pile.hit .pile__n{color:var(--ink)}
+.pile.hit .pile__i,.pile.hit .pile__q{color:var(--ink-3)}
 .pile__i{position:absolute;top:10px;right:12px;font-size:14px;font-weight:600;color:var(--ink-3);
   font-variant-numeric:tabular-nums}
 .pile__n{font-size:17px;font-weight:600;padding-right:22px;
@@ -852,7 +900,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.39）　2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.60）　2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -877,33 +925,41 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="step">
       <div class="step__hd"><i>2</i>選今天的出貨明細</div>
+      <!-- ⚠️ 順序刻意這樣：已經載入一份時，「繼續用這份」才是主要動作、
+           獨佔一行放最上面（走動中單手最好按）；「換一份」是次要的，排在下面。
+           至於「目前已載入 … 清掉」那一列是**狀態說明**不是動作，
+           所以放在選檔卡下方、用一條髮絲線隔開。 -->
+      <div id="resumeBar" hidden>
+        <button class="btn btn--resume btn--wide" id="backToOrders"><svg class="ico" aria-hidden="true"><use href="#i-arrow_back"/></svg>繼續今日出貨作業</button>
+      </div>
       <label class="drop" id="drop">
         <svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>
         <b>選擇出貨明細</b>
-        <p>ERP 原檔 xlsx 直接讀</p>
+        <p>開啟原檔 xlsx 直接讀</p>
         <input type="file" id="file" accept=".xlsx,.csv,.txt" hidden>
       </label>
       <div id="loadErr" class="err-note" hidden></div>
-      <!-- 已經有一份在手上時才出現。⚠️ 一定要有「回到今日出貨」——
-           少了它，從訂單清單按齒輪進來就再也回不去，只能重新載入檔案。 -->
-      <div id="loadedNow" hidden style="display:flex;flex-direction:column;gap:9px">
-        <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-          <span style="font-size:14px;color:var(--accent);font-weight:600">目前已載入</span>
-          <b id="loadedWhat" style="font-size:15px;font-weight:600"></b>
-        </div>
-        <div style="display:flex;gap:9px">
-          <button class="btn btn--resume" id="backToOrders" style="flex:1">回到今日出貨</button>
-          <button class="btn btn--danger" id="dropSession">清掉</button>
+      <!-- 「清掉」縮小、移到它要清的那份檔案旁邊 —— 語意上才對，
+           而且破壞性動作不該是畫面上最搶眼的東西。 -->
+      <div id="loadedNow" hidden class="loaded">
+        <div class="loaded__row">
+          <div class="loaded__txt">
+            <span class="loaded__lb">目前已載入</span>
+            <b id="loadedWhat"></b>
+          </div>
+          <button class="btn btn--drop" id="dropSession">清掉</button>
         </div>
       </div>
+      <!-- 已經有一份在手上時才出現。⚠️ 一定要有「回到今日出貨」——
+           少了它，從訂單清單按齒輪進來就再也回不去，只能重新載入檔案。 -->
     </div>
 
-    <!-- ⚠️ 這一區原本是「步驟 ③ 點畫面最底部，打開掃描」，還帶一行
-         「黃色＝還掃不動，點一下變綠線就好了」。2026-08-16 標題與說明**都拿掉**——
-         待命條早就改成不用手動點（touchstart／click 綁在整個文件上），
-         那兩行在教一個使用者根本不需要做的動作，只是雜訊。
-         真正的步驟只剩兩個：① 選角色　② 選檔案。測試掃描器留著當工具，不編號。 -->
     <div class="step">
+      <!-- ⚠️ 這裡原本是「步驟 ③ 點畫面最底部，打開掃描」＋
+           「黃色＝還掃不動，點一下變綠線就好了」。2026-08-16 兩行都拿掉 ——
+           待命條早就改成不用手動點（touchstart／click 綁在整個文件上），
+           那兩行在教一個使用者根本不需要做的動作，只是雜訊。
+           真正的步驟只剩兩個：① 選角色　② 選檔案。測試掃描器留著當工具，不編號。 -->
       <button class="btn btn--big btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
     </div>
 
@@ -1008,6 +1064,19 @@ body[data-role="label"] #goSort{display:none}
     </div>
   </header>
   <div class="rowlist" id="sumRows" style="padding-bottom:120px"></div>
+  <!-- 🔴 這一頁的計數是「**已取下**」，跟分揀的「已分堆」是兩份不同的資料。
+       名稱一定要分開講清楚，不然現場會問「我不是已經 82 了嗎為什麼又變 0」。 -->
+  <div class="dock" id="sumDock">
+    <div class="dock__bar"><div class="dock__fill" id="sumFill" style="width:0%"></div></div>
+    <div class="dock__row">
+      <span class="armdot" id="armSum" title="綠燈＝掃描待命中"></span>
+      <div class="dock__msg" id="sumMsg">從貨架拿一箱下來就掃，這裡記「已取下」</div>
+      <div class="dock__count"><em id="sumCountLb">已取下</em><span id="sumCount">0 / 0</span></div>
+    </div>
+    <div class="sumnext" id="sumNext" hidden>
+      <button class="btn btn--wide btn--go" id="goSortFromSum">全部取下了 · 開始分揀</button>
+    </div>
+  </div>
 </section>
 
 <!-- ══ 3. 分揀：掃一箱 → 大字告訴你放哪一堆 ══ -->
@@ -1228,6 +1297,16 @@ function tone(freq, at, dur, vol){
 }
 var SOUND = {
   ok:    function(){ tone(1180,0,.07,.16); },
+  /* 🔴 查詢音（2026-08-16）。商品彙總掃描**不寫入進度**，只是查 ——
+     但原本它發的是跟真的撿到一箱一模一樣的 ok 音。
+     這個 app 的原則是「走動中看不到螢幕，**聲音是主**」，
+     所以「記到了」跟「只是查一下」發同一個聲音就是漏洞：
+     在彙總頁連掃 20 箱會聽到 20 聲成功，但一箱都沒記到。
+     ⚠️ 分辨靠**節奏**不是音高 —— 倉庫吵雜時音高很難聽準，
+        但「一聲」vs「快速兩聲」在任何環境都分得出來。
+     ⚠️ 也要跟 warn 的兩聲分開：warn 是 520Hz 慢兩下（間隔 180ms），
+        這裡是高音快兩下（間隔 70ms）、而且更輕。 */
+  look:  function(){ tone(880,0,.05,.12); tone(1046,.07,.05,.12); },
   done:  function(){ tone(784,0,.09,.16); tone(988,.10,.09,.16); tone(1319,.20,.20,.18); },
   warn:  function(){ tone(520,0,.12,.20); tone(520,.18,.12,.20); },
   err:   function(){ tone(196,0,.17,.26); tone(165,.21,.17,.26); tone(147,.42,.30,.28); }
@@ -1506,6 +1585,39 @@ function fileKey(){
 //    共用同一份進度的話，第二道打開就是全綠，等於沒有覆核。
 function progKey(){ return LS + "." + DB.key + "." + ROLE; }
 
+/* ═══ 取貨記錄（2026-08-16 新增，跟分堆進度**完全分開**）═════════════
+   為什麼要兩份：
+     · 商品彙總＝「從貨架**取下**了幾箱」
+     · 分揀／單張核對＝「**分堆**／核對了幾箱」
+   邊拿邊分時兩者很接近，但**不是同一件事**：
+   拿了 6 箱在推車上還沒分、箱子破損先擱著、兩人分工搬運 —— 都會讓兩者不同步。
+   合併成一份會**掩蓋差異**，而差異出現的時候（已取下 82、已分堆 78 → 少了 4 箱）
+   正是最需要知道的時候。那 4 箱從貨架下來了卻沒進任何一堆，最後客戶少收。
+   ⚠️ 這份**不帶角色**。progKey() 帶角色是因為撿貨與對單是兩道獨立核對；
+      但「從貨架拿下來」是一次性的物理動作，兩個角色不會各拿一次。 */
+var TAKEN = {};
+function takenKey(){ return LS + "." + DB.key + ".taken"; }
+function saveTaken(){
+  try{ localStorage.setItem(takenKey(), JSON.stringify(TAKEN)); }catch(e){}
+}
+function restoreTaken(){
+  TAKEN = {};
+  try{ TAKEN = JSON.parse(localStorage.getItem(takenKey()) || "{}") || {}; }catch(e){}
+}
+/* 每個品項今天總共要幾箱（跨單加總）—— 取貨是按品項算的，不分客戶。 */
+function needByCode(){
+  var m = {};
+  DB.orders.forEach(function(o){ o.items.forEach(function(it){
+    m[it.code] = (m[it.code] || 0) + it.need;
+  }); });
+  return m;
+}
+function takenTotals(){
+  var need = needByCode(), n = 0, g = 0;
+  for(var c in need){ n += need[c]; g += Math.min(need[c], TAKEN[c] || 0); }
+  return { need: n, got: g };
+}
+
 function save(){
   try{
     var d = {};
@@ -1723,17 +1835,37 @@ function renderSummary(){
   var shown = 0, multi = 0, boxes = 0;
 
   function addRow(code, m){
-    var st = m.got >= m.need ? "done" : (m.got > 0 ? "part" : "todo");
+    /* 🔴 這一頁的顏色與數字由**取貨記錄**驅動，不是分堆進度（2026-08-16）。
+       原本用 m.got（分堆）—— 但站在貨位前的人想知道的是「這一款我還沒拿完」，
+       不是「還沒分堆完」。同一個黃色塊在回答錯的問題。 */
+    var tk = Math.min(m.need, TAKEN[code] || 0);
+    var st = tk >= m.need ? "done" : (tk > 0 ? "part" : "todo");
     var d = document.createElement("div");
     d.className = "srow"; d.dataset.s = st; d.dataset.code = code;
     d.innerHTML =
       '<div class="srow__code"><i>' + String(code).slice(0, 6) + '</i><b>' +
         String(code).slice(6) + '</b><span class="sk"></span></div>' +
       '<div class="srow__nm"></div>' +
-      '<div class="srow__qty"><span class="a"></span><em>/ ' + m.need + '</em></div>' +
+      '<div class="srow__qty"><span class="a"></span><em>/ ' + m.need + '</em>' +
+        '<button class="tick" aria-label="整項打勾／取消"></button></div>' +
       '<div class="srow__whos"></div>';
     d.querySelector(".srow__nm").textContent = m.name;
-    d.querySelector(".a").textContent = m.got;
+    d.querySelector(".a").textContent = tk;
+    /* 手動整項打勾／取消 —— 繞完一趟回頭補記用。
+       ⚠️ 停止冒泡：這一列本身沒有點擊行為，但以後加了才不會互相觸發。 */
+    d.querySelector(".tick").addEventListener("click", function(e){
+      e.stopPropagation();
+      TAKEN[code] = (Math.min(m.need, TAKEN[code] || 0) >= m.need) ? 0 : m.need;
+      saveTaken(); SOUND.look(); buzz(20); renderSummary();
+    });
+    /* 分堆數超過取下數 → 有人跳過取貨記錄（可能是別人幫忙拿的）。
+       ⚠️ **不擋、不自動補**，只標出來 —— 擋下來只會惹惱現場。 */
+    if(m.got > tk){
+      var w = document.createElement("div");
+      w.className = "srow__gap";
+      w.textContent = "已分堆 " + m.got + " 箱，比取下的多";
+      d.querySelector(".srow__qty").after(w);
+    }
     var sk = d.querySelector(".sk");
     if(m.sku) sk.textContent = m.sku; else sk.remove();
     var mu = d.querySelector(".srow__whos");
@@ -1787,6 +1919,17 @@ function renderSummary(){
   }
   // 品項數與箱數在「今日出貨」已經有了，這裡只留這頁獨有的資訊
   $("sumSub").textContent = "跨單 " + multi + " 項";
+
+  /* 進度座：這一頁算的是**已取下**，不是已分堆。 */
+  var t = takenTotals();
+  $("sumCount").textContent = t.got + " / " + t.need;
+  $("sumFill").style.width = (t.need ? Math.round(t.got / t.need * 100) : 0) + "%";
+  $("sumDock").dataset.s = (t.need && t.got >= t.need) ? "done" : "";
+  var allTaken = t.need > 0 && t.got >= t.need;
+  $("sumNext").hidden = !allTaken;
+  $("sumMsg").textContent = allTaken
+    ? "全部都從貨架拿下來了"
+    : "從貨架拿一箱下來就掃，這裡記「已取下」";
   /* ⚠️ 這裡刻意「不」收掉掃描結果 ——
      現場的用法是「掃一箱、抬頭看是誰的、去拿下一箱」，
      結果必須停在畫面上直到掃下一個。切換「只看跨單」也不該把它弄不見。
@@ -1849,12 +1992,31 @@ function scanSummary(code){
   var total = hits.reduce(function(n, h){ return n + h.item.need; }, 0);
   var who = hits.map(function(h){ return h.ord.cust + " " + h.item.need; }).join(" · ");
 
+  /* 🔴 2026-08-16：彙總掃描從「純查詢」改成**記錄取貨**。
+     邊拿邊分時，站在貨位前看的就是這一頁，掃了不記錄才是 bug。
+     記的是「從貨架取下」，跟分堆進度是兩份獨立的資料。 */
+  var need = needByCode()[code] || 0;
+  var was = Math.min(need, TAKEN[code] || 0);
+  if(was >= need){
+    /* 這一款今天要的都拿完了，還掃到一箱 —— 跟分揀的「多出來一箱」同一個語彙 */
+    SOUND.warn(); buzz([60,50,60]);
+    blast("warn", "!", "這一款已經拿完了", pretty(code),
+      esc(it.name) + " 今天總共只要 <strong>" + need + "</strong> 箱" +
+      '<span class="blast__todo">放回貨架 —— 或先確認是不是別天的貨</span>',
+      [{ label: "知道了" }]);
+    renderSummary();
+    return;
+  }
+  TAKEN[code] = was + 1;
+  saveTaken();
+  renderSummary();
+  SOUND.look(); buzz([20,45,20]);   // 取貨音：快速兩下，跟「分堆」的單聲明確分開
+
   var row = $("sumRows").querySelector('[data-code="' + code + '"]');
   if(row){
     row.classList.add("scanned");          // ⚠️ 不設定時器移除 —— 要留到掃下一個
     row.scrollIntoView({ block: "center" });
   }
-  SOUND.ok(); buzz(35);
   // ⚠️ 不要用 msg() —— 它寫的是撿貨畫面的 dockMsg，在彙總畫面根本看不到。
   //    這裡的回饋就是「那一列被標起來並捲到畫面中央」，資訊本來就都在列上。
 }
@@ -2096,8 +2258,9 @@ function msg(html, kind){
 
 
 /* 「不在今天的出貨單上」的內文：講**查過的範圍**，不要把標題再講一次。
-   原本三行在講同一件事（標題／內文／待辦），資訊量等於一行。
-   現在：標題＝問題是什麼、內文＝查了多大範圍、待辦＝該怎麼做。 */
+   原本三行都在講同一件事（標題／內文／待辦），資訊量等於一行。
+   現在：標題＝問題是什麼、內文＝查了多大範圍、待辦＝該怎麼做。
+   （2026-08-16 從 v2 測試版移植） */
 function scopeText(){
   var n = 0, seen = {};
   DB.orders.forEach(function(o){ o.items.forEach(function(i){
@@ -2117,8 +2280,8 @@ function scanPick(code){
     SOUND.err(); buzz([90,60,90,60,140]);
     var oth = other.length ? other[0] : null;
     /* ⚠️ 標題要看情況：這個條碼**在別張單上**才叫「不是這張單的」；
-       整份出貨單都查不到的時候那句話會跟下面的內文自相矛盾
-       （標題說「不是這張單」暗示它屬於別張，內文卻說「整份都沒有」）。2026-08-16 修。 */
+       整份出貨單都查不到時那句話會跟下面的內文自相矛盾
+       （標題說「不是這張單」暗示它屬於別張，內文卻說「整份都沒有」）。 */
     blast("err", "✕", oth ? "不是這張單的" : "不在今天的出貨單上", code,
       (oth
         ? (oth.item.sku ? esc(oth.item.sku) + " " : "") + esc(oth.item.name) +
@@ -2816,7 +2979,10 @@ function bootSession(){
 /* 載入畫面上的「目前已載入」列。DB 裡有單就顯示，順便給丟棄出口。 */
 function loadedSync(){
   var n = (DB.orders && DB.orders.length) || 0;
-  var box = $("loadedNow");
+  /* ⚠️ 這兩塊拆開放（回到今日出貨在選檔卡上方、狀態說明在下方），
+     但顯示條件是同一個 —— 有載入才出現。改的時候兩個都要記得。 */
+  var box = $("loadedNow"), rb = $("resumeBar");
+  if(rb) rb.hidden = !n;
   if(box){
     box.hidden = !n;
     if(n) $("loadedWhat").textContent = (DB.src || "上一份出貨單") + " · " + n + " 張單";
@@ -2838,6 +3004,7 @@ function loadRows(rows, srcName, fromPick){
     DB.key = fileKey();
     DB.src = srcName || "";
     restore();
+    restoreTaken();           // 取貨記錄跟分堆進度分開存，也要分開還原
     applyManifest();          // 之前貼過的託運總表，換一份出貨單也照樣套得上
     loadWays();               // 之前掃標籤當場學會的對應
     clearBind();
@@ -2897,6 +3064,7 @@ function setSumFilter(m){
   $("segSolo").setAttribute("aria-pressed", String(m === "solo"));
   renderSummary();
 }
+$("goSortFromSum").addEventListener("click", function(){ openSort(); });
 $("segAll").addEventListener("click", function(){ setSumFilter("all"); });
 $("segMulti").addEventListener("click", function(){ setSumFilter("multi"); });
 $("segSolo").addEventListener("click", function(){ setSumFilter("solo"); });

@@ -452,7 +452,12 @@ body[data-role="label"] #goSort{display:none}
 .row[data-s="done"]{opacity:.5}
 .row.flash{background:var(--good-soft)}
 .row.scanned{background:var(--tint-soft)}
-.row__name{grid-column:2;grid-row:1;min-width:0;
+/* 🔴 品名與數量都跨第 1〜2 列並**垂直置中**（2026-08-16）。
+   條碼欄是 `grid-row:span 2`（前6碼＋尾6碼＋MZ 約 73px 高），
+   品名只有 1〜2 行時如果鎖在第 1 列並靠上，下面就空出一大塊，
+   「順便」膠囊被推得很遠 —— 實機回報「兩者之間的空白處有點多」。
+   置中之後品名對齊條碼區塊的中線，膠囊也跟著往上。 */
+.row__name{grid-column:2;grid-row:1 / 3;align-self:center;min-width:0;
   font-size:16.5px;font-weight:600;line-height:1.3;letter-spacing:-.01em;text-wrap:pretty}
 /* 條碼欄三行：前 6 碼小、尾 6 碼放大、MZ 自編碼在下 */
 .row__code{grid-column:1;grid-row:span 2;align-self:start;font-family:var(--mono);line-height:1.15}
@@ -487,7 +492,7 @@ body[data-role="label"] #goSort{display:none}
    ⚠️ grid-row 必須是 3。.row__code 是 `grid-column:1; grid-row:span 2`（佔第 1 欄的 1〜2 列），
       膠囊放第 2 列會跟它搶同一格，自動配置會把條碼欄擠到卡片最下面。
    `2 / -1` ＝ 從品名欄一路用到數量欄的右緣，比原本只佔第 2 欄多拿約 40px。 */
-.row__multi{grid-column:2 / -1;grid-row:3;justify-self:start;margin-top:7px;
+.row__multi{grid-column:2 / -1;grid-row:3;justify-self:start;margin-top:2px;
   color:var(--attn);background:var(--attn-soft);
   box-shadow:inset 0 0 0 1px var(--attn-line);border-radius:10px;padding:7px 11px 8px;
   display:grid;gap:3px;max-width:100%}
@@ -508,7 +513,7 @@ body[data-role="label"] #goSort{display:none}
 .row__multi n{font-size:15px;font-style:normal;font-variant-numeric:tabular-nums;
   color:var(--attn);white-space:nowrap}
 /* 跟品名同一列、垂直置中對齊（同彙總表） */
-.row__qty{grid-column:3;grid-row:1;align-self:center;text-align:right;white-space:nowrap;
+.row__qty{grid-column:3;grid-row:1 / 3;align-self:center;text-align:right;white-space:nowrap;
   font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:-.02em}
 .row__qty .a{font-size:23px}
 .row__qty em{font-size:15px;font-style:normal;color:var(--ink-3);margin-left:.28em}

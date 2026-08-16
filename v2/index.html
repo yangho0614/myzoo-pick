@@ -344,6 +344,13 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 /* 沒有載入出貨明細時，這三個入口是空的 —— 直接停用並壓暗，
    否則點過去是一片空白，使用者會以為按鈕壞了（2026-08-16 回報）。 */
 .tabbar .btn[disabled]{opacity:.35;color:var(--ink-3)}
+/* 🔴 對單貼標不需要「分揀」。
+   分揀回答的是「這箱該放到哪一堆」，前提是貨還混在一起；
+   但貼標員拿到的已經是分好的一疊，他要做的是逐箱核對有沒有混到別人的，
+   那是「單張核對」的工作（掃到混入的箱子時紅屏會直接說這箱是誰的、第幾疊）。
+   ⚠️ 撿貨與一人作業維持三顆 —— 那兩個角色真的會用到分揀。
+   .tabbar .btn 是 flex:1，少一顆時剩下兩顆會自動變寬。 */
+body[data-role="label"] #goSort{display:none}
 .empty{padding:40px 20px;text-align:center;color:var(--ink-3);font-size:15px;line-height:1.6}
 
 /* ═══ 品項列 ═══ */

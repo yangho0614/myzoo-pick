@@ -861,7 +861,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.56　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.57　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -891,7 +891,7 @@ body[data-role="label"] #goSort{display:none}
            至於「目前已載入 … 清掉」那一列是**狀態說明**不是動作，
            所以放在選檔卡下方、用一條髮絲線隔開。 -->
       <div id="resumeBar" hidden>
-        <button class="btn btn--resume btn--wide" id="backToOrders"><svg class="ico" aria-hidden="true"><use href="#i-arrow_back"/></svg>回到今日出貨</button>
+        <button class="btn btn--resume btn--wide" id="backToOrders"><svg class="ico" aria-hidden="true"><use href="#i-arrow_back"/></svg>繼續今日出貨作業</button>
       </div>
       <label class="drop" id="drop">
         <svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>
@@ -3045,7 +3045,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.56　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.57　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

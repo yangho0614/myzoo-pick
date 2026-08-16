@@ -202,12 +202,12 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 .btn--drop:active{background:var(--bad-soft)}
 /* ⚠️ 兩欄：左邊文字可換行（檔名很長：20260814達新出貨明細.xlsx · 8 張單），
    右邊按鈕固定寬。用 min-width:0 才讓左欄真的縮得下去。 */
-.loaded{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
-/* 只有在真的顯示時才佔位；hidden 時 [hidden]{display:none!important} 會蓋掉 flex */
-/* 檔名那一列跟下面的按鈕之間拉一條髮絲線 ——
-   上面是「現在手上有什麼」，下面是「要做什麼」，兩件不同的事。 */
-.loaded__row{display:flex;align-items:flex-start;gap:10px;
-  padding-bottom:11px;border-bottom:.5px solid var(--sep)}
+.loaded{display:flex;flex-direction:column;gap:10px;
+  margin-top:14px;padding-top:13px;border-top:.5px solid var(--sep)}
+#resumeBar{margin-bottom:12px}
+/* 髮絲線畫在整塊的**上方** —— 上面是「要做什麼」（兩顆按鈕），
+   下面是「現在手上有什麼」（狀態說明），兩件不同的事。 */
+.loaded__row{display:flex;align-items:flex-start;gap:10px}
 .loaded__txt{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
   padding-top:7px}
 .loaded__lb{font-size:14px;font-weight:600;color:var(--good);flex:none}
@@ -851,7 +851,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.52　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.53　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -876,8 +876,21 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="step">
       <div class="step__hd"><i>2</i>選今天的出貨明細</div>
-      <!-- 主要動作獨佔一行、滿寬（走動中單手最好按）；
-           「清掉」縮小、移到它要清的那份檔案旁邊 —— 語意上才對，
+      <!-- ⚠️ 順序刻意這樣：已經載入一份時，「繼續用這份」才是主要動作、
+           獨佔一行放最上面（走動中單手最好按）；「換一份」是次要的，排在下面。
+           至於「目前已載入 … 清掉」那一列是**狀態說明**不是動作，
+           所以放在選檔卡下方、用一條髮絲線隔開。 -->
+      <div id="resumeBar" hidden>
+        <button class="btn btn--resume btn--wide" id="backToOrders">回到今日出貨</button>
+      </div>
+      <label class="drop" id="drop">
+        <svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>
+        <b>選擇出貨明細</b>
+        <p>開啟原檔 xlsx 直接讀</p>
+        <input type="file" id="file" accept=".xlsx,.csv,.txt" hidden>
+      </label>
+      <div id="loadErr" class="err-note" hidden></div>
+      <!-- 「清掉」縮小、移到它要清的那份檔案旁邊 —— 語意上才對，
            而且破壞性動作不該是畫面上最搶眼的東西。 -->
       <div id="loadedNow" hidden class="loaded">
         <div class="loaded__row">
@@ -887,17 +900,7 @@ body[data-role="label"] #goSort{display:none}
           </div>
           <button class="btn btn--drop" id="dropSession">清掉</button>
         </div>
-        <button class="btn btn--resume btn--wide" id="backToOrders">回到今日出貨</button>
       </div>
-      <!-- ⚠️ 順序刻意這樣：已經載入一份時，「繼續用這份」才是主要動作，
-           「換一份」是次要的，所以選檔卡排在下面。 -->
-      <label class="drop" id="drop">
-        <svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>
-        <b>選擇出貨明細</b>
-        <p>開啟原檔 xlsx 直接讀</p>
-        <input type="file" id="file" accept=".xlsx,.csv,.txt" hidden>
-      </label>
-      <div id="loadErr" class="err-note" hidden></div>
       <!-- 已經有一份在手上時才出現。⚠️ 一定要有「回到今日出貨」——
            少了它，從訂單清單按齒輪進來就再也回不去，只能重新載入檔案。 -->
     </div>
@@ -2821,7 +2824,10 @@ function bootSession(){
 /* 載入畫面上的「目前已載入」列。DB 裡有單就顯示，順便給丟棄出口。 */
 function loadedSync(){
   var n = (DB.orders && DB.orders.length) || 0;
-  var box = $("loadedNow");
+  /* ⚠️ 這兩塊拆開放（回到今日出貨在選檔卡上方、狀態說明在下方），
+     但顯示條件是同一個 —— 有載入才出現。改的時候兩個都要記得。 */
+  var box = $("loadedNow"), rb = $("resumeBar");
+  if(rb) rb.hidden = !n;
   if(box){
     box.hidden = !n;
     if(n) $("loadedWhat").textContent = (DB.src || "上一份出貨單") + " · " + n + " 張單";
@@ -3029,7 +3035,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.52　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.53　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

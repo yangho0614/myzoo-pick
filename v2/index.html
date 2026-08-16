@@ -1203,8 +1203,11 @@ body[data-role="label"] #goSort{display:none}
      返回鍵在左上角，單手拿手機時是最難按到的位置；這排在拇指區。
      ⚠️ 載入畫面不顯示（那時還沒有資料可切）。 -->
 <nav class="tabbar" id="tabbar" hidden>
-  <button class="btn" id="goOrders"><svg class="ico" aria-hidden="true"><use href="#i-summarize"/></svg>今日出貨</button>
-  <button class="btn" id="goSummary"><svg class="ico" aria-hidden="true"><use href="#i-arrow_back"/></svg>商品彙總</button>
+  <!-- ⚠️ 順序：商品彙總在前、今日出貨在後（2026-08-16 Evan 指定）。
+       圖示各自維持原本的語意：彙總＝文件、今日出貨＝返回箭頭
+       （那個箭頭跟載入畫面「繼續今日出貨作業」是同一個，指向同一個地方）。 -->
+  <button class="btn" id="goSummary"><svg class="ico" aria-hidden="true"><use href="#i-summarize"/></svg>商品彙總</button>
+  <button class="btn" id="goOrders"><svg class="ico" aria-hidden="true"><use href="#i-arrow_back"/></svg>今日出貨</button>
   <button class="btn" id="goSort"><svg class="ico" aria-hidden="true"><use href="#i-sort"/></svg>分揀</button>
   <button class="btn btn--icon" id="goLookup" aria-label="查條碼" title="查條碼"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg></button>
 </nav>

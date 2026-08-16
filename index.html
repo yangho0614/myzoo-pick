@@ -889,7 +889,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.64　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.65　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -1166,8 +1166,11 @@ body[data-role="label"] #goSort{display:none}
      返回鍵在左上角，單手拿手機時是最難按到的位置；這排在拇指區。
      ⚠️ 載入畫面不顯示（那時還沒有資料可切）。 -->
 <nav class="tabbar" id="tabbar" hidden>
-  <button class="btn" id="goOrders"><svg class="ico" aria-hidden="true"><use href="#i-summarize"/></svg>今日出貨</button>
-  <button class="btn" id="goSummary"><svg class="ico" aria-hidden="true"><use href="#i-arrow_back"/></svg>商品彙總</button>
+  <!-- ⚠️ 順序：商品彙總在前、今日出貨在後（2026-08-16 Evan 指定）。
+       圖示各自維持原本的語意：彙總＝文件、今日出貨＝返回箭頭
+       （那個箭頭跟載入畫面「繼續今日出貨作業」是同一個，指向同一個地方）。 -->
+  <button class="btn" id="goSummary"><svg class="ico" aria-hidden="true"><use href="#i-summarize"/></svg>商品彙總</button>
+  <button class="btn" id="goOrders"><svg class="ico" aria-hidden="true"><use href="#i-arrow_back"/></svg>今日出貨</button>
   <button class="btn" id="goSort"><svg class="ico" aria-hidden="true"><use href="#i-sort"/></svg>分揀</button>
   <button class="btn btn--icon" id="goLookup" aria-label="查條碼" title="查條碼"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg></button>
 </nav>
@@ -3083,7 +3086,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.64　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.65　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

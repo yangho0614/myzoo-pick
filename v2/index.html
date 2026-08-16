@@ -565,9 +565,13 @@ body[data-role="label"] #goSort{display:none}
    條碼再拿一個，現場就有五種顏色要記。
    底板走的是另一條路：**遠距離時形狀比顏色先被辨識**，
    那正好是平板固定在推車上（約 1 公尺）的情境。
-   ⚠️ margin-left 補負值，讓底板的左緣跟上面的前 6 碼對齊，不然會突出去。 */
+   ⚠️ **不要用 margin-left 負值**。原本寫 -8px 想讓數字跟前 6 碼切齊，
+      結果底板的左緣反而凸出去 8px，跟上面的前 6 碼、下面的 MZ 都對不齊
+      （2026-08-16 實機回報）。
+      正確做法跟 MZ 膠囊一樣：**盒子的左緣貼齊欄位，文字靠內距內縮** ——
+      對齊要看的是「色塊的邊」，不是「字的邊」。 */
 .row__code b,.srow__code b{
-  background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
+  background:#000;border-radius:7px;padding:2px 8px;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
   /* 🧪 v2 才有：底板 ＋ **淡青**（提案 丙＋丁）。正式版維持純白。
      底板是純黑、比卡片灰更暗，所以顏色放在上面的對比反而**比放在卡片上高** ——
@@ -578,7 +582,7 @@ body[data-role="label"] #goSort{display:none}
 /* ⚠️ 黃色塊上不要底板 —— 那裡的字已經是純黑、對比本來就最大，
    再加一塊黑底反而變成「黃底上一塊黑方塊」，搶掉整列的注意力。 */
 .row[data-s="part"] .row__code b,.srow[data-s="part"] .srow__code b{
-  background:none;box-shadow:none;padding:0;margin-left:0;
+  background:none;box-shadow:none;padding:0;
 }
 
 .srow__code .sk{
@@ -700,13 +704,17 @@ body[data-role="label"] #goSort{display:none}
 
 /* ═══ 商品彙總：取貨勾選 ═══ */
 .tick{
-  display:block;margin:7px 0 0 auto;width:30px;height:30px;border-radius:9px;
+  display:grid;place-items:center;margin:7px 0 0 auto;width:30px;height:30px;border-radius:9px;
   background:var(--fill);box-shadow:inset 0 0 0 1.5px var(--sep-strong);
 }
+/* ⚠️ 勾勾是「長方形只留左邊與下邊的框、轉 -45°」做的，
+   轉完之後**視覺重心在方框中心下方約 2px**（尖端落在 +6.4、兩臂在 -2.1）。
+   只用 place-items:center 會看起來偏低 —— 要再往上推那 2px 才是真的置中。
+   （跟「進階與說明」那個向下箭頭同一個坑，方向相反。） */
 .tick::after{
-  content:"";display:block;width:11px;height:6px;margin:9px auto 0;
+  content:"";width:12px;height:6px;
   border-left:2.5px solid var(--ink-3);border-bottom:2.5px solid var(--ink-3);
-  transform:rotate(-45deg);
+  transform:translateY(-2px) rotate(-45deg);
 }
 .srow[data-s="done"] .tick{background:var(--good);box-shadow:none}
 .srow[data-s="done"] .tick::after{border-color:#000}

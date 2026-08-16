@@ -489,20 +489,23 @@ body[data-role="label"] #goSort{display:none}
    `2 / -1` ＝ 從品名欄一路用到數量欄的右緣，比原本只佔第 2 欄多拿約 40px。 */
 .row__multi{grid-column:2 / -1;grid-row:3;justify-self:start;margin-top:7px;
   color:var(--attn);background:var(--attn-soft);
-  box-shadow:inset 0 0 0 1px var(--attn-line);border-radius:10px;padding:7px 9px 8px;
-  display:grid;gap:3px}
+  box-shadow:inset 0 0 0 1px var(--attn-line);border-radius:10px;padding:7px 11px 8px;
+  display:grid;gap:3px;max-width:100%}
 .row__multi u{text-decoration:none;font-size:11.5px;font-weight:600;
   letter-spacing:.08em;color:var(--attn);opacity:.7}
 /* 一人一行；箱數緊跟在最長的人名之後、同一張卡內對齊。
-   ⚠️ 字級與間距是**算過的**：對齊品名之後可用寬度只剩約 237px，
-      而最長的客戶名「Three little meow香港代理」在 15.5px 下要 186px，
-      加上內距與箱數欄就爆掉。降到 14px（約 168px）＋ 間距 10px 才剛好塞得下一行。
-      要再加大字級就得接受它換行。 */
+   🔴 **名字太長就截斷加「…」，不要縮字級也不要換行**（2026-08-16 Evan 指定）。
+   理由：客戶名**絕大多數是 3 個字**，「Three little meow香港代理」那種是極少數。
+   為了少數的長名字把所有人的字都縮小，是拿常態換例外。
+   ⚠️ 要讓 ellipsis 生效，三件事缺一不可：
+      ① 膠囊要 `max-width:100%`（不然 justify-self:start 會讓它一路撐長，沒有可截的邊界）
+      ② 名字那一欄 `minmax(0,max-content)`（min 是 0 才縮得下去）
+      ③ 名字本身 `min-width:0` ＋ nowrap ＋ overflow:hidden */
 .row__multi span{display:grid;grid-template-columns:minmax(0,max-content) auto;
-  gap:10px;align-items:baseline}
-.row__multi b{font-size:14px;font-weight:600;line-height:1.35;color:var(--attn);
-  min-width:0;word-break:break-word}
-.row__multi n{font-size:14px;font-style:normal;font-variant-numeric:tabular-nums;
+  gap:14px;align-items:baseline}
+.row__multi b{font-size:15.5px;font-weight:600;line-height:1.35;color:var(--attn);
+  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row__multi n{font-size:15px;font-style:normal;font-variant-numeric:tabular-nums;
   color:var(--attn);white-space:nowrap}
 /* 跟品名同一列、垂直置中對齊（同彙總表） */
 .row__qty{grid-column:3;grid-row:1;align-self:center;text-align:right;white-space:nowrap;
@@ -886,7 +889,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.62　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.63　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -3080,7 +3083,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.62　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.63　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

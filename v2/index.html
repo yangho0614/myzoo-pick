@@ -687,9 +687,10 @@ body[data-role="label"] #goSort{display:none}
 /* 分堆數超過取下數的提示 */
 .srow__gap{grid-column:1 / -1;margin-top:6px;font-size:13px;color:var(--attn)}
 .srow[data-s="part"] .srow__gap{color:rgba(0,0,0,.62)}
-/* 進度座裡的「已取下」小標 —— 跟分揀的「已分堆」分開，避免兩個 82 搞混 */
-.dock__count em{display:block;font-style:normal;font-size:11px;font-weight:600;
-  color:var(--ink-3);letter-spacing:.06em;text-align:right;margin-bottom:1px}
+/* ⚠️ 這裡原本有「已取下」小標，2026-08-16 拿掉（Evan）。
+   兩個計數器都會走到同一個總數，但**畫面本身就分得出來** ——
+   在商品彙總看到的就是取貨、在分揀看到的就是分堆，不需要再加字解釋。
+   左邊那行訊息已經寫著「這裡記『已取下』」。 */
 .sumnext{padding:0 var(--pad) 12px}
 
 .piles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;padding:0}
@@ -1083,7 +1084,7 @@ body[data-role="label"] #goSort{display:none}
     <div class="dock__row">
       <span class="armdot" id="armSum" title="綠燈＝掃描待命中"></span>
       <div class="dock__msg" id="sumMsg">從貨架拿一箱下來就掃，這裡記「已取下」</div>
-      <div class="dock__count"><em id="sumCountLb">已取下</em><span id="sumCount">0 / 0</span></div>
+      <div class="dock__count"><span id="sumCount">0 / 0</span></div>
     </div>
     <div class="sumnext" id="sumNext" hidden>
       <button class="btn btn--wide btn--go" id="goSortFromSum">全部取下了 · 開始分揀</button>

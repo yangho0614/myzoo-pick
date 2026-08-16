@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>撿貨核對頁 v0.36 · 流程與畫面總覽</title>
+<style>
+:root{
+  --bg:#0E1012; --card:#1C1E21; --fill:#26282C; --sep:rgba(255,255,255,.09);
+  --ink:#F2F3F4; --ink-2:#A8ABB0; --ink-3:#75787E;
+  --tint:#21C7BA; --attn:#FFD230; --bad:#E8354F;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.55;letter-spacing:-.01em;padding:40px 32px 80px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{margin:0;font-size:32px;font-weight:700;letter-spacing:-.03em}
+.sub{margin:6px 0 0;color:var(--ink-3);font-size:14px}
+
+.flow{margin:34px 0 8px;padding:22px;border-radius:16px;background:var(--card);
+  display:flex;flex-direction:column;gap:14px}
+.flow h2{margin:0;font-size:13px;font-weight:600;color:var(--ink-3);letter-spacing:.06em}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:9px;font-size:15px}
+.node{padding:7px 13px;border-radius:999px;background:var(--fill);font-weight:600;white-space:nowrap}
+.node.n-key{background:var(--tint);color:#0B0D10}
+.node.n-warn{background:transparent;box-shadow:inset 0 0 0 1.5px var(--attn);color:var(--attn)}
+.node.n-bad{background:transparent;box-shadow:inset 0 0 0 1.5px var(--bad);color:#FF8496}
+.arrow{color:var(--ink-3);font-size:15px}
+.branch{padding-left:14px;border-left:2px solid var(--sep);display:flex;flex-direction:column;gap:10px}
+
+h3.sect{margin:44px 0 0;font-size:20px;font-weight:700;letter-spacing:-.02em;
+  padding-bottom:10px;border-bottom:.5px solid var(--sep)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:22px;margin-top:20px}
+.shot{display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:var(--card)}
+.shot img{display:block;width:100%;border-bottom:.5px solid var(--sep)}
+.meta{padding:14px 16px 16px;display:flex;flex-direction:column;gap:7px}
+.meta .id{font-family:var(--mono);font-size:12px;color:var(--tint)}
+.meta .t{font-size:17px;font-weight:600}
+.meta .d{font-size:14px;color:var(--ink-2);line-height:1.6}
+.kv{display:flex;flex-direction:column;gap:3px;margin-top:3px;font-size:13px;color:var(--ink-3)}
+.kv b{color:var(--ink-2);font-weight:600;margin-right:5px}
+.tag{align-self:flex-start;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.tag.k{background:rgba(33,199,186,.16);color:var(--tint)}
+.tag.w{box-shadow:inset 0 0 0 1px var(--attn);color:var(--attn)}
+.tag.b{box-shadow:inset 0 0 0 1px var(--bad);color:#FF8496}
+.tag.g{background:var(--fill);color:var(--ink-2)}
+.crop{max-height:190px;object-fit:cover;object-position:bottom}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>撿貨核對頁 v0.36 · 流程與畫面總覽</h1>
+  <p class="sub">MYZOO 日居倉出貨作業 · 手持藍牙掃描器 ＋ 手機網頁 · 全部為實機擷取（示範資料 3 張單）</p>
+
+  <div class="flow">
+    <h2>一天的動線</h2>
+    <div class="chain">
+      <span class="node">電腦跑 送檔到手機.py</span><span class="arrow">→</span>
+      <span class="node">手機開網頁</span><span class="arrow">→</span>
+      <span class="node n-key">選角色</span><span class="arrow">→</span>
+      <span class="node n-key">選出貨明細</span><span class="arrow">→</span>
+      <span class="node n-warn">點底部打開掃描</span><span class="arrow">→</span>
+      <span class="node n-key">今日出貨（首頁）</span>
+    </div>
+    <div class="branch">
+      <div class="chain">
+        <span class="node">撿貨路線</span><span class="arrow">→</span>
+        <span class="node">點一張單</span><span class="arrow">→</span>
+        <span class="node">逐箱掃</span><span class="arrow">→</span>
+        <span class="node n-key">掃對：列閃綠、進度前進</span>
+        <span class="arrow">／</span><span class="node n-bad">掃錯：全屏＋出口</span>
+        <span class="arrow">／</span><span class="node n-warn">多出一箱：全屏</span>
+      </div>
+      <div class="chain">
+        <span class="node">分揀路線</span><span class="arrow">→</span>
+        <span class="node">分揀</span><span class="arrow">→</span>
+        <span class="node">掃一箱</span><span class="arrow">→</span>
+        <span class="node n-key">大字告訴你放第幾疊</span>
+      </div>
+      <div class="chain">
+        <span class="node">一人作業</span><span class="arrow">→</span>
+        <span class="node">選完檔案直接進分揀</span><span class="arrow">→</span>
+        <span class="node n-key">掃一箱 → 當場貼標 → 放一疊</span>
+      </div>
+      <div class="chain">
+        <span class="node">查核</span><span class="arrow">→</span>
+        <span class="node">今日彙總</span><span class="arrow">／</span><span class="node">查條碼</span>
+      </div>
+      <div class="chain">
+        <span class="node">掃不動</span><span class="arrow">→</span>
+        <span class="node n-warn">測試掃描器</span><span class="arrow">→</span>
+        <span class="node">掃描診斷紀錄</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sect">A · 開工</h3>
+  <div class="grid">
+    <div class="shot">
+      <img src="shots/a1-load-role.png" alt="載入畫面 · 選角色">
+      <div class="meta">
+        <span class="id">A1 · scLoad 第 1 步</span>
+        <span class="t">選角色</span>
+        <span class="d">三顆同高、內容置中，2 上 1 下。選中那顆整塊填湖水綠，不用打勾。三種角色的進度各自獨立記錄，所以這一步不能猜。</span>
+        <div class="kv">
+          <div><b>進入</b>開啟網頁 · 今日出貨左上角齒輪</div>
+          <div><b>離開</b>選檔案後進今日出貨；一人作業直接進分揀</div>
+        </div>
+      </div>
+    </div>
+    <div class="shot">
+      <img src="shots/a2-load-file.png" alt="載入畫面 · 選檔案與打開掃描">
+      <div class="meta">
+        <span class="id">A2 · scLoad 第 2、3 步</span>
+        <span class="t">選出貨明細 → 打開掃描</span>
+        <span class="d">已經有一份在手上時，檔名下方出現「回到今日出貨」與「清掉」—— 從首頁按齒輪進來後靠這顆回去，不必重新載入檔案。</span>
+        <div class="kv">
+          <div><b>清掉</b>丟棄這份明細並重載；各角色的撿貨進度不受影響</div>
+          <div><b>測試掃描器</b>見 E1</div>
+        </div>
+      </div>
+    </div>
+    <div class="shot">
+      <img src="shots/a3-resume.png" alt="跨天恢復提示">
+      <div class="meta">
+        <span class="id">A3 · 例外狀態</span>
+        <span class="t">有一份還沒做完的出貨單</span>
+        <span class="tag w">跨天一定先問</span>
+        <span class="d">隔天早上手滑重整不能默默把昨天的單接回來 —— 那會照著錯的單撿一整天。</span>
+        <div class="kv"><div><b>出現條件</b>儲存的明細日期 ≠ 今天</div></div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sect">B · 撿貨</h3>
+  <div class="grid">
+    <div class="shot">
+      <img src="shots/b1-orders.png" alt="今日出貨">
+      <div class="meta">
+        <span class="id">B1 · scOrders</span>
+        <span class="t">今日出貨（首頁）</span>
+        <span class="d">滿版列＋髮絲線。左側是疊號 —— 物流標籤照訂單順序印、切成 N 疊，所以第 i 張單就是第 i 疊。進行中的單在左緣加一條黃線，清單長的時候比看數字快。</span>
+        <div class="kv">
+          <div><b>齒輪</b>回載入畫面換檔／換角色</div>
+          <div><b>底部</b>今日彙總 · 分揀 · 查條碼（沒載入資料時停用並壓暗）</div>
+          <div><b>最底</b>黃色滿條＝還掃不動，見 F1</div>
+        </div>
+      </div>
+    </div>
+    <div class="shot">
+      <img src="shots/b2-pick.png" alt="單張撿貨核對">
+      <div class="meta">
+        <span class="id">B2 · scPick</span>
+        <span class="t">單張撿貨核對</span>
+        <span class="d">上方焦點卡只講一件事：下一箱要撿什麼。品號 34px、後 6 碼放大、數量 40px。完整清單在下方，要跨項核對時看得到。</span>
+        <div class="kv">
+          <div><b>右上</b>第幾疊</div>
+          <div><b>底部</b>進度條與「掃第一箱的條碼」</div>
+        </div>
+      </div>
+    </div>
+    <div class="shot">
+      <img src="shots/b4-hit.png" alt="掃對">
+      <div class="meta">
+        <span class="id">B3 · 掃對</span>
+        <span class="t">掃對：不打斷你</span>
+        <span class="tag k">不跳全屏</span>
+        <span class="d">該列閃綠、焦點卡跳到下一箱、底部顯示「✓ 品名 1/1」與進度。掃對是常態，不需要停下來看畫面 —— 聲音就夠了。跨單的話底部會多一句「順便：吳翰萭 2」。</span>
+      </div>
+    </div>
+    <div class="shot">
+      <img src="shots/b5-wrong-order.png" alt="掃錯 · 這箱是別人的">
+      <div class="meta">
+        <span class="id">B4 · 全屏回饋</span>
+        <span class="t">掃錯 —— 這箱是誰的、第幾疊</span>
+        <span class="tag b">有按鈕時不自動關</span>
+        <span class="d">只說「錯了」沒有用，手上還抱著一箱。所以直接講「這箱是吳翰萭的，第 2 疊」，並給兩個出口：切到那張單、或放回去繼續撿。</span>
+      </div>
+    </div>
+    <div class="shot">
+      <img src="shots/b6-not-today.png" alt="掃錯 · 今天不出這個品項">
+      <div class="meta">
+        <span class="id">B5 · 全屏回饋</span>
+        <span class="t">掃錯 —— 整份出貨單裡都沒有</span>
+        <span class="tag b">今天不出這個品項</span>
+        <span class="d">條碼不在今天任何一張單上。附「先確認是不是撿錯了」，只有一顆「知道了」。</span>
+      </div>
+    </div>
+    <div class="shot">
+      <img src="shots/b7-overflow.png" alt="多出來一箱">
+      <div class="meta">
+        <span class="id">B6 · 全屏回饋</span>
+        <span class="t">多出來一箱</span>
+        <span class="tag w">黃＝要你動手</span>
+        <span class="d">這個品項今天全部只要 N 箱、已經撿齊了。附「這箱放回貨架，不要貼標」。</span>
+      </div>
+    </div>
+    <div class="shot">
+      <img src="shots/b3-manual.png" alt="手動輸入">
+      <div class="meta">
+        <span class="id">B7 · scPick</span>
+        <span class="t">手動輸入</span>
+        <span class="tag g">備援</span>
+        <span class="d">條碼破損或掃描器沒電時用。開著的時候掃描焦點讓給它，兩者不互搶。</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sect">C · 分揀</h3>
+  <div class="grid">
+    <div class="shot">
+      <img src="shots/c1-sort-idle.png" alt="分揀 · 等待掃描">
+      <div class="meta">
+        <span class="id">C1 · scSort</span>
+        <span class="t">等待掃描</span>
+        <span class="d">不用先選單，拿一箱下來就掃。下方是每一疊的進度卡（客戶名＋疊號＋已放／總箱）。</span>
+        <div class="kv"><div><b>退回</b>放錯疊時把上一箱退回來</div></div>
+      </div>
+    </div>
+    <div class="shot">
+      <img src="shots/c2-sort-hit.png" alt="分揀 · 放到這一堆">
+      <div class="meta">
+        <span class="id">C2 · scSort</span>
+        <span class="t">放到這一堆</span>
+        <span class="d">客戶名 40px、右上角是疊號，走動中一眼可讀。一人作業模式下這句會變成「撕這一疊的標，貼上去」。</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sect">D · 查核工具</h3>
+  <div class="grid">
+    <div class="shot">
+      <img src="shots/d1-summary.png" alt="今日彙總">
+      <div class="meta">
+        <span class="id">D1 · scSum</span>
+        <span class="t">今日彙總（＝揀貨總表）</span>
+        <span class="d">同一品項今天總共要幾箱、分給哪幾張單。跨單的品項用黃框膠囊標出來，箱數跟在人名後面。</span>
+        <div class="kv"><div><b>只看跨單</b>只留需要分箱的品項</div></div>
+      </div>
+    </div>
+    <div class="shot">
+      <img src="shots/d2-lookup.png" alt="查條碼">
+      <div class="meta">
+        <span class="id">D2 · scLookup</span>
+        <span class="t">查條碼</span>
+        <span class="d">掃任何一箱，看它屬於哪張單、各要幾箱。不動任何進度。</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sect">E · 掃不動的時候</h3>
+  <div class="grid">
+    <div class="shot">
+      <img src="shots/e1-selftest.png" alt="掃描器自我測試">
+      <div class="meta">
+        <span class="id">E1 · 自我測試</span>
+        <span class="t">測試掃描器</span>
+        <span class="d">用一次真實掃描同時驗四件事：有沒有收到按鍵（藍牙）、收到的是不是數字（輸入法）、焦點在不在、花多久。藍牙連著但輸入法跑掉一樣掃不動，所以驗結果比驗連線有用。掃哪一箱都可以，不影響進度。</span>
+      </div>
+    </div>
+    <div class="shot">
+      <img src="shots/e2-diag.png" alt="掃描診斷紀錄">
+      <div class="meta">
+        <span class="id">E2 · 診斷紀錄</span>
+        <span class="t">掃描診斷紀錄</span>
+        <span class="tag g">預設關閉</span>
+        <span class="d">現場掃不動時唯一能遠端判斷問題的東西：逐鍵記錄、焦點落在哪個元素、每筆花費時間。收在「進階與說明」裡。</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sect">F · 底部掃描待命條（每一頁都在）</h3>
+  <div class="grid">
+    <div class="shot">
+      <img class="crop" src="shots/b1-orders.png" alt="待命條 · 未啟用">
+      <div class="meta">
+        <span class="id">F1 · 未啟用</span>
+        <span class="t">黃色滿條＝還掃不動</span>
+        <span class="tag w">點一下才收得到掃描器</span>
+        <span class="d">iOS 只在手指觸碰的那一瞬間允許程式聚焦輸入框，所以那條提示本身就是鋪滿整條的透明輸入框 —— 手指點下去是原生聚焦，沒有被拒絕的餘地。此時底部的按鈕會自動往上讓位。</span>
+      </div>
+    </div>
+    <div class="shot">
+      <img class="crop" src="shots/f2-armed.png" alt="待命條 · 已待命">
+      <div class="meta">
+        <span class="id">F2 · 已待命</span>
+        <span class="t">縮成一條湖水綠細線＝可以掃了</span>
+        <span class="d">待命後不能整條藏起來 —— 藏起來的輸入框會立刻失焦，又變回未待命，然後無限閃爍。所以只能縮成細線。</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

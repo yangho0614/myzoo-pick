@@ -481,7 +481,12 @@ body[data-role="label"] #goSort{display:none}
       「屬於上面那一項」的歸屬感靠的是那個框，不是縮排。
       為了保留縮排而讓名字斷行，是拿真的看不懂換不重要的整齊。
    ⚠️ justify-self:start 保留 —— 短名字的膠囊還是只有內容那麼寬，不會拉成一整條。 */
-.row__multi{grid-column:1 / -1;grid-row:2;justify-self:start;margin-top:7px;margin-left:20px;
+/* 🔴 grid-row 必須是 3，不能是 2。
+   .row__code 是 `grid-column:1; grid-row:span 2`（佔第 1 欄的第 1〜2 列）。
+   這個膠囊跨滿整列（1 / -1）如果放在第 2 列，就會**跟條碼欄搶同一格**，
+   自動配置只好把條碼欄擠到後面 —— 實機上看到的就是「條碼跑到卡片最下面」。
+   放到第 3 列，條碼欄保住 1〜2 列，膠囊在下面自己一整條。 */
+.row__multi{grid-column:1 / -1;grid-row:3;justify-self:start;margin-top:7px;margin-left:20px;
   max-width:calc(100% - 20px);
   color:var(--attn);background:var(--attn-soft);
   box-shadow:inset 0 0 0 1px var(--attn-line);border-radius:10px;padding:7px 11px 8px;

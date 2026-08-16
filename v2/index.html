@@ -523,12 +523,24 @@ body[data-role="label"] #goSort{display:none}
 .sortcard__pile i{display:block;font-style:normal;font-size:28px;font-weight:600;line-height:1;
   letter-spacing:-.02em}
 .sortcard__pile u{display:block;text-decoration:none;font-size:11px;color:var(--ink-3)}
+/* 🔴 識別度層級（2026-08-16 定案）：
+     第 1 階 人名 40px
+     第 2 階 條碼尾6碼 24px ＝ 品名 20px
+     第 3 階 MZ 編號 13.5px ＝ 訂單編號 13.5px
+   ⚠️ 「條碼 ＝ 品名」不能給同一個字級。等寬數字的視覺高度只有字級的約
+      0.72 倍、中文是 0.95 倍 —— 都寫 20px 的話數字會看起來小一截。
+      尾 6 碼開到 24px，跟 20px 的中文才真的一樣大。 */
 .sortcard__line{font-size:13.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
-.sortcard__item{font-size:17px;font-weight:600;margin-top:8px;line-height:1.35}
-.sortcard__code{font-family:var(--mono);font-size:13px;color:var(--ink-3)}
-.sortcard__code .utail{font-size:20px}
-.sortcard__code b{color:var(--ink-3);font-size:13px;font-weight:600}
-.sortcard__note{font-size:14px;color:var(--ink-2);margin-top:5px;line-height:1.5}
+.sortcard__item{font-size:20px;font-weight:650;margin-top:7px;line-height:1.32}   /* ＋gap 4px＝11px */
+.sortcard__code{font-family:var(--mono);font-size:15px;color:var(--ink-2);margin-top:3px;
+  line-height:1.1}   /* ＋gap 4px＝7px */
+.sortcard__code .uhead{font-size:15px;color:var(--ink-3);letter-spacing:.02em}
+.sortcard__code .utail{font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+/* MZ 自編碼：第 3 階，自己一行。跟商品彙總左欄同一個排法（條碼在上、MZ 在下），
+   間距也一樣是 13px —— 太貼會跟上面的大數字糊成一塊。 */
+.sortcard__sku{display:block;margin-top:13px;font-size:13.5px;font-weight:400;
+  color:var(--ink-3);letter-spacing:.02em}
+.sortcard__note{font-size:14px;color:var(--ink-2);margin-top:9px;line-height:1.5}   /* ＋gap 4px＝13px */
 
 .piles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;padding:0}
 .pile{padding:12px 13px;border-radius:12px;background:var(--card);position:relative}
@@ -1704,9 +1716,12 @@ function sortCard(kind, eye, who, line, item, code, note, pile){
   $("sortCode").innerHTML = code || "";
   $("sortNote").textContent = note || "";
 }
-// MZ 品號給人認、UPC 給掃描器 —— 兩個都印出來，MZ 標色
+/* MZ 品號給人認、UPC 給掃描器 —— 兩個都印出來，但**不同階、不同行**。
+   ⚠️ 以前是 "<b>MZ0015</b> · 640841970799" 擠在同一行，MZ 還是粗體 ——
+      那讓最不重要的編號跟第 2 階的條碼搶份量。現在條碼在上、MZ 自己一行在下。 */
 function codeLine(sku, upc){
-  return (sku ? "<b>" + sku + "</b> · " : "") + codeHTML(upc);
+  return codeHTML(upc) +
+         (sku ? '<span class="sortcard__sku">' + esc(sku) + '</span>' : "");
 }
 
 /* 彙總頁掃描 = 查詢。不動任何進度、不切換畫面 ——

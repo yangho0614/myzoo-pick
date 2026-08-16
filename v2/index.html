@@ -928,7 +928,12 @@ body[data-role="label"] #goSort{display:none}
       <div class="bar__title" id="pkName"></div>
       <div class="bar__sub" id="pkNo"></div>
     </div>
-    <span class="pilebadge" id="pkPile"></span>
+    <!-- 疊號併進副標那行，右側空出來放三段篩選（同商品彙總的做法） -->
+    <div class="seg seg--hd" role="group" aria-label="顯示範圍">
+      <button id="segAllItems" aria-pressed="true">全部</button>
+      <button id="segLeft" aria-pressed="false">未撿</button>
+      <button id="segDone" aria-pressed="false">已撿</button>
+    </div>
   </header>
 
   <!-- 焦點卡：走動中只看得清一件事，所以「下一箱要撿什麼」單獨放大 -->
@@ -943,10 +948,6 @@ body[data-role="label"] #goSort{display:none}
     </div>
   </div>
 
-  <div class="seg">
-    <button id="segAllItems" aria-pressed="true">顯示全部</button>
-    <button id="segLeft" aria-pressed="false">只看未撿</button>
-  </div>
 
   <div class="chips">
     <button class="chip" id="chipManual" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-keyboard"/></svg>手動輸入</button>
@@ -1075,7 +1076,7 @@ body[data-role="label"] #goSort{display:none}
 /* ═══ 狀態 ═══════════════════════════════════════════════ */
 var DB = { orders: [], byCode: {}, byWay: {}, key: "" };  // key = 這份出貨單的識別碼
 var cur = null;              // 目前撿的訂單
-var onlyLeft = false;
+var pickFilter = "all";   // all ／ left ／ done
 var LS = "myzoom.pick.v1";
 var ROLE = "pick";           // pick = 撿貨 ／ label = 對單貼標
 try{ ROLE = localStorage.getItem(LS + ".role") || "pick"; }catch(e){}
@@ -1855,14 +1856,17 @@ function renderNow(){
 
 function renderPick(){
   $("pkName").textContent = cur.cust;
-  $("pkPile").textContent = cur.pile ? "第 " + cur.pile + " 疊" : "";
-  $("pkNo").textContent   = cur.no + (cur.way ? "　　" + cur.way : "");
+  var pl = $("pkPile"); if(pl) pl.textContent = "";      // 疊號改放副標
+  $("pkNo").textContent = cur.no
+    + (cur.pile ? " · 第 " + cur.pile + " 疊" : "")
+    + (cur.way ? "　" + cur.way : "");
 
   var box = $("pkRows"); box.textContent = "";
   var shown = 0;
   cur.items.forEach(function(it, idx){
     var st = it.got >= it.need ? "done" : (it.got > 0 ? "part" : "todo");
-    if(onlyLeft && st === "done") return;
+    if(pickFilter === "left" && st === "done") return;
+    if(pickFilter === "done" && st !== "done") return;
     shown++;
     var d = document.createElement("div");
     d.className = "row"; d.dataset.s = st; d.dataset.i = idx;
@@ -2730,13 +2734,15 @@ $("goLookup").addEventListener("click", function(){
 
 /* 兩顆各自代表一個狀態 —— 單顆切換鈕看不出「現在是哪一種」（跟商品彙總一致） */
 function setPickFilter(v){
-  onlyLeft = v;
-  $("segAllItems").setAttribute("aria-pressed", String(!v));
-  $("segLeft").setAttribute("aria-pressed", String(v));
+  pickFilter = v;
+  $("segAllItems").setAttribute("aria-pressed", String(v === "all"));
+  $("segLeft").setAttribute("aria-pressed", String(v === "left"));
+  $("segDone").setAttribute("aria-pressed", String(v === "done"));
   renderPick();
 }
-$("segAllItems").addEventListener("click", function(){ setPickFilter(false); });
-$("segLeft").addEventListener("click", function(){ setPickFilter(true); });
+$("segAllItems").addEventListener("click", function(){ setPickFilter("all"); });
+$("segLeft").addEventListener("click", function(){ setPickFilter("left"); });
+$("segDone").addEventListener("click", function(){ setPickFilter("done"); });
 $("chipManual").addEventListener("click", function(){
   var on = $("manualWrap").hidden;
   $("manualWrap").hidden = !on;

@@ -536,10 +536,11 @@ body[data-role="label"] #goSort{display:none}
   line-height:1.1}   /* ＋gap 4px＝7px */
 .sortcard__code .uhead{font-size:15px;color:var(--ink-3);letter-spacing:.02em}
 .sortcard__code .utail{font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
-/* MZ 自編碼：第 3 階，自己一行。跟商品彙總左欄同一個排法（條碼在上、MZ 在下），
-   間距也一樣是 13px —— 太貼會跟上面的大數字糊成一塊。 */
-.sortcard__sku{display:block;margin-top:13px;font-size:13.5px;font-weight:400;
-  color:var(--ink-3);letter-spacing:.02em}
+/* MZ 自編碼：第 3 階，排在訂單編號正下方、品名上方。
+   兩個都是「編號類」，放成同一組；下面的品名＋條碼才是第 2 階那一組。 */
+.sortcard__sku{font-size:13.5px;font-weight:400;color:var(--ink-3);letter-spacing:.02em;
+  font-variant-numeric:tabular-nums}
+.sortcard__sku:empty{display:none}
 .sortcard__note{font-size:14px;color:var(--ink-2);margin-top:9px;line-height:1.5}   /* ＋gap 4px＝13px */
 
 .piles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;padding:0}
@@ -921,6 +922,7 @@ body[data-role="label"] #goSort{display:none}
       <div class="sortcard__eye" id="sortEye">等待掃描</div>
       <div class="sortcard__who" id="sortWho">—</div>
       <div class="sortcard__line" id="sortLine"></div>
+      <div class="sortcard__sku" id="sortSku"></div>
       <div class="sortcard__item" id="sortItem"></div>
       <div class="sortcard__code" id="sortCode"></div>
       <div class="sortcard__note" id="sortNote"></div>
@@ -1704,7 +1706,7 @@ function totals(){
 function openSort(){ renderSort(); show("scSort"); }
 
 // code 用 innerHTML（要把 MZ 品號標成琥珀色），其餘一律 textContent
-function sortCard(kind, eye, who, line, item, code, note, pile){
+function sortCard(kind, eye, who, line, item, code, note, pile, sku){
   var c = $("sortCard");
   c.dataset.k = kind;
   $("sortPile").innerHTML = pile ? "<i>" + pile + "</i><u>疊</u>" : "";
@@ -1712,17 +1714,14 @@ function sortCard(kind, eye, who, line, item, code, note, pile){
   $("sortEye").textContent = eye;
   $("sortWho").textContent = who;
   $("sortLine").textContent = line || "";
+  $("sortSku").textContent = sku || "";
   $("sortItem").textContent = item || "";
   $("sortCode").innerHTML = code || "";
   $("sortNote").textContent = note || "";
 }
-/* MZ 品號給人認、UPC 給掃描器 —— 兩個都印出來，但**不同階、不同行**。
-   ⚠️ 以前是 "<b>MZ0015</b> · 640841970799" 擠在同一行，MZ 還是粗體 ——
-      那讓最不重要的編號跟第 2 階的條碼搶份量。現在條碼在上、MZ 自己一行在下。 */
-function codeLine(sku, upc){
-  return codeHTML(upc) +
-         (sku ? '<span class="sortcard__sku">' + esc(sku) + '</span>' : "");
-}
+/* ⚠️ 這裡以前是 codeLine(sku, upc)，把 "<b>MZ0015</b> · 640841970799" 擠在同一行、
+   MZ 還是粗體 —— 那讓最不重要的編號跟第 2 階的條碼搶份量。
+   2026-08-16 起 MZ 交給 sortCard 的 sku 參數，排在訂單編號下方、品名上方。 */
 
 /* 彙總頁掃描 = 查詢。不動任何進度、不切換畫面 ——
    彙總的角色是「看今天要出什麼」，分揀的角色才是「做」。兩者分開比較不會出錯。 */
@@ -1788,8 +1787,8 @@ function scanSort(code){
     var n = hits.reduce(function(s, h){ return s + h.item.need; }, 0);
     SOUND.warn(); buzz([60,50,60]);
     sortCard("warn", "這個品項已經分完了", hits[0].item.name, "", "",
-             codeLine(hits[0].item.sku, code),
-             "今天總共只有 " + n + " 箱，都已經分出去了");
+             codeHTML(code),
+             "今天總共只有 " + n + " 箱，都已經分出去了", "", hits[0].item.sku);
     $("sortMsg").textContent = "多出來的一箱：" + hits[0].item.name;
     return;
   }
@@ -1809,9 +1808,9 @@ function scanSort(code){
     h.ord.cust,
     (h.ord.way ? h.ord.way + "　" : "") + h.ord.no,
     h.item.name,
-    codeLine(h.item.sku, code),
+    codeHTML(code),
     left > 0 ? "這位還要 " + left + " 箱" : "這位的這一項齊了",
-    h.ord.pile);
+    h.ord.pile, h.item.sku);
 
   $("sortMsg").textContent = h.ord.cust + " " + got(h.ord) + " / " + h.ord.total + " 箱";
   renderSort();
@@ -1833,7 +1832,7 @@ function undoSort(){
   h.item.got = Math.max(0, h.item.got - 1);
   SOUND.warn(); buzz(60);
   sortCard("warn", "已退回上一箱", h.ord.cust, h.ord.no,
-           (h.item.sku ? h.item.sku + "　" : "") + h.item.name + " 退回 1 箱");
+           h.item.name + " 退回 1 箱", "", "", "", h.item.sku);
   $("sortMsg").textContent = "已退回：" + h.item.name;
   renderSort();
 }

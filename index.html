@@ -580,6 +580,11 @@ body[data-role="label"] #goSort{display:none}
   display:inline-block;width:max-content;
   background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+  /* 🧪 v2 才有：底板 ＋ **淡青**（提案 丙＋丁）。正式版維持純白。
+     底板是純黑、比卡片灰更暗，所以顏色放在上面的對比反而**比放在卡片上高** ——
+     淡青對黑底是 12.5:1（純白 18.9:1），WCAG 最高等級只要 7:1，兩個都遠超過。
+     這一版是拿來實機比「有顏色會不會更好找」，正式版還沒跟。 */
+  color:#7FD8D0;
 }
 /* ⚠️ 黃色塊上不要底板 —— 那裡的字已經是純黑、對比本來就最大，
    再加一塊黑底反而變成「黃底上一塊黑方塊」，搶掉整列的注意力。 */
@@ -703,6 +708,34 @@ body[data-role="label"] #goSort{display:none}
 .sortcard__todo{margin-top:7px;padding:9px 13px;border-radius:11px;   /* ＋gap 4px＝11px */
   background:rgba(0,0,0,.20);font-size:15px;font-weight:600;color:var(--ink)}
 .sortcard__todo:empty{display:none}
+
+/* ═══ 商品彙總：取貨勾選 ═══ */
+.tick{
+  display:grid;place-items:center;margin:7px 0 0 auto;width:30px;height:30px;border-radius:9px;
+  background:var(--fill);box-shadow:inset 0 0 0 1.5px var(--sep-strong);
+}
+/* ⚠️ 勾勾是「長方形只留左邊與下邊的框、轉 -45°」做的，
+   轉完之後**視覺重心在方框中心下方約 2px**（尖端落在 +6.4、兩臂在 -2.1）。
+   只用 place-items:center 會看起來偏低 —— 要再往上推那 2px 才是真的置中。
+   （跟「進階與說明」那個向下箭頭同一個坑，方向相反。） */
+.tick::after{
+  content:"";width:12px;height:6px;
+  border-left:2.5px solid var(--ink-3);border-bottom:2.5px solid var(--ink-3);
+  transform:translateY(-2px) rotate(-45deg);
+}
+.srow[data-s="done"] .tick{background:var(--good);box-shadow:none}
+.srow[data-s="done"] .tick::after{border-color:#000}
+/* 黃色塊上的方塊要看得見 —— 深灰底在琥珀上會糊掉 */
+.srow[data-s="part"] .tick{background:rgba(0,0,0,.14);box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.3)}
+.srow[data-s="part"] .tick::after{border-color:rgba(0,0,0,.55)}
+/* 分堆數超過取下數的提示 */
+.srow__gap{grid-column:1 / -1;margin-top:6px;font-size:13px;color:var(--attn)}
+.srow[data-s="part"] .srow__gap{color:rgba(0,0,0,.62)}
+/* ⚠️ 這裡原本有「已取下」小標，2026-08-16 拿掉（Evan）。
+   兩個計數器都會走到同一個總數，但**畫面本身就分得出來** ——
+   在商品彙總看到的就是取貨、在分揀看到的就是分堆，不需要再加字解釋。
+   左邊那行訊息已經寫著「這裡記『已取下』」。 */
+.sumnext{padding:0 var(--pad) 12px}
 
 .piles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;padding:0}
 .pile{padding:12px 13px;border-radius:12px;background:var(--card);position:relative}
@@ -896,6 +929,8 @@ body[data-role="label"] #goSort{display:none}
 <body>
 </head>
 <body>
+</head>
+<body>
 <!-- Google Material Symbols（Apache 2.0）。⚠️ 路徑直接內嵌，不連 CDN ——
      這頁在倉庫要能離線跑，連外部字型或圖示檔就會破功。 -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -925,7 +960,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.70　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.71　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -1089,6 +1124,19 @@ body[data-role="label"] #goSort{display:none}
     </div>
   </header>
   <div class="rowlist" id="sumRows" style="padding-bottom:120px"></div>
+  <!-- 🔴 這一頁的計數是「**已取下**」，跟分揀的「已分堆」是兩份不同的資料。
+       名稱一定要分開講清楚，不然現場會問「我不是已經 82 了嗎為什麼又變 0」。 -->
+  <div class="dock" id="sumDock">
+    <div class="dock__bar"><div class="dock__fill" id="sumFill" style="width:0%"></div></div>
+    <div class="dock__row">
+      <span class="armdot" id="armSum" title="綠燈＝掃描待命中"></span>
+      <div class="dock__msg" id="sumMsg">從貨架拿一箱下來就掃，這裡記「已取下」</div>
+      <div class="dock__count"><span id="sumCount">0 / 0</span></div>
+    </div>
+    <div class="sumnext" id="sumNext" hidden>
+      <button class="btn btn--wide btn--go" id="goSortFromSum">全部取下了 · 開始分揀</button>
+    </div>
+  </div>
 </section>
 
 <!-- ══ 3. 分揀：掃一箱 → 大字告訴你放哪一堆 ══ -->
@@ -1602,6 +1650,39 @@ function fileKey(){
 //    共用同一份進度的話，第二道打開就是全綠，等於沒有覆核。
 function progKey(){ return LS + "." + DB.key + "." + ROLE; }
 
+/* ═══ 取貨記錄（2026-08-16 新增，跟分堆進度**完全分開**）═════════════
+   為什麼要兩份：
+     · 商品彙總＝「從貨架**取下**了幾箱」
+     · 分揀／單張核對＝「**分堆**／核對了幾箱」
+   邊拿邊分時兩者很接近，但**不是同一件事**：
+   拿了 6 箱在推車上還沒分、箱子破損先擱著、兩人分工搬運 —— 都會讓兩者不同步。
+   合併成一份會**掩蓋差異**，而差異出現的時候（已取下 82、已分堆 78 → 少了 4 箱）
+   正是最需要知道的時候。那 4 箱從貨架下來了卻沒進任何一堆，最後客戶少收。
+   ⚠️ 這份**不帶角色**。progKey() 帶角色是因為撿貨與對單是兩道獨立核對；
+      但「從貨架拿下來」是一次性的物理動作，兩個角色不會各拿一次。 */
+var TAKEN = {};
+function takenKey(){ return LS + "." + DB.key + ".taken"; }
+function saveTaken(){
+  try{ localStorage.setItem(takenKey(), JSON.stringify(TAKEN)); }catch(e){}
+}
+function restoreTaken(){
+  TAKEN = {};
+  try{ TAKEN = JSON.parse(localStorage.getItem(takenKey()) || "{}") || {}; }catch(e){}
+}
+/* 每個品項今天總共要幾箱（跨單加總）—— 取貨是按品項算的，不分客戶。 */
+function needByCode(){
+  var m = {};
+  DB.orders.forEach(function(o){ o.items.forEach(function(it){
+    m[it.code] = (m[it.code] || 0) + it.need;
+  }); });
+  return m;
+}
+function takenTotals(){
+  var need = needByCode(), n = 0, g = 0;
+  for(var c in need){ n += need[c]; g += Math.min(need[c], TAKEN[c] || 0); }
+  return { need: n, got: g };
+}
+
 function save(){
   try{
     var d = {};
@@ -1819,17 +1900,31 @@ function renderSummary(){
   var shown = 0, multi = 0, boxes = 0;
 
   function addRow(code, m){
-    var st = m.got >= m.need ? "done" : (m.got > 0 ? "part" : "todo");
+    /* 🔴 這一頁的顏色與數字由**取貨記錄**驅動，不是分堆進度（2026-08-16）。
+       原本用 m.got（分堆）—— 但站在貨位前的人想知道的是「這一款我還沒拿完」，
+       不是「還沒分堆完」。同一個黃色塊在回答錯的問題。 */
+    var tk = Math.min(m.need, TAKEN[code] || 0);
+    var st = tk >= m.need ? "done" : (tk > 0 ? "part" : "todo");
     var d = document.createElement("div");
     d.className = "srow"; d.dataset.s = st; d.dataset.code = code;
     d.innerHTML =
       '<div class="srow__code"><i>' + String(code).slice(0, 6) + '</i><b>' +
         String(code).slice(6) + '</b><span class="sk"></span></div>' +
       '<div class="srow__nm"></div>' +
-      '<div class="srow__qty"><span class="a"></span><em>/ ' + m.need + '</em></div>' +
+      '<div class="srow__qty"><span class="a"></span><em>/ ' + m.need + '</em>' +
+        '<button class="tick" aria-label="整項打勾／取消"></button></div>' +
       '<div class="srow__whos"></div>';
     d.querySelector(".srow__nm").textContent = m.name;
-    d.querySelector(".a").textContent = m.got;
+    d.querySelector(".a").textContent = tk;
+    d.querySelector(".tick").dataset.need = m.need;   // 打勾用（見 sumRows 的事件委派）
+    /* 分堆數超過取下數 → 有人跳過取貨記錄（可能是別人幫忙拿的）。
+       ⚠️ **不擋、不自動補**，只標出來 —— 擋下來只會惹惱現場。 */
+    if(m.got > tk){
+      var w = document.createElement("div");
+      w.className = "srow__gap";
+      w.textContent = "已分堆 " + m.got + " 箱，比取下的多";
+      d.querySelector(".srow__qty").after(w);
+    }
     var sk = d.querySelector(".sk");
     if(m.sku) sk.textContent = m.sku; else sk.remove();
     var mu = d.querySelector(".srow__whos");
@@ -1883,6 +1978,17 @@ function renderSummary(){
   }
   // 品項數與箱數在「今日出貨」已經有了，這裡只留這頁獨有的資訊
   $("sumSub").textContent = "跨單 " + multi + " 項";
+
+  /* 進度座：這一頁算的是**已取下**，不是已分堆。 */
+  var t = takenTotals();
+  $("sumCount").textContent = t.got + " / " + t.need;
+  $("sumFill").style.width = (t.need ? Math.round(t.got / t.need * 100) : 0) + "%";
+  $("sumDock").dataset.s = (t.need && t.got >= t.need) ? "done" : "";
+  var allTaken = t.need > 0 && t.got >= t.need;
+  $("sumNext").hidden = !allTaken;
+  $("sumMsg").textContent = allTaken
+    ? "全部都從貨架拿下來了"
+    : "從貨架拿一箱下來就掃，這裡記「已取下」";
   /* ⚠️ 這裡刻意「不」收掉掃描結果 ——
      現場的用法是「掃一箱、抬頭看是誰的、去拿下一箱」，
      結果必須停在畫面上直到掃下一個。切換「只看跨單」也不該把它弄不見。
@@ -1945,12 +2051,31 @@ function scanSummary(code){
   var total = hits.reduce(function(n, h){ return n + h.item.need; }, 0);
   var who = hits.map(function(h){ return h.ord.cust + " " + h.item.need; }).join(" · ");
 
+  /* 🔴 2026-08-16：彙總掃描從「純查詢」改成**記錄取貨**。
+     邊拿邊分時，站在貨位前看的就是這一頁，掃了不記錄才是 bug。
+     記的是「從貨架取下」，跟分堆進度是兩份獨立的資料。 */
+  var need = needByCode()[code] || 0;
+  var was = Math.min(need, TAKEN[code] || 0);
+  if(was >= need){
+    /* 這一款今天要的都拿完了，還掃到一箱 —— 跟分揀的「多出來一箱」同一個語彙 */
+    SOUND.warn(); buzz([60,50,60]);
+    blast("warn", "!", "這一款已經拿完了", pretty(code),
+      esc(it.name) + " 今天總共只要 <strong>" + need + "</strong> 箱" +
+      '<span class="blast__todo">放回貨架 —— 或先確認是不是別天的貨</span>',
+      [{ label: "知道了" }]);
+    renderSummary();
+    return;
+  }
+  TAKEN[code] = was + 1;
+  saveTaken();
+  renderSummary();
+  SOUND.look(); buzz([20,45,20]);   // 取貨音：快速兩下，跟「分堆」的單聲明確分開
+
   var row = $("sumRows").querySelector('[data-code="' + code + '"]');
   if(row){
     row.classList.add("scanned");          // ⚠️ 不設定時器移除 —— 要留到掃下一個
     row.scrollIntoView({ block: "center" });
   }
-  SOUND.look(); buzz([20,45,20]);   // 查詢音＋快速兩下震動，跟「撿到一箱」明確分開
   // ⚠️ 不要用 msg() —— 它寫的是撿貨畫面的 dockMsg，在彙總畫面根本看不到。
   //    這裡的回饋就是「那一列被標起來並捲到畫面中央」，資訊本來就都在列上。
 }
@@ -2938,6 +3063,7 @@ function loadRows(rows, srcName, fromPick){
     DB.key = fileKey();
     DB.src = srcName || "";
     restore();
+    restoreTaken();           // 取貨記錄跟分堆進度分開存，也要分開還原
     applyManifest();          // 之前貼過的託運總表，換一份出貨單也照樣套得上
     loadWays();               // 之前掃標籤當場學會的對應
     clearBind();
@@ -2997,6 +3123,18 @@ function setSumFilter(m){
   $("segSolo").setAttribute("aria-pressed", String(m === "solo"));
   renderSummary();
 }
+/* 手動整項打勾／取消 —— 繞完一趟回頭補記用。
+   ⚠️ 用**事件委派**而不是每列各掛一個監聽器：renderSummary() 每次都重建整份清單，
+      逐列掛監聽等於每次重繪都產生 N 個新的閉包；委派只掛一次，而且重繪後照樣有效。 */
+$("sumRows").addEventListener("click", function(e){
+  var t = e.target.closest && e.target.closest(".tick");
+  if(!t) return;
+  var row = t.closest(".srow"); if(!row) return;
+  var code = row.dataset.code, need = parseInt(t.dataset.need || "0", 10);
+  TAKEN[code] = (Math.min(need, TAKEN[code] || 0) >= need) ? 0 : need;
+  saveTaken(); SOUND.look(); buzz(20); renderSummary();
+});
+$("goSortFromSum").addEventListener("click", function(){ openSort(); });
 $("segAll").addEventListener("click", function(){ setSumFilter("all"); });
 $("segMulti").addEventListener("click", function(){ setSumFilter("multi"); });
 $("segSolo").addEventListener("click", function(){ setSumFilter("solo"); });
@@ -3124,7 +3262,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.70　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.71　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

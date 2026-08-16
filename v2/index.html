@@ -405,6 +405,14 @@ body[data-role="label"] #goSort{display:none}
 .row[data-s="done"] .row__qty .a{color:var(--good)}
 /* 分段控制：選中那顆填湖水綠淡底＋描邊，未選中只是文字 */
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px var(--pad) 0}
+/* header 版：省掉獨立一排。這兩三顆一天只按幾次，不是走動中要盲按的東西，
+   所以可以比主要按鈕小一號。 */
+.seg--hd{
+  display:flex;gap:4px;padding:0;flex:none;
+  background:var(--fill);border-radius:10px;
+}
+.seg--hd button{min-height:34px;padding:0 10px;font-size:12.5px;border-radius:8px;background:transparent}
+.seg--hd button[aria-pressed="true"]{background:var(--tint-soft);color:var(--tint);box-shadow:none}
 .seg button{
   min-height:44px;padding:0 12px;border-radius:10px;text-align:center;
   display:flex;align-items:center;justify-content:center;
@@ -867,12 +875,14 @@ body[data-role="label"] #goSort{display:none}
       <div class="bar__title">商品彙總</div>
       <div class="bar__sub" id="sumSub"></div>
     </div>
+    <!-- 三段放進 header：品項數與箱數在「今日出貨」已經有了，這裡重複佔位。
+         副標只留「跨單 N 項」—— 那才是這頁獨有的資訊。 -->
+    <div class="seg seg--hd" role="group" aria-label="顯示範圍">
+      <button id="segAll" aria-pressed="true">全部</button>
+      <button id="segMulti" aria-pressed="false">跨單</button>
+      <button id="segSolo" aria-pressed="false">非跨單</button>
+    </div>
   </header>
-  <!-- 兩顆並排、目前在哪一邊一眼看得到 —— 單顆切換要先讀文字才知道現在是什麼狀態 -->
-  <div class="seg" role="group" aria-label="顯示範圍">
-    <button id="segAll" aria-pressed="true">全部</button>
-    <button id="segMulti" aria-pressed="false">只看跨單</button>
-  </div>
   <div class="rowlist" id="sumRows" style="padding-bottom:120px"></div>
 </section>
 
@@ -1568,7 +1578,7 @@ function bindWay(o, code){
 }
 
 /* ═══ 商品彙總（就是揀貨總表，但標出跨單品項）═══════════ */
-var onlyMulti = false;
+var sumFilter = "all";   // all ／ multi ／ solo
 
 function renderSummary(){
   var map = {}, keys = [];
@@ -1628,21 +1638,28 @@ function renderSummary(){
     if(m.hits.length > 1){ multi++; multiKeys.push(code); }
     else soloKeys.push(code);
   });
-  if(multiKeys.length){
+  var showMulti = sumFilter !== "solo";
+  var showSolo  = sumFilter !== "multi";
+
+  if(showMulti && multiKeys.length){
     addLabel("跨單 <b>" + multiKeys.length + " 項</b> — 同一款要分給幾位");
     multiKeys.forEach(function(c){ addRow(c, map[c]); });
   }
-  if(onlyMulti && !multiKeys.length){
-    var e = document.createElement("div");
-    e.className = "done-note";
-    e.textContent = "今天沒有跨單品項 —— 每一款都只給一位";
-    box.appendChild(e);
-  }
-  if(!onlyMulti && soloKeys.length){
-    addLabel("只給一位 " + soloKeys.length + " 項");
+  if(showSolo && soloKeys.length){
+    addLabel("非跨單 " + soloKeys.length + " 項 — 每一款只給一位");
     soloKeys.forEach(function(c){ addRow(c, map[c]); });
   }
-  $("sumSub").textContent = keys.length + " 品項 · " + boxes + " 箱 · 跨單 " + multi + " 項";
+  if((sumFilter === "multi" && !multiKeys.length) ||
+     (sumFilter === "solo"  && !soloKeys.length)){
+    var e = document.createElement("div");
+    e.className = "done-note";
+    e.textContent = sumFilter === "multi"
+      ? "今天沒有跨單品項 —— 每一款都只給一位"
+      : "今天每一款都是跨單";
+    box.appendChild(e);
+  }
+  // 品項數與箱數在「今日出貨」已經有了，這裡只留這頁獨有的資訊
+  $("sumSub").textContent = "跨單 " + multi + " 項";
   /* ⚠️ 這裡刻意「不」收掉掃描結果 ——
      現場的用法是「掃一箱、抬頭看是誰的、去拿下一箱」，
      結果必須停在畫面上直到掃下一個。切換「只看跨單」也不該把它弄不見。
@@ -2643,13 +2660,15 @@ $("backOrders4").addEventListener("click", function(){ renderOrders(); show("scO
 $("goOrders").addEventListener("click", function(){ renderOrders(); show("scOrders"); });
 $("goSummary").addEventListener("click", function(){ audio(); renderSummary(); show("scSum"); });
 function setSumFilter(m){
-  onlyMulti = m;
-  $("segAll").setAttribute("aria-pressed", String(!m));
-  $("segMulti").setAttribute("aria-pressed", String(m));
+  sumFilter = m;
+  $("segAll").setAttribute("aria-pressed", String(m === "all"));
+  $("segMulti").setAttribute("aria-pressed", String(m === "multi"));
+  $("segSolo").setAttribute("aria-pressed", String(m === "solo"));
   renderSummary();
 }
-$("segAll").addEventListener("click", function(){ setSumFilter(false); });
-$("segMulti").addEventListener("click", function(){ setSumFilter(true); });
+$("segAll").addEventListener("click", function(){ setSumFilter("all"); });
+$("segMulti").addEventListener("click", function(){ setSumFilter("multi"); });
+$("segSolo").addEventListener("click", function(){ setSumFilter("solo"); });
 $("sortUndo").addEventListener("click", undoSort);
 
 $("mfGo").addEventListener("click", function(){

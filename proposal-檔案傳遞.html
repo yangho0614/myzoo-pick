@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>出貨明細自動上 Google Drive · 設定</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E1012">
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --bg:#0E1012; --card:#1C1E21; --fill:#26282C; --fill-2:#31343A;
+  --sep:rgba(255,255,255,.09);
+  --ink:#F2F3F4; --ink-2:#A8ABB0; --ink-3:#75787E;
+  --tint:#21C7BA; --tint-soft:rgba(33,199,186,.13);
+  --attn:#FFD230; --attn-soft:rgba(255,210,48,.12);
+  --good:#4f9b6f; --good-soft:rgba(79,155,111,.14);
+  --bad:#E8354F; --bad-soft:rgba(232,53,79,.12);
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"Roboto Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  -webkit-text-size-adjust:100%;line-height:1.62}
+.wrap{max-width:920px;margin:0 auto;padding:36px 20px 110px}
+
+.eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.2em;color:var(--tint);margin-bottom:9px}
+h1{font-size:30px;font-weight:800;margin:0 0 12px;letter-spacing:-.025em;line-height:1.2}
+.lede{color:var(--ink-2);font-size:15px;line-height:1.85;margin:0 0 6px}
+.lede b{color:var(--ink)}
+.lede .tt{color:var(--tint);font-weight:700}
+
+.facts{display:flex;flex-wrap:wrap;gap:10px;margin:26px 0 8px}
+.fact{padding:13px 17px;border-radius:14px;background:var(--card);border:1px solid var(--sep);flex:1;min-width:150px}
+.fact u{display:block;text-decoration:none;font-size:11.5px;letter-spacing:.09em;color:var(--ink-3);margin-bottom:4px}
+.fact b{display:block;font-size:22px;font-weight:750;letter-spacing:-.02em;line-height:1.15}
+.fact b s{text-decoration:none;font-size:12.5px;font-weight:500;color:var(--ink-3);margin-left:.35em}
+.fact.hi{border-color:rgba(33,199,186,.42);background:var(--tint-soft)}
+.fact.hi b{color:var(--tint)}
+.fact.dim b{color:var(--ink-3)}
+.factnote{color:var(--ink-3);font-size:12.5px;margin:10px 0 0}
+.factnote b{color:var(--attn)}
+
+.rule{height:1px;background:var(--sep);margin:46px 0 28px}
+h2{font-size:20px;font-weight:800;margin:0 0 6px;letter-spacing:-.02em}
+.sub{color:var(--ink-3);font-size:13.5px;line-height:1.75;margin:0 0 22px}
+.sub b{color:var(--ink-2)}
+
+/* 步驟 */
+.step{display:grid;grid-template-columns:44px 1fr;gap:0 18px;
+  padding:22px 0;border-bottom:1px solid var(--sep)}
+.step:last-of-type{border-bottom:0}
+.num{width:34px;height:34px;border-radius:11px;background:var(--fill-2);
+  display:grid;place-items:center;font-family:var(--mono);font-size:15px;font-weight:800;
+  color:var(--ink-2);margin-top:1px}
+.step.key .num{background:var(--tint);color:#05201E}
+.step h3{margin:0 0 4px;font-size:16.5px;font-weight:750;letter-spacing:-.015em}
+.step p{margin:0 0 10px;color:var(--ink-2);font-size:13.8px;line-height:1.72}
+.step p:last-child{margin-bottom:0}
+.step b{color:var(--ink)}
+.path{display:inline-block;font-family:var(--mono);font-size:12.5px;
+  background:rgba(0,0,0,.32);color:var(--tint);padding:3px 9px;border-radius:7px;
+  border:1px solid rgba(33,199,186,.2)}
+
+.kv{display:grid;grid-template-columns:auto 1fr;gap:9px 16px;margin:12px 0 0;
+  padding:14px 16px;background:rgba(255,255,255,.03);border-radius:13px;border:1px solid var(--sep);
+  font-size:13.5px;align-items:baseline}
+.kv u{text-decoration:none;color:var(--ink-3);white-space:nowrap}
+.kv span{color:var(--ink)}
+.kv span.pick{color:var(--tint);font-weight:700}
+.kv span em{font-style:normal;color:var(--ink-3);font-size:12.5px;display:block;margin-top:2px}
+
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:11px 0 0}
+.chip{font-family:var(--mono);font-size:13px;font-weight:700;padding:5px 12px;border-radius:9px;
+  background:var(--bad-soft);border:1px solid rgba(232,53,79,.36);color:#FF8A99}
+
+.alert{margin:14px 0 0;padding:14px 17px;border-radius:14px;
+  background:var(--attn-soft);border:1.5px solid rgba(255,210,48,.36)}
+.alert.red{background:var(--bad-soft);border-color:rgba(232,53,79,.4)}
+.alert h4{margin:0 0 5px;font-size:14px;font-weight:750;color:var(--attn)}
+.alert.red h4{color:#FF8A99}
+.alert p{margin:0;font-size:13.4px;line-height:1.72;color:var(--ink-2)}
+.alert b{color:var(--ink)}
+
+.done{margin-top:44px;padding:24px 22px;border-radius:20px;
+  background:var(--good-soft);border:1.5px solid rgba(79,155,111,.45)}
+.done h3{margin:0 0 12px;font-size:18px;font-weight:800;color:var(--good);letter-spacing:-.015em}
+.done ol{margin:0;padding-left:20px;color:var(--ink-2);font-size:14px;line-height:1.9}
+.done b{color:var(--ink)}
+
+.aside{margin-top:40px;padding-top:22px;border-top:1px solid var(--sep)}
+.aside h3{font-size:15.5px;font-weight:750;margin:0 0 7px}
+.aside p{color:var(--ink-3);font-size:13.4px;line-height:1.78;margin:0 0 12px}
+.aside p b{color:var(--ink-2)}
+.aside p .amb{color:var(--attn)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">MYZOO 撿貨流程 · 設定</div>
+<h1>出貨明細自動上 Google Drive</h1>
+<p class="lede">
+  目標：<b>ERP 匯出的檔一放進日期資料夾，NAS 自己推到 Google Drive</b>，
+  同事手機打開就有。<span class="tt">你不用多做任何一個動作，也不產生任何新檔案。</span>
+</p>
+
+<div class="facts">
+  <div class="fact hi"><u>會上雲的</u><b>8.7 MB<s>574 個 xlsx</s></b></div>
+  <div class="fact dim"><u>不會上雲的</u><b>411.5 MB<s>1,806 個 PDF／JPG</s></b></div>
+  <div class="fact"><u>每天新增</u><b>13 KB<s>1 個檔</s></b></div>
+</div>
+<p class="factnote">
+  <b>客戶的姓名、地址、電話幾乎全在那 411MB 的出貨標籤 PDF 裡</b> ——
+  靠副檔名篩選就能把它們整批擋在 NAS 內部，一個都不會上去。
+</p>
+
+<div class="rule"></div>
+
+<h2>設定步驟</h2>
+<p class="sub">
+  全部在 <b>DS1825+（zezegood，192.168.1.70）</b> 上做，資料在那台。做完就不用再碰。
+</p>
+
+<div class="step">
+  <div class="num">0</div>
+  <div>
+    <h3>先確認 Drive 還有空間</h3>
+    <p>用 <b>mammyshop.tw@gmail.com</b> 開 <span class="path">drive.google.com</span>，左下角看剩餘容量。
+    免費帳號 15GB 是跟 Gmail、Google 相簿共用的 —— 8.7MB 佔不到千分之一，但如果信箱已經快滿就要先清。</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">1</div>
+  <div>
+    <h3>安裝 Cloud Sync</h3>
+    <p><span class="path">套件中心 → 搜尋 Cloud Sync → 安裝</span>　官方套件，免費。</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">2</div>
+  <div>
+    <h3>連接 Google Drive</h3>
+    <p>開啟 Cloud Sync → 左下 <b>＋</b> → 選 <b>Google Drive</b> → 瀏覽器跳出授權頁 →
+    <b>用 mammyshop.tw@gmail.com 登入並允許</b>。</p>
+    <div class="alert">
+      <h4>會跳「Google 尚未驗證這個應用程式」</h4>
+      <p>這是正常的 —— Synology 的 OAuth 是給自架用途。點<b>進階 → 前往 Synology（不安全）</b>繼續。
+      授權的對象是你自己的 NAS，不是第三方服務。</p>
+    </div>
+  </div>
+</div>
+
+<div class="step key">
+  <div class="num">3</div>
+  <div>
+    <h3>設定同步任務</h3>
+    <div class="kv">
+      <u>本機路徑</u><span>ZZG日日居 / ☆☆MYZOO-達新☆☆ / 出貨明細</span>
+      <u>遠端路徑</u><span>在 Drive 新建 <b>MYZOO出貨明細</b></span>
+      <u>同步方向</u><span class="pick">僅上傳本機變更<em>這就是「單向」。Drive 那邊被改動不會回頭影響 NAS</em></span>
+      <u>不要移除目的地<br>資料夾中的檔案</u><span class="pick">勾起來<em>NAS 上刪掉舊檔時，雲端那份保留。當備份用一定要勾</em></span>
+    </div>
+  </div>
+</div>
+
+<div class="step key">
+  <div class="num">4</div>
+  <div>
+    <h3>檔案篩選 —— 這一步是整件事的重點</h3>
+    <p>在同一個設定精靈裡找 <span class="path">進階設定 → 檔案過濾器</span>。
+    最省事的組合是<b>勾一個分類 ＋ 手動加四項</b>：</p>
+    <div class="kv" style="margin-bottom:4px">
+      <u>勾「圖片」</u><span>jpg／jpeg／png 一次解決<em>不用手動打</em></span>
+      <u>手動新增</u><span class="pick">*.pdf　*.zip　*.db　*.docx</span>
+      <u>「不同步檔案超過」</u><span>維持 <b>0</b><em>0 ＝ 不限制。不要想用檔案大小過濾 —— PDF 有 200KB 的也有 739KB 的，擋不乾淨</em></span>
+    </div>
+    <div class="alert">
+      <h4>兩個實際踩到的坑</h4>
+      <p>
+        <b>① 要一項一項加，而且要帶星號。</b>
+        輸入框提示是「<span style="font-family:var(--mono)">Cloud.exe, *.iso</span>」——
+        格式是 <b>*.pdf</b>，不是 <b>pdf</b>。<br>
+        把七個副檔名貼成一整串按新增，DSM 會當成<b>一個檔名</b>在比對，一個檔都擋不到。
+        加完展開「其他」應該看到<b>好幾列，不是一列</b>。<br>
+        <b>② 不要勾「文件」分類。</b>那裡面很可能包含 <b>.xlsx</b> ——
+        勾下去等於把你唯一要同步的東西擋掉。先點三角形展開看清單再決定。
+      </p>
+    </div>
+    <p style="margin-top:11px">設完剩下的就只有 xlsx 和 csv —— 撿貨核對頁要吃的東西。</p>
+    <div class="alert red">
+      <h4>一定要在按下「確定 / 完成」之前設好</h4>
+      <p>Cloud Sync 一建立就開始跑。<b>先讓 411MB 的客戶標籤上去、事後才加篩選，那些檔案不會自動從 Drive 消失</b> ——
+      要手動去 Drive 刪，而且已經上去過了。<br>
+      如果不小心跑掉了：<b>先在 Cloud Sync 暫停任務</b>，再去 Drive 把資料夾整個刪掉，改好篩選後重建任務。</p>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">5</div>
+  <div>
+    <h3>同事的手機</h3>
+    <p>裝 <b>Google Drive App</b>，用公司帳號登入。要看今天的檔就點下面的
+    <b>「最近」</b> —— 剛同步上去的排最前面，<b>不用在 550 個日期資料夾裡翻</b>。</p>
+    <p>抓下來之後，開 <span class="path">yangho0614.github.io/myzoo-pick</span> →
+    <b>選擇出貨明細</b> → 挑那個 xlsx。<b>不用 Tailscale、不用 DS file。</b></p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">6</div>
+  <div>
+    <h3>驗收</h3>
+    <p>第一次同步 574 個檔大概 <b>5～10 分鐘</b>（卡在檔案數不是容量，Google Drive 是一個檔一個請求）。<br>
+    真正要驗的是<b>明天</b>：ERP 匯出的檔放進日期資料夾之後，去 Drive 看幾分鐘內有沒有自己出現。</p>
+  </div>
+</div>
+
+<div class="done">
+  <h3>設定完之後，每天實際會發生的事</h3>
+  <ol>
+    <li>你把 ERP 匯出的 <b>達新出貨明細.xlsx</b> 放進當天的日期資料夾（<b>跟現在一模一樣</b>）</li>
+    <li>NAS 幾分鐘內自己推到 Google Drive</li>
+    <li>同事開 Drive App →「最近」→ 下載 → 開撿貨核對頁 → 選檔案 → 開始掃</li>
+  </ol>
+</div>
+
+<div class="aside">
+  <h3>三件順帶要知道的</h3>
+
+  <p>
+    <b>① 為什麼不用 NAS 自己的分享連結？</b><br>
+    DSM 的 File Station 本來就能對資料夾產生分享連結，連 Google 都不用。
+    但那需要<b>把 NAS 的網頁介面開在公網上</b> —— Synology 被勒索軟體鎖定的案例幾乎都是這樣來的。
+    Google Drive 反而更安全：<b>不用開任何一個 port</b>，NAS 只對外連出去、不接受連進來。
+  </p>
+
+  <p>
+    <b>② 這不是備份。</b><br>
+    Cloud Sync 是鏡像，<b>沒有版本歷史</b>。要真正的異地備份（能救誤刪、能救勒索）用
+    <b>Hyper Backup</b>，那是另一件事，那 411MB 的標籤 PDF 才更需要它。要的話再跟我說。
+  </p>
+
+  <p>
+    <b>③ <span class="amb">共用帳號的風險</span>。</b><br>
+    mammyshop.tw 這個帳號現在同時管著 <b>Cloudflare</b> 和 <b>GCP 專案 mammyshop-hr</b>（打卡系統的後端）。
+    同事手機登入這個帳號，等於也能收到那些服務的密碼重設信。<br>
+    最低限度：<b>開啟兩步驟驗證</b>，把驗證裝置留在你自己手上。
+    之後有空可以改成「同事各自的 Google 帳號 → 用指定使用者分享那個資料夾」，
+    這樣共用帳號的密碼就不用給出去。
+  </p>
+</div>
+
+</div>
+</body>
+</html>

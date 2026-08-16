@@ -2,11 +2,11 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="theme-color" content="#0E1012">
+<meta name="theme-color" content="#13151C">
 <meta name="format-detection" content="telephone=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MYZOO 撿貨">
+<meta name="apple-mobile-web-app-title" content="MYZOO 撿貨（測試）">
 <link rel="icon" href="data:,">
 <title>MYZOO 撿貨核對</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -728,6 +728,8 @@ body[data-role="label"] #goSort{display:none}
 .diag__row b{color:var(--good);font-weight:700;margin-right:6px}
 </style></head>
 <body>
+</head>
+<body>
 <!-- Google Material Symbols（Apache 2.0）。⚠️ 路徑直接內嵌，不連 CDN ——
      這頁在倉庫要能離線跑，連外部字型或圖示檔就會破功。 -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -756,7 +758,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.38　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.39）　2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -2898,17 +2900,14 @@ bootSession();
 </script>
 
 <script>
-/* 離線快取：載入過一次之後，沒網路也開得起來。
-   ⚠️ 不做自動更新重整 —— 撿貨中途換版比拿到舊版危險。新版下次開啟才生效。 */
+/* 🔴 測試版**不註冊** Service Worker。
+   離線快取會讓你分不清「改了沒生效」是程式問題還是快取問題，
+   測試階段這種不確定性的代價遠大於離線的好處。正式版才註冊。 */
 (function(){
   return;   // ⚠️ 測試版不註冊 SW
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
-    navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.40　更新日期 2026-08-15");
-    }).catch(function(err){
-      console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
-    });
+    navigator.serviceWorker.register("sw.js");
   });
 })();
 </script>

@@ -189,7 +189,13 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
      · 清掉＝**紅底黑字**：破壞性動作，看得懂它不一樣
    ⚠️ 兩顆都用**黑字** —— 琥珀與這個紅都夠亮，白字反而糊。
    ⚠️ 入口畫面不背作業畫面的顏色語意（黃＝未完成／紅＝掃錯），這是 Evan 確認過的。 */
-.btn--resume{background:var(--resume-c);color:#000;font-weight:700}
+/* 主要動作：加高、加大字、配圖示。
+   ⚠️ 圖示刻意用跟底部分頁「今日出貨」**同一個** i-arrow_back ——
+   兩顆按鈕去的是同一個地方，用同一個圖示才建立得起「← ＝ 今日出貨」的聯想。
+   換一個更「漂亮」的圖示反而會讓人以為是不同功能。 */
+.btn--resume{background:var(--resume-c);color:#000;font-weight:700;
+  min-height:58px;font-size:18px;gap:9px}
+.btn--resume .ico{width:22px;height:22px}
 .btn--resume:active{filter:brightness(.9)}
 /* 「清掉」＝破壞性動作。**紅字＋細框、不填實色** ——
    填實色會讓它跟旁邊的主要動作搶注意力，而且誤觸的代價是整份資料沒了。
@@ -855,7 +861,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.55　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.56　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -885,7 +891,7 @@ body[data-role="label"] #goSort{display:none}
            至於「目前已載入 … 清掉」那一列是**狀態說明**不是動作，
            所以放在選檔卡下方、用一條髮絲線隔開。 -->
       <div id="resumeBar" hidden>
-        <button class="btn btn--resume btn--wide" id="backToOrders">回到今日出貨</button>
+        <button class="btn btn--resume btn--wide" id="backToOrders"><svg class="ico" aria-hidden="true"><use href="#i-arrow_back"/></svg>回到今日出貨</button>
       </div>
       <label class="drop" id="drop">
         <svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>
@@ -3039,7 +3045,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.55　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.56　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

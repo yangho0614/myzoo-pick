@@ -317,15 +317,17 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 .resume__b .btn--go{background:var(--tint)}
 
 .adv{background:var(--card);border-radius:var(--r);overflow:hidden}
+/* 文字置中、箭頭靠右。⚠️ 用 position:absolute 把箭頭抽離文件流，
+   不然它會佔一個 flex 欄位，文字就永遠置中不了（margin-left:auto 那招會把文字推左）。 */
 .adv>summary{padding:16px;font-size:16px;font-weight:500;color:var(--tint);
-  cursor:pointer;list-style:none;display:flex;align-items:center}
+  cursor:pointer;list-style:none;position:relative;text-align:center}
 .adv>summary::-webkit-details-marker{display:none}
 .adv>summary::after{
-  content:"";margin-left:auto;width:8px;height:8px;
+  content:"";position:absolute;right:18px;top:50%;width:8px;height:8px;
   border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);
-  transform:rotate(45deg);
+  transform:translateY(-70%) rotate(45deg);
 }
-.adv[open]>summary::after{transform:rotate(-135deg)}
+.adv[open]>summary::after{transform:translateY(-30%) rotate(-135deg)}
 .advbody{padding:0 16px 18px;display:flex;flex-direction:column;gap:18px}
 .advsec{display:flex;flex-direction:column;gap:9px;padding-top:16px;border-top:.5px solid var(--sep)}
 .advsec h3{margin:0;font-size:13px;font-weight:600;color:var(--ink-2)}
@@ -885,7 +887,9 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="step">
       <div class="step__hd"><i>3</i>點畫面最底部，打開掃描</div>
-      <p class="note"><b class="w">黃色</b>＝還掃不動，點一下變<b class="o">綠線</b>就好了。</p>
+      <!-- ⚠️ 這裡原本有一行「黃色＝還掃不動，點一下變綠線就好了」。
+           2026-08-16 拿掉 —— 待命條已經改成不用手動點（touchstart/click 綁在整個文件上），
+           那行字在講一個使用者其實不需要做的動作，只是雜訊。 -->
       <button class="btn btn--big btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
     </div>
 

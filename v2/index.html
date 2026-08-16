@@ -465,10 +465,12 @@ body[data-role="label"] #goSort{display:none}
 .row__code b{display:block;font-size:21px;font-weight:700;letter-spacing:-.01em;margin-top:1px}
 /* MZ 品號只是內部代號，降到註記級；真正要比對的是條碼後 6 碼 */
 .row__sku{
-  /* 🔴 MZ 自編碼：字級 12.5px、與上方尾 6 碼隔 13px（約大數字字高的一半）。
+  /* ⚠️ margin-left:-8px ＋ padding 8：跟條碼底板同一個做法，讓 MZ 的**文字**
+     跟上面兩行切齊（見 .row__code b 的註解）。
+     🔴 MZ 自編碼：字級 12.5px、與上方尾 6 碼隔 13px（約大數字字高的一半）。
      原本 11px/5px 太貼，視覺上跟 21px 的條碼糊成一塊，眼睛會一起讀進去。
      間距拉開不會撐高卡片 —— 左欄本來就比右欄短，實測 17px 都還塞得下。 */
-  display:inline-block;margin-top:13px;font-size:12.5px;padding:1.5px 6px;border-radius:5px;
+  display:inline-block;margin-top:13px;font-size:12.5px;padding:1.5px 8px;margin-left:-8px;border-radius:5px;
   background:var(--fill);color:var(--ink-2);letter-spacing:.02em;
 }
 /* 🔴 後 6 碼放大、前 6 碼壓暗：95 個品項的前 6 碼只有 4 種，幾乎不帶資訊，
@@ -568,10 +570,15 @@ body[data-role="label"] #goSort{display:none}
    ⚠️ **不要用 margin-left 負值**。原本寫 -8px 想讓數字跟前 6 碼切齊，
       結果底板的左緣反而凸出去 8px，跟上面的前 6 碼、下面的 MZ 都對不齊
       （2026-08-16 實機回報）。
-      正確做法跟 MZ 膠囊一樣：**盒子的左緣貼齊欄位，文字靠內距內縮** ——
-      對齊要看的是「色塊的邊」，不是「字的邊」。 */
+   🔴 兩個必修（2026-08-16 實機回報）：
+      ① `display:block` 會讓底板**撐滿整個條碼欄**，右邊多出一大塊黑。
+         改成 inline-block 才會包住數字。
+      ② 對齊的基準是**文字**不是盒子：前 6 碼、尾 6 碼、MZ 三行的字要切齊在同一條線上。
+         所以底板與 MZ 膠囊都用「padding 8 ＋ margin-left -8」把盒子往左推，
+         文字就回到欄位原點，三行對齊；兩個盒子的左緣也剛好一致。 */
 .row__code b,.srow__code b{
-  background:#000;border-radius:7px;padding:2px 8px;
+  display:inline-block;width:max-content;
+  background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
   /* 🧪 v2 才有：底板 ＋ **淡青**（提案 丙＋丁）。正式版維持純白。
      底板是純黑、比卡片灰更暗，所以顏色放在上面的對比反而**比放在卡片上高** ——
@@ -582,14 +589,14 @@ body[data-role="label"] #goSort{display:none}
 /* ⚠️ 黃色塊上不要底板 —— 那裡的字已經是純黑、對比本來就最大，
    再加一塊黑底反而變成「黃底上一塊黑方塊」，搶掉整列的注意力。 */
 .row[data-s="part"] .row__code b,.srow[data-s="part"] .srow__code b{
-  background:none;box-shadow:none;padding:0;
+  background:none;box-shadow:none;padding:0;margin-left:0;
 }
 
 .srow__code .sk{
   /* 🔴 MZ 自編碼：字級 12.5px、與上方尾 6 碼隔 13px（約大數字字高的一半）。
      原本 11px/5px 太貼，視覺上跟 21px 的條碼糊成一塊，眼睛會一起讀進去。
      間距拉開不會撐高卡片 —— 左欄本來就比右欄短，實測 17px 都還塞得下。 */
-  display:inline-block;margin-top:13px;font-size:12.5px;padding:1.5px 6px;border-radius:5px;
+  display:inline-block;margin-top:13px;font-size:12.5px;padding:1.5px 8px;margin-left:-8px;border-radius:5px;
   background:var(--fill);color:var(--ink-2);letter-spacing:.02em;
 }
 .srow__nm{min-width:0;font-size:16.5px;font-weight:600;line-height:1.3;letter-spacing:-.01em;text-wrap:pretty}

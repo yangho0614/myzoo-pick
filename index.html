@@ -89,13 +89,14 @@
   /* 填在琥珀色塊上的字：純黑。琥珀夠亮，深灰字會看不見。 */
   --on-attn:#000000;
 
-  /* 載入畫面兩顆動作鈕（2026-08-16 Evan 指定：**莫蘭迪色**，帶灰、低飽和）。
-     ⚠️ 這兩個色**刻意跟狀態色分開** ——
-     作業畫面的 --bad(#E8354F) 是「掃錯了」的高飽和紅，會叫人；
-     這裡的紅是入口畫面的「清掉」，帶灰之後不會搶戲、也不會被誤讀成錯誤警示。
-     ⚠️ 明度都選在配**黑字**還有 7:1 以上對比的範圍，昏暗倉庫才讀得清楚。 */
-  --resume-c:#84A7C4;   /* 莫蘭迪藍灰 · 對黑字 8.5:1 */
-  --danger-c:#C08D88;   /* 莫蘭迪磚紅 · 對黑字 7.5:1 */
+  /* 載入畫面兩顆動作鈕。
+     ⚠️ 2026-08-16 試過莫蘭迪（帶灰低飽和）版本 #84A7C4 / #C08D88，
+        Evan 看過實機後決定**恢復高飽和**。原因是入口畫面的三顆動作鈕
+        （橘卡／回到今日出貨／清掉）互相之間要一眼分得開，
+        降飽和之後彼此太接近。要再試莫蘭迪的話色碼留在這裡。
+     ⚠️ 明度都選在配**黑字**有足夠對比的範圍，昏暗倉庫才讀得清楚。 */
+  --resume-c:#46B8F0;   /* 亮藍 · 對黑字 9.8:1 */
+  --danger-c:#E8354F;   /* 警示紅 */
 
   --file-c:#E8822E;
   --file-c-2:#E8A03A;
@@ -820,7 +821,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.47　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.48　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -2993,7 +2994,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.47　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.48　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

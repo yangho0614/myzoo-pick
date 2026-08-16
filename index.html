@@ -89,6 +89,11 @@
   /* 填在琥珀色塊上的字：純黑。琥珀夠亮，深灰字會看不見。 */
   --on-attn:#000000;
 
+  /* 「回到今日出貨」的藍（2026-08-16 Evan 指定）。
+     挑亮藍不挑深藍，是因為這顆配**黑字**（跟旁邊的橘卡、紅按鈕同一套）——
+     深藍配黑字對比不足，亮藍才讀得清楚。 */
+  --resume-c:#46B8F0;
+
   --file-c:#E8822E;
   --file-c-2:#E8A03A;
 
@@ -180,7 +185,7 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
      · 清掉＝**紅底黑字**：破壞性動作，看得懂它不一樣
    ⚠️ 兩顆都用**黑字** —— 琥珀與這個紅都夠亮，白字反而糊。
    ⚠️ 入口畫面不背作業畫面的顏色語意（黃＝未完成／紅＝掃錯），這是 Evan 確認過的。 */
-.btn--resume{background:var(--attn);color:#000;font-weight:700}
+.btn--resume{background:var(--resume-c);color:#000;font-weight:700}
 .btn--resume:active{filter:brightness(.9)}
 .btn--danger{background:var(--bad);color:#000;font-weight:700}
 .btn--danger:active{filter:brightness(.9)}
@@ -812,7 +817,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.45　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.46　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -2985,7 +2990,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.45　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.46　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

@@ -175,6 +175,15 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 /* 灰底白字（2026-08-16）。這兩顆是「工具／說明」，不是主要動作，
    也不該再多一個彩色 —— 載入畫面已經有角色色與橘色選檔卡了。 */
 .btn--test{background:var(--fill);color:var(--ink)}
+/* 🔴 載入畫面「已載入」那一列的兩顆（2026-08-16 Evan 指定）：
+     · 回到今日出貨＝**黃底黑字**：資料在手上時這是最該按的一顆
+     · 清掉＝**紅底黑字**：破壞性動作，看得懂它不一樣
+   ⚠️ 兩顆都用**黑字** —— 琥珀與這個紅都夠亮，白字反而糊。
+   ⚠️ 入口畫面不背作業畫面的顏色語意（黃＝未完成／紅＝掃錯），這是 Evan 確認過的。 */
+.btn--resume{background:var(--attn);color:#000;font-weight:700}
+.btn--resume:active{filter:brightness(.9)}
+.btn--danger{background:var(--bad);color:#000;font-weight:700}
+.btn--danger:active{filter:brightness(.9)}
 .btn--ghost{background:transparent;color:var(--tint)}
 
 .chips{display:flex;gap:8px;flex-wrap:wrap;padding:14px var(--pad) 2px}
@@ -802,7 +811,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.43　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.44　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -842,8 +851,8 @@ body[data-role="label"] #goSort{display:none}
           <b id="loadedWhat" style="font-size:15px;font-weight:600"></b>
         </div>
         <div style="display:flex;gap:9px">
-          <button class="btn btn--go" id="backToOrders" style="flex:1">回到今日出貨</button>
-          <button class="btn btn--sm" id="dropSession">清掉</button>
+          <button class="btn btn--resume" id="backToOrders" style="flex:1">回到今日出貨</button>
+          <button class="btn btn--danger" id="dropSession">清掉</button>
         </div>
       </div>
     </div>
@@ -2975,7 +2984,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.43　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.44　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

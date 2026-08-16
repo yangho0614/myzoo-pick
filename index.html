@@ -202,7 +202,8 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 .btn--drop:active{background:var(--bad-soft)}
 /* ⚠️ 兩欄：左邊文字可換行（檔名很長：20260814達新出貨明細.xlsx · 8 張單），
    右邊按鈕固定寬。用 min-width:0 才讓左欄真的縮得下去。 */
-.loaded{display:flex;flex-direction:column;gap:10px}
+.loaded{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+/* 只有在真的顯示時才佔位；hidden 時 [hidden]{display:none!important} 會蓋掉 flex */
 .loaded__row{display:flex;align-items:flex-start;gap:10px}
 .loaded__txt{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
   padding-top:7px}
@@ -847,7 +848,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.50　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.51　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -872,15 +873,6 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="step">
       <div class="step__hd"><i>2</i>選今天的出貨明細</div>
-      <label class="drop" id="drop">
-        <svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>
-        <b>選擇出貨明細</b>
-        <p>開啟原檔 xlsx 直接讀</p>
-        <input type="file" id="file" accept=".xlsx,.csv,.txt" hidden>
-      </label>
-      <div id="loadErr" class="err-note" hidden></div>
-      <!-- 已經有一份在手上時才出現。⚠️ 一定要有「回到今日出貨」——
-           少了它，從訂單清單按齒輪進來就再也回不去，只能重新載入檔案。 -->
       <!-- 主要動作獨佔一行、滿寬（走動中單手最好按）；
            「清掉」縮小、移到它要清的那份檔案旁邊 —— 語意上才對，
            而且破壞性動作不該是畫面上最搶眼的東西。 -->
@@ -894,6 +886,17 @@ body[data-role="label"] #goSort{display:none}
         </div>
         <button class="btn btn--resume btn--wide" id="backToOrders">回到今日出貨</button>
       </div>
+      <!-- ⚠️ 順序刻意這樣：已經載入一份時，「繼續用這份」才是主要動作，
+           「換一份」是次要的，所以選檔卡排在下面。 -->
+      <label class="drop" id="drop">
+        <svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>
+        <b>選擇出貨明細</b>
+        <p>開啟原檔 xlsx 直接讀</p>
+        <input type="file" id="file" accept=".xlsx,.csv,.txt" hidden>
+      </label>
+      <div id="loadErr" class="err-note" hidden></div>
+      <!-- 已經有一份在手上時才出現。⚠️ 一定要有「回到今日出貨」——
+           少了它，從訂單清單按齒輪進來就再也回不去，只能重新載入檔案。 -->
     </div>
 
     <div class="step">
@@ -3023,7 +3026,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.50　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.51　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

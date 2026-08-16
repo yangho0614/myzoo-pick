@@ -531,9 +531,11 @@ body[data-role="label"] #goSort{display:none}
       0.72 倍、中文是 0.95 倍 —— 都寫 20px 的話數字會看起來小一截。
       尾 6 碼開到 24px，跟 20px 的中文才真的一樣大。 */
 .sortcard__line{font-size:13.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
-.sortcard__item{font-size:20px;font-weight:650;margin-top:7px;line-height:1.32}   /* ＋gap 4px＝11px */
-.sortcard__code{font-family:var(--mono);font-size:15px;color:var(--ink-2);margin-top:3px;
-  line-height:1.1}   /* ＋gap 4px＝7px */
+/* 條碼在上、品名在下：兩者同屬第 2 階，所以彼此貼近（7px），
+   整組再跟上面的編號組拉開（11px）。 */
+.sortcard__code{font-family:var(--mono);font-size:15px;color:var(--ink-2);margin-top:7px;
+  line-height:1.1}   /* ＋gap 4px＝11px */
+.sortcard__item{font-size:20px;font-weight:650;margin-top:3px;line-height:1.32}   /* ＋gap 4px＝7px */
 .sortcard__code .uhead{font-size:15px;color:var(--ink-3);letter-spacing:.02em}
 .sortcard__code .utail{font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
 /* MZ 自編碼：第 3 階，排在訂單編號正下方、品名上方。
@@ -927,8 +929,8 @@ body[data-role="label"] #goSort{display:none}
       <div class="sortcard__who" id="sortWho">—</div>
       <div class="sortcard__line" id="sortLine"></div>
       <div class="sortcard__sku" id="sortSku"></div>
-      <div class="sortcard__item" id="sortItem"></div>
       <div class="sortcard__code" id="sortCode"></div>
+      <div class="sortcard__item" id="sortItem"></div>
       <div class="sortcard__note" id="sortNote"></div>
       <div class="sortcard__todo" id="sortTodo"></div>
     </div>

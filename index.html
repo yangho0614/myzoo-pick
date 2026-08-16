@@ -552,6 +552,25 @@ body[data-role="label"] #goSort{display:none}
 .srow__code{grid-row:span 2;align-self:start;font-family:var(--mono);line-height:1.15}
 .srow__code i{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);letter-spacing:.04em}
 .srow__code b{display:block;font-size:21px;font-weight:700;letter-spacing:-.01em;margin-top:1px}
+
+/* 🔴 尾 6 碼加一塊深色底板（2026-08-16，提案「丙」）。
+   為什麼不是換顏色：**白色已經是黑底上對比最高的東西**，
+   任何彩色的亮度都低於純白 —— 換色只會變暗。
+   而且四個顏色都有語意了（琥珀＝未完成、綠＝完成、紅＝掃錯、主色＝可點），
+   條碼再拿一個，現場就有五種顏色要記。
+   底板走的是另一條路：**遠距離時形狀比顏色先被辨識**，
+   那正好是平板固定在推車上（約 1 公尺）的情境。
+   ⚠️ margin-left 補負值，讓底板的左緣跟上面的前 6 碼對齊，不然會突出去。 */
+.row__code b,.srow__code b{
+  background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+}
+/* ⚠️ 黃色塊上不要底板 —— 那裡的字已經是純黑、對比本來就最大，
+   再加一塊黑底反而變成「黃底上一塊黑方塊」，搶掉整列的注意力。 */
+.row[data-s="part"] .row__code b,.srow[data-s="part"] .srow__code b{
+  background:none;box-shadow:none;padding:0;margin-left:0;
+}
+
 .srow__code .sk{
   /* 🔴 MZ 自編碼：字級 12.5px、與上方尾 6 碼隔 13px（約大數字字高的一半）。
      原本 11px/5px 太貼，視覺上跟 21px 的條碼糊成一塊，眼睛會一起讀進去。
@@ -890,7 +909,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.66　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.67　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -3089,7 +3108,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.66　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.67　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

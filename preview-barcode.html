@@ -1,0 +1,1006 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8">
+<title>條碼怎麼更突出 · 示意</title><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:,"><style>
+/* 🔴🔴 這條不要刪、也不要改成個別的 .xxx[hidden]。
+   hidden 是靠瀏覽器預設的 display:none 生效的，任何自己寫的 display 都會蓋掉它，
+   元素就永遠關不掉（2026-08-15 踩過兩次，其中一次全屏擋住現場作業）。 */
+[hidden]{display:none !important}
+
+/* ─────────────────────────────────────────────────────────────
+   設計系統：深色底 + 卡片分組列表 + 髮絲分隔線 + 單一強調色。
+   只有深色一種主題（倉庫昏暗，白底太刺眼；2026-08-16 現場決定）。
+
+   色彩分成兩組，兩組不共用色相 —— 之前藍／青／靛三種藍混在一起，
+   結果「這是按鈕還是模式」分不出來（2026-08-16 現場回報）。
+
+   取自 Surfshark 的 in-app 介面：近黑面板、湖水綠當重點、紅只用在小面積警示。
+
+   ┌ 只有三個顏色（其餘全灰階）
+   │  湖水綠 --tint／--good  一切正向：可以點的東西、進行中的進度、
+   │                        目前選中的角色、掃對、這張單完成、掃描已待命
+   │  黃 --attn   輔助色。還沒做完、要你動手（未撿箱數、部分完成、
+   │              待命未啟用、多出一箱）
+   │  珊瑚紅 --bad 掃錯（唯一會打斷你的顏色，不用在別處）
+   └ 角色不另立色相：選中就是「目前選中」，用同一個藍。
+      分辨哪一個角色靠名稱與圖示；標題列的膠囊一直顯示現在是哪一段。
+
+   其餘一律灰階。同一件事永遠同一個顏色；沒有這四個功能色能表達的，就不用顏色。
+
+   字級沿用系統階層（iOS 上就是 SF Pro，離線也有）：
+     34 大標題 · 22 標題 · 17 內文/列標題 · 15 次要 · 13 註記
+   關鍵數字（箱數、疊號、進度）額外放大，並用等寬數字對位。
+   ───────────────────────────────────────────────────────────── */
+:root{
+  /* 中性深灰底（不帶藍也不帶綠），讓湖水綠與黃跳得出來 */
+  --bg:#0E1012;
+  --card:#1C1E21;
+  --fill:#26282C;
+  --fill-2:#31343A;
+  --sep:rgba(255,255,255,.09);
+  --sep-strong:rgba(255,255,255,.19);
+
+  --ink:#F2F3F4;
+  --ink-2:#A8ABB0;
+  --ink-3:#75787E;
+
+  --tint:#21C7BA;
+  --tint-soft:rgba(33,199,186,.15);
+  --tint-ink:#062220;
+
+  --good:#4f9b6f;
+  --good-soft:rgba(33,199,186,.15);
+  --bad:#E8354F;
+  --bad-soft:rgba(232,53,79,.14);
+  --attn:#FFD230;
+  --attn-soft:rgba(255,210,48,.14);
+  --attn-line:rgba(255,210,48,.55);   /* 進行中的卡片描邊（CLAUDE.md：整圈邊框＋淡底，不用左緣色柱） */
+
+  /* 填在湖水綠或黃色塊上的文字：深色，不要純黑 */
+  --on-fill:#0B0D10;
+
+  /* 身分色只有一個：青。用在「選角色」與標題列的角色膠囊 ——
+     選錯角色等於整輪白做，所以要用顏色標記「這是模式」，但三個角色不需要三種顏色，
+     分辨靠的是名稱與圖示。青跟藍（可點）、綠（掃對）、琥珀（未完成）、紅（掃錯）都不撞。 */
+  --role:var(--tint);   /* 選中的角色＝可點／選中同一個色，不另立色相 */
+
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"Roboto Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",
+         "Microsoft JhengHei",system-ui,sans-serif;
+
+  --bar-bg:rgba(14,16,18,.84);
+  --dock-bg:rgba(28,30,33,.92);
+  --panel-bg:rgba(18,20,23,.97);
+  --scrim:rgba(0,0,0,.62);
+  --bg-fade:rgba(18,20,23,0);
+
+  /* 🔴 選擇出貨明細那顆的橘（2026-08-16 從 v2 測試版移植，取自 Evan 的參考圖）。
+     為什麼是橘：載入畫面已經有「撿貨／對單貼標／一人作業」三顆角色按鈕，
+     選檔是**動作**不是角色，給它一個誰都不撞的顏色最清楚。 */
+  /* 填在琥珀色塊上的字：純黑。琥珀夠亮，深灰字會看不見。 */
+  --on-attn:#000000;
+
+  /* 載入畫面兩顆動作鈕。
+     ⚠️ 2026-08-16 試過莫蘭迪（帶灰低飽和）版本 #84A7C4 / #C08D88，
+        Evan 看過實機後決定**恢復高飽和**。原因是入口畫面的三顆動作鈕
+        （橘卡／回到今日出貨／清掉）互相之間要一眼分得開，
+        降飽和之後彼此太接近。要再試莫蘭迪的話色碼留在這裡。
+     ⚠️ 明度都選在配**黑字**有足夠對比的範圍，昏暗倉庫才讀得清楚。 */
+  --resume-c:#46B8F0;   /* 亮藍 · 對黑字 9.8:1 */
+  --danger-c:#E8354F;   /* 警示紅 */
+
+  --file-c:#E8822E;
+  --file-c-2:#E8A03A;
+
+  --pad:16px;
+  --r:14px;
+  /* 底部待命條在「已待命」時只剩一條細線。未待命時它會變高並蓋住一點內容，
+     但那正是要你點的東西，點完就縮回細線。 */
+  --armh:14px;
+  --armh-open:64px;
+  --safe:env(safe-area-inset-bottom, 0px);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--sans);font-size:17px;line-height:1.47;
+  letter-spacing:-.01em;overscroll-behavior-y:none;
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:left}
+a{color:var(--tint);text-decoration:none} a:hover{color:#57DACE}
+button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visible{
+  outline:2.5px solid var(--tint);outline-offset:2px;border-radius:8px;
+}
+::selection{background:var(--tint-soft)}
+.tnum{font-variant-numeric:tabular-nums}
+.ico{width:1.3em;height:1.3em;flex:none;fill:currentColor;vertical-align:-.22em}
+
+.app{max-width:560px;margin:0 auto}
+.screen{display:none}
+.screen.on{display:block}
+
+/* ═══ 導覽列：半透明毛玻璃，標題左對齊 ═══ */
+.bar{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;gap:10px;
+  padding:calc(env(safe-area-inset-top,0px) + 9px) var(--pad) 10px;
+  background:var(--bar-bg);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:.5px solid var(--sep);
+}
+.bar__back{
+  width:40px;height:40px;flex:none;margin-left:-6px;
+  display:grid;place-items:center;border-radius:50%;
+  color:var(--tint);font-size:20px;
+}
+.bar__back:active{background:var(--fill-2)}
+.bar__mid{flex:1;min-width:0}
+/* 標題壓緊行高、副標另外拉開 —— 兩者共用 body 行高時中文會擠成一團 */
+.bar__title{font-size:22px;font-weight:700;letter-spacing:-.022em;line-height:1.24;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar__sub{font-size:13.5px;line-height:1.35;margin-top:3px;color:var(--ink-3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 角色一直掛在標題列上 —— 兩段進度分開存，選錯等於整輪白做 */
+.rolepill{
+  flex:none;display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:999px;font-size:14px;font-weight:600;white-space:nowrap;
+  background:var(--fill);color:var(--ink-2);
+}
+.rolepill{--rc:var(--role)}
+.rolepill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--rc)}
+.rolepill{color:var(--rc);background:color-mix(in srgb, var(--rc) 15%, transparent)}
+.pilebadge{
+  flex:none;padding:6px 11px;border-radius:9px;font-size:15px;font-weight:600;white-space:nowrap;
+  background:var(--fill);color:var(--ink-2);
+}
+
+/* ═══ 按鈕 ═══ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:50px;padding:0 18px;border-radius:12px;white-space:nowrap;
+  background:var(--card);color:var(--tint);
+  font-size:17px;font-weight:500;letter-spacing:-.01em;
+}
+.btn:active{background:var(--fill-2)}
+.btn--sm{min-height:44px;padding:0 14px;font-size:15px;border-radius:10px;background:var(--fill)}
+.btn--big{min-height:52px;width:100%}
+.btn--wide{width:100%}
+/* 主要動作：唯一的實心藍 */
+.btn--go{background:var(--tint);color:var(--on-fill);font-weight:600}
+.btn--go:active{background:#1BAAA0}
+/* 灰底白字（2026-08-16）。這兩顆是「工具／說明」，不是主要動作，
+   也不該再多一個彩色 —— 載入畫面已經有角色色與橘色選檔卡了。 */
+.btn--test{background:var(--fill);color:var(--ink)}
+/* 🔴 載入畫面「已載入」那一列的兩顆（2026-08-16 Evan 指定）：
+     · 回到今日出貨＝**黃底黑字**：資料在手上時這是最該按的一顆
+     · 清掉＝**紅底黑字**：破壞性動作，看得懂它不一樣
+   ⚠️ 兩顆都用**黑字** —— 琥珀與這個紅都夠亮，白字反而糊。
+   ⚠️ 入口畫面不背作業畫面的顏色語意（黃＝未完成／紅＝掃錯），這是 Evan 確認過的。 */
+/* 主要動作：加高、加大字、配圖示。
+   ⚠️ 圖示刻意用跟底部分頁「今日出貨」**同一個** i-arrow_back ——
+   兩顆按鈕去的是同一個地方，用同一個圖示才建立得起「← ＝ 今日出貨」的聯想。
+   換一個更「漂亮」的圖示反而會讓人以為是不同功能。 */
+.btn--resume{background:var(--resume-c);color:#000;font-weight:700;
+  min-height:58px;font-size:18px;gap:9px}
+.btn--resume .ico{width:22px;height:22px}
+.btn--resume:active{filter:brightness(.9)}
+/* 「清掉」＝破壞性動作。**紅字＋細框、不填實色** ——
+   填實色會讓它跟旁邊的主要動作搶注意力，而且誤觸的代價是整份資料沒了。
+   ⚠️ 但也不能只有純文字沒有框：現場戴手套、走動中，看不出那是可以點的。 */
+.btn--drop{
+  flex:none;min-height:38px;padding:0 15px;border-radius:10px;
+  background:transparent;color:var(--danger-c);font-size:14px;font-weight:600;
+  box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--danger-c) 46%, transparent);
+}
+.btn--drop:active{background:var(--bad-soft)}
+/* ⚠️ 兩欄：左邊文字可換行（檔名很長：20260814達新出貨明細.xlsx · 8 張單），
+   右邊按鈕固定寬。用 min-width:0 才讓左欄真的縮得下去。 */
+.loaded{display:flex;flex-direction:column;gap:10px;
+  margin-top:13px;padding-bottom:15px;border-bottom:.5px solid var(--sep)}
+#resumeBar{margin-bottom:12px}
+/* 髮絲線畫在整塊的**下方**（2026-08-16 Evan 指定）——
+   「目前已載入 … 清掉」是這一個步驟的結尾，線把它跟下面的工具區隔開。 */
+.loaded__row{display:flex;align-items:flex-start;gap:10px}
+.loaded__txt{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+  padding-top:7px}
+.loaded__lb{font-size:14px;font-weight:600;color:var(--good);flex:none}
+.loaded__txt b{font-size:15px;font-weight:600;min-width:0;word-break:break-all}
+.btn--ghost{background:transparent;color:var(--tint)}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding:14px var(--pad) 2px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 15px;
+  border-radius:999px;background:var(--card);color:var(--ink-2);
+  font-size:15px;font-weight:500;
+}
+.chip[aria-pressed="true"]{background:var(--tint);color:var(--on-fill);font-weight:600}
+
+/* ═══ 分組列表：一列一張卡 ═══
+   原本用髮絲線分列，資料一多（實測 43 品項／82 箱）根本分不出段落 ——
+   每一列有自己的底色與間隙，掃視時眼睛才有落點。 */
+.list,.rowlist{padding:10px var(--pad) 150px;display:flex;flex-direction:column;gap:8px;padding-bottom:calc(var(--tabh, 0px) + 140px)}
+.piles{padding:0}
+.list>*,.rowlist>*{background:var(--card);border-radius:14px}
+
+/* ═══ 1. 載入 ═══ */
+.load{padding:calc(env(safe-area-inset-top,0px) + 20px) var(--pad) 120px;
+  display:flex;flex-direction:column;gap:26px}
+.brand{text-align:center}
+.brand h1{margin:0;font-size:34px;font-weight:700;letter-spacing:-.03em}
+.verline{margin-top:4px;font-size:13px;color:var(--ink-3)}
+.verline b{font-weight:400;font-variant-numeric:tabular-nums}
+
+.step{display:flex;flex-direction:column;gap:10px}
+.step__hd{
+  display:flex;align-items:center;gap:9px;
+  padding-left:2px;font-size:13px;font-weight:600;letter-spacing:.01em;
+  color:var(--ink-2);text-transform:none;
+}
+.step__hd i{
+  width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:50%;
+  background:var(--ink-3);color:#fff;font-size:12px;font-weight:600;font-style:normal;
+}
+.note{margin:0;padding:0 2px;font-size:13.5px;line-height:1.6;color:var(--ink-3)}
+.note b{font-weight:600;color:var(--ink-2)}
+.note .w{color:var(--attn);font-weight:600}
+.note .o{color:var(--good);font-weight:600}
+
+/* 角色＝設定頁式的單選列，選中打藍勾 */
+/* 2 上 1 下：撿貨／對單貼標並排，一人作業滿寬在下 */
+.rolegrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#roleSolo{grid-column:1 / -1}
+#roleSolo .role__txt{display:contents}
+#roleSolo .role__two{justify-content:center}
+/* 三顆同高、內部結構相同（圖示在上、名稱、說明）。
+   一人作業只是佔滿兩欄寬，不改變版型節奏。 */
+.role{
+  position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;text-align:center;
+  min-height:106px;padding:14px;border-radius:var(--r);background:var(--card);
+}
+.role:active{background:var(--fill-2)}
+.role .ico{width:23px;height:23px;color:var(--ink-3);margin-bottom:4px}
+.role__two{display:flex;gap:2px;flex:none}
+/* 一人作業的兩個圖示跟其他兩顆同尺寸，不縮小 */
+.role__two .ico{width:23px;height:23px;margin-bottom:3px}
+.role b{font-size:17px;font-weight:600}
+/* ⚠️ 說明文字用 .role__d，不要用 .role span —— .role__two、.role__txt 也是 <span>，
+   被通用選擇器命中就會亂位（2026-08-16 踩過）。 */
+/* 置中的 flex 子元素會縮成 fit-content 而提早斷行 —— 給滿寬才不會斷在莫名的位置 */
+.role__d{width:100%;font-size:13px;color:var(--ink-3);line-height:1.4;text-wrap:pretty}
+.role b{width:100%}
+/* 每個角色一個顏色：沒選中時圖示帶色＋淡色描邊，選中時整塊填滿 */
+.role{--rc:var(--role)}
+.role{box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--rc) 34%, transparent)}
+.role .ico{color:var(--rc)}
+.role[aria-pressed="true"]{background:var(--rc);box-shadow:none}
+.role[aria-pressed="true"] b,.role[aria-pressed="true"] .ico{color:var(--on-fill)}
+.role[aria-pressed="true"] .role__d{color:rgba(11,13,16,.72)}
+.role:focus-visible{outline:2.5px solid var(--rc);outline-offset:2px}
+
+.drop{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:25px 16px;border-radius:var(--r);text-align:center;
+  background:linear-gradient(135deg,var(--file-c),var(--file-c-2));
+  color:#000;cursor:pointer;border:0;
+}
+/* ⚠️ 這三條原本各自指定顏色又寫在後面，會把上面的設定蓋掉
+   （同分特異性後者勝）。所以顏色一次寫在這裡，不要再拆開。
+   🔴 黑字（2026-08-16 Evan 指定）—— 橘夠亮，白字會糊。 */
+.drop .ico{width:28px;height:28px;color:#000}
+.drop b{font-size:17px;font-weight:600;color:#000}
+.drop p{margin:0;width:100%;font-size:13.5px;color:rgba(0,0,0,.62)}
+.drop:active{filter:brightness(.92)}
+.drop.hot{filter:brightness(1.12)}
+
+.err-note{
+  padding:13px 15px;border-radius:12px;white-space:pre-line;
+  background:transparent;box-shadow:inset 0 0 0 1.5px var(--bad);
+  color:#FF8496;font-size:14.5px;line-height:1.55;
+}
+.resume{background:var(--card);border-radius:var(--r);padding:16px;
+  display:flex;flex-direction:column;gap:9px}
+.resume__t{font-size:17px;font-weight:600}
+.resume__s{font-size:13.5px;color:var(--ink-3)}
+.resume__b{display:flex;gap:9px}
+.resume__b .btn{flex:1;background:var(--fill)}
+.resume__b .btn--go{background:var(--tint)}
+
+.adv{background:var(--fill);border-radius:var(--r);overflow:hidden}
+/* 文字置中、箭頭靠右。⚠️ 箭頭要用 position:absolute 抽離文件流，
+   不然它會佔一個 flex 欄位，margin-left:auto 那招會把文字推到左邊，永遠置不了中。 */
+.adv>summary{padding:16px;font-size:16px;font-weight:500;color:var(--ink);
+  cursor:pointer;list-style:none;position:relative;text-align:center}
+.adv>summary::-webkit-details-marker{display:none}
+/* ⚠️ 箭頭是「正方形只留右邊與下邊的框、再轉 45°」做的，
+   轉完之後**視覺重心不在方框中心** —— 尖端會落在中心下方約 6.4px，
+   兩隻手臂在中心高度，所以視覺重心約在中心下方 3.2px。
+   要看起來置中就得把方框中心再往上推那 3.2px（展開時方向相反）。
+   直接寫 translateY(-50%) 會看起來偏低，這就是原因。 */
+.adv>summary::after{
+  content:"";position:absolute;right:18px;top:50%;width:9px;height:9px;
+  border-right:2px solid var(--ink-2);border-bottom:2px solid var(--ink-2);
+  transform:translateY(calc(-50% - 3.2px)) rotate(45deg);
+}
+.adv[open]>summary::after{transform:translateY(calc(-50% + 3.2px)) rotate(-135deg)}
+.advbody{padding:0 16px 18px;display:flex;flex-direction:column;gap:18px}
+.advsec{display:flex;flex-direction:column;gap:9px;padding-top:16px;border-top:.5px solid var(--sep)}
+.advsec h3{margin:0;font-size:13px;font-weight:600;color:var(--ink-2)}
+.paste{
+  width:100%;min-height:92px;padding:12px;border-radius:11px;resize:vertical;
+  background:var(--fill);border:none;color:var(--ink);
+  font-family:var(--mono);font-size:14px;
+}
+.howto ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:7px;
+  font-size:14.5px;line-height:1.55;color:var(--ink-2)}
+code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
+  background:var(--fill);color:var(--ink-2)}
+
+/* ═══ 2. 今日出貨 ═══ */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin:0;
+  border-top:.5px solid var(--sep);border-bottom:.5px solid var(--sep)}
+/* 🔴 內容置中（2026-08-16）。原本靠左，量起來三格都是等寬、數字也都距左緣 16px，
+   技術上沒問題 —— 但**看起來是歪的**：標籤字數不一（訂單／總箱數／未撿）、
+   數字又只有 1 位，每格變成「一小撮內容擠在左邊」，最後一格右側空一大塊。
+   置中之後分隔線才是真正的等分線，三個數字也讀起來像同一組。 */
+.stat{padding:14px 10px;text-align:center}
+.stat+.stat{border-left:.5px solid var(--sep)}
+.stat b{display:block;font-size:27px;font-weight:600;font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;line-height:1.2}
+.stat span{font-size:12.5px;color:var(--ink-3)}
+.stat[data-k="left"] b{color:var(--attn)}
+
+.bind{
+  margin:14px var(--pad) 0;padding:15px;border-radius:var(--r);background:var(--card);
+  display:flex;flex-direction:column;gap:6px;box-shadow:inset 0 0 0 1.5px var(--attn-soft);
+}
+.bind__k{font-size:13px;font-weight:600;color:var(--attn)}
+.bind__code{font-family:var(--mono);font-size:27px;font-weight:600;letter-spacing:-.01em}
+.bind__t{font-size:13.5px;color:var(--ink-3);line-height:1.5}
+.bind .btn{align-self:flex-start;background:var(--fill)}
+
+/* 訂單列：疊號 · 客戶 · 進度 · 指示箭頭 */
+.ord{display:flex;align-items:center;gap:15px;width:100%;padding:15px 16px}
+.ord:active{background:var(--fill)}
+.ord::after{
+  content:"";flex:none;width:8px;height:8px;margin-left:5px;
+  border-right:2px solid var(--ink-3);border-top:2px solid var(--ink-3);
+  transform:rotate(45deg);
+}
+/* 🔴 進行中＝**整片琥珀色塊**（2026-08-16 從 v2 移植）。
+   原本是「淡底＋整圈描邊」，改成整片實色是為了 1 公尺外（平板固定在推車上）也一眼看到。
+   ⚠️ 不要改回「左緣一條色柱」—— 使用者已多次要求不用那個做法。
+   ⚠️ 色塊上的字一律 var(--on-attn)＝純黑，琥珀夠亮，深灰字會看不見。 */
+.ord[data-s="part"],.row[data-s="part"]{ background:var(--attn); box-shadow:none }
+.ord[data-s="part"] *,.row[data-s="part"] *{ color:var(--on-attn) }
+.ord[data-s="part"] .ord__meta,.ord[data-s="part"] .ord__frac em,
+.row[data-s="part"] .row__code i,.row[data-s="part"] .row__sku,
+.row[data-s="part"] .row__qty em{ color:rgba(0,0,0,.58) }
+.ord[data-s="part"] .ord__pile{ color:rgba(0,0,0,.72) }
+/* ⚠️ MZ 自編碼在一般卡片上是深灰膠囊；到了黃色塊上會變成「黃底上冒出一塊深灰」。
+   色塊上改成極淡的黑底。 */
+.row[data-s="part"] .row__sku,.srow[data-s="part"] .srow__code .sk{
+  background:rgba(0,0,0,.10);color:rgba(0,0,0,.62)
+}
+.ord[data-s="done"]{opacity:.5}
+.ord__pile{flex:none;width:38px;text-align:center;color:var(--ink-2)}
+.ord__pile i{display:block;font-style:normal;font-size:22px;font-weight:600;
+  font-variant-numeric:tabular-nums;line-height:1.1;letter-spacing:-.02em}
+.ord__pile u{display:block;text-decoration:none;font-size:11px;color:var(--ink-3)}
+.ord[data-s="done"] .ord__pile{color:var(--good)}
+.ord__mid{flex:1;min-width:0}
+.ord__name{display:block;font-size:20px;font-weight:600;letter-spacing:-.02em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ord__meta{display:block;font-size:13px;color:var(--ink-3);margin-top:1px}
+.ord__right{flex:none;text-align:right}
+.ord__frac{font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:-.02em}
+.ord__frac .g{font-size:22px}
+.ord__frac em{font-size:15px;font-style:normal;color:var(--ink-3);margin-left:.28em}
+.ord[data-s="part"] .ord__frac .g{color:var(--on-attn)}
+.ord__tag{color:var(--good);font-size:16px;font-weight:600}
+
+/* 次要入口放拇指區 */
+.tabbar{
+  position:fixed;left:0;right:0;bottom:var(--armh-live, calc(var(--armh) + var(--safe)));z-index:30;
+  max-width:560px;margin:0 auto;
+  display:flex;gap:8px;padding:10px var(--pad) 12px;
+  background:var(--bg);border-top:.5px solid var(--sep);
+}
+/* 🔴 2026-08-16 從 v2 移植：**純圖示直排、不加底色**（照 LG ThinQ 那套）。
+   原本每顆都是深灰方塊，四個長一樣、掃一眼分不出來；
+   拿掉底色之後靠圖示辨識，選中的那顆變純白。 */
+.tabbar .btn{flex:1;min-height:48px;padding:0 4px;font-size:11.5px;font-weight:600;
+  background:none;border:0;flex-direction:column;gap:3px;color:var(--ink-3)}
+.tabbar .btn .ico{font-size:22px}
+/* 查條碼只留圖示：它是「偶爾查一下」，不需要跟主要入口搶寬度 */
+.tabbar .btn--icon{flex:1}
+.tabbar .btn--icon .ico{font-size:22px}
+/* 目前所在的那一頁高亮 */
+/* 選中＝**純白**，不是主色。底部四個入口回答的是「我在哪」，不是「這個可以點」——
+   用主色會讓它跟返回鍵、進度條那些真正的互動元件混在一起。
+   白 vs 淺灰是純明度對比，昏暗倉庫最好分辨。 */
+.tabbar .btn[aria-current="page"]{background:none;color:#FFF}
+/* 沒有載入出貨明細時，這三個入口是空的 —— 直接停用並壓暗，
+   否則點過去是一片空白，使用者會以為按鈕壞了（2026-08-16 回報）。 */
+.tabbar .btn[disabled]{opacity:.35;color:var(--ink-3)}
+/* 🔴 對單貼標不需要「分揀」。
+   分揀回答的是「這箱該放到哪一堆」，前提是貨還混在一起；
+   但貼標員拿到的已經是分好的一疊，他要做的是逐箱核對有沒有混到別人的，
+   那是「單張核對」的工作（掃到混入的箱子時紅屏會直接說這箱是誰的、第幾疊）。
+   ⚠️ 撿貨與一人作業維持三顆 —— 那兩個角色真的會用到分揀。
+   .tabbar .btn 是 flex:1，少一顆時剩下兩顆會自動變寬。 */
+body[data-role="label"] #goSort{display:none}
+.empty{padding:40px 20px;text-align:center;color:var(--ink-3);font-size:15px;line-height:1.6}
+
+/* ═══ 品項列 ═══ */
+/* 版面比照商品彙總：品號固定在最左欄，品名在中，數量在右 */
+.row{padding:14px 16px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 14px;
+  align-items:start}
+.row[data-s="done"]{opacity:.5}
+.row.flash{background:var(--good-soft)}
+.row.scanned{background:var(--tint-soft)}
+.row__name{grid-column:2;grid-row:1;min-width:0;
+  font-size:16.5px;font-weight:600;line-height:1.3;letter-spacing:-.01em;text-wrap:pretty}
+/* 條碼欄三行：前 6 碼小、尾 6 碼放大、MZ 自編碼在下 */
+.row__code{grid-column:1;grid-row:span 2;align-self:start;font-family:var(--mono);line-height:1.15}
+.row__code i{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);letter-spacing:.04em}
+.row__code b{display:block;font-size:21px;font-weight:700;letter-spacing:-.01em;margin-top:1px}
+/* MZ 品號只是內部代號，降到註記級；真正要比對的是條碼後 6 碼 */
+.row__sku{
+  /* 🔴 MZ 自編碼：字級 12.5px、與上方尾 6 碼隔 13px（約大數字字高的一半）。
+     原本 11px/5px 太貼，視覺上跟 21px 的條碼糊成一塊，眼睛會一起讀進去。
+     間距拉開不會撐高卡片 —— 左欄本來就比右欄短，實測 17px 都還塞得下。 */
+  display:inline-block;margin-top:13px;font-size:12.5px;padding:1.5px 6px;border-radius:5px;
+  background:var(--fill);color:var(--ink-2);letter-spacing:.02em;
+}
+/* 🔴 後 6 碼放大、前 6 碼壓暗：95 個品項的前 6 碼只有 4 種，幾乎不帶資訊，
+   93/95 要看到第 11 碼才分得出最像的鄰居。前 6 碼不能拿掉（要逐字對外箱貼紙），只退到背景。 */
+.uhead{font-size:13px;color:var(--ink-3)}
+/* 前 6 ／後 6 之間留一個空隙：逐字對外箱貼紙時，分組比連成一串好唸 */
+.utail{font-size:20px;font-weight:600;color:var(--ink);letter-spacing:.01em}
+/* 前 6 ／後 6 之間的空隙：逐字對外箱貼紙時，分組比連成一串好唸 */
+.usp{display:inline-block;width:.55em}
+.ucode{display:inline-flex;align-items:baseline;white-space:nowrap}
+/* 🔴 橫跨整張卡（2026-08-16）。原本鎖在第 2 欄（≈143px），
+   「Three little meow香港代理」在 15.5px 下需要約 182px，加上箱數欄與內距要 258px ——
+   關在那一欄裡怎麼樣都會斷成兩行。
+   ⚠️ 只縮排 20px 不對齊品名：這個膠囊已經有琥珀底＋描邊，
+      「屬於上面那一項」的歸屬感靠的是那個框，不是縮排。
+      為了保留縮排而讓名字斷行，是拿真的看不懂換不重要的整齊。
+   ⚠️ justify-self:start 保留 —— 短名字的膠囊還是只有內容那麼寬，不會拉成一整條。 */
+/* 🔴 起點要對齊**品名**（第 2 欄），不是卡片左緣。
+   ⚠️ 先前寫 `grid-column:1 / -1` + margin-left:20px，膠囊就跑到條碼／MZ 那一欄底下，
+      看起來像掛在條碼上而不是掛在品項上（2026-08-16 實機回報）。
+   ⚠️ grid-row 必須是 3。.row__code 是 `grid-column:1; grid-row:span 2`（佔第 1 欄的 1〜2 列），
+      膠囊放第 2 列會跟它搶同一格，自動配置會把條碼欄擠到卡片最下面。
+   `2 / -1` ＝ 從品名欄一路用到數量欄的右緣，比原本只佔第 2 欄多拿約 40px。 */
+.row__multi{grid-column:2 / -1;grid-row:3;justify-self:start;margin-top:7px;
+  color:var(--attn);background:var(--attn-soft);
+  box-shadow:inset 0 0 0 1px var(--attn-line);border-radius:10px;padding:7px 11px 8px;
+  display:grid;gap:3px;max-width:100%}
+.row__multi u{text-decoration:none;font-size:11.5px;font-weight:600;
+  letter-spacing:.08em;color:var(--attn);opacity:.7}
+/* 一人一行；箱數緊跟在最長的人名之後、同一張卡內對齊。
+   🔴 **名字太長就截斷加「…」，不要縮字級也不要換行**（2026-08-16 Evan 指定）。
+   理由：客戶名**絕大多數是 3 個字**，「Three little meow香港代理」那種是極少數。
+   為了少數的長名字把所有人的字都縮小，是拿常態換例外。
+   ⚠️ 要讓 ellipsis 生效，三件事缺一不可：
+      ① 膠囊要 `max-width:100%`（不然 justify-self:start 會讓它一路撐長，沒有可截的邊界）
+      ② 名字那一欄 `minmax(0,max-content)`（min 是 0 才縮得下去）
+      ③ 名字本身 `min-width:0` ＋ nowrap ＋ overflow:hidden */
+.row__multi span{display:grid;grid-template-columns:minmax(0,max-content) auto;
+  gap:14px;align-items:baseline}
+.row__multi b{font-size:15.5px;font-weight:600;line-height:1.35;color:var(--attn);
+  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row__multi n{font-size:15px;font-style:normal;font-variant-numeric:tabular-nums;
+  color:var(--attn);white-space:nowrap}
+/* 跟品名同一列、垂直置中對齊（同彙總表） */
+.row__qty{grid-column:3;grid-row:1;align-self:center;text-align:right;white-space:nowrap;
+  font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:-.02em}
+.row__qty .a{font-size:23px}
+.row__qty em{font-size:15px;font-style:normal;color:var(--ink-3);margin-left:.28em}
+.row[data-s="part"] .row__qty .a{color:var(--on-attn)}
+.row[data-s="done"] .row__qty .a{color:var(--good)}
+/* 分段控制：選中那顆填湖水綠淡底＋描邊，未選中只是文字 */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px var(--pad) 0}
+/* header 版：省掉獨立一排。這兩三顆一天只按幾次，不是走動中要盲按的東西，
+   所以可以比主要按鈕小一號。 */
+.seg--hd{
+  display:flex;gap:4px;padding:0;flex:none;
+  background:var(--fill);border-radius:10px;
+}
+.seg--hd button{min-height:34px;padding:0 10px;font-size:12.5px;border-radius:8px;background:transparent}
+.seg--hd button[aria-pressed="true"]{background:var(--tint-soft);color:var(--tint);box-shadow:none}
+.seg button{
+  min-height:44px;padding:0 12px;border-radius:10px;text-align:center;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15.5px;font-weight:600;color:var(--ink-2);background:var(--fill);
+}
+.seg button[aria-pressed="true"]{
+  color:var(--tint);background:var(--tint-soft);box-shadow:inset 0 0 0 1.5px var(--tint);
+}
+.seg button:active{background:var(--fill-2)}
+
+/* ══ 商品彙總的列：品號固定在最左欄（像對帳表，同一欄的數字最好掃視），
+   跨單品項排在最前面，跨單的收貨人一人一行。 ══ */
+#sumRows{display:block;padding-left:0;padding-right:0;gap:0}
+/* 分組標題是標籤不是卡片 —— 要拿掉繼承來的卡片底色，並對齊卡片內的文字邊 */
+.sgrp{background:none;border-radius:0;padding:18px 30px 7px;
+  font-size:12.5px;font-weight:600;letter-spacing:.07em;color:var(--ink-3)}
+.sgrp:first-child{padding-top:10px}
+.sgrp b{color:var(--attn);font-weight:600}
+/* 一列一張卡，卡之間留空 —— 黏在一起時分不出這幾行屬於哪一項 */
+.srow{
+  display:grid;grid-template-columns:104px 1fr auto;align-items:center;
+  gap:4px 14px;margin:0 14px 8px;padding:14px 16px;
+  background:var(--card);border-radius:14px;
+}
+/* 條碼欄三行：前 6 碼小、尾 6 碼放大、MZ 自編碼在下 */
+.srow__code{grid-row:span 2;align-self:start;font-family:var(--mono);line-height:1.15}
+.srow__code i{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);letter-spacing:.04em}
+.srow__code b{display:block;font-size:21px;font-weight:700;letter-spacing:-.01em;margin-top:1px}
+.srow__code .sk{
+  /* 🔴 MZ 自編碼：字級 12.5px、與上方尾 6 碼隔 13px（約大數字字高的一半）。
+     原本 11px/5px 太貼，視覺上跟 21px 的條碼糊成一塊，眼睛會一起讀進去。
+     間距拉開不會撐高卡片 —— 左欄本來就比右欄短，實測 17px 都還塞得下。 */
+  display:inline-block;margin-top:13px;font-size:12.5px;padding:1.5px 6px;border-radius:5px;
+  background:var(--fill);color:var(--ink-2);letter-spacing:.02em;
+}
+.srow__nm{min-width:0;font-size:16.5px;font-weight:600;line-height:1.3;letter-spacing:-.01em;text-wrap:pretty}
+/* 跟品名同一列、垂直置中對齊 —— 之前跨兩列又靠上，跨單卡片一長它就浮在半空 */
+.srow__qty{grid-column:3;grid-row:1;align-self:center;text-align:right;white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.srow__qty .a{font-size:22px;font-weight:700}
+.srow__qty em{font-size:14px;font-style:normal;color:var(--ink-3);margin-left:.3em}
+.srow[data-s="part"]{background:var(--attn);box-shadow:none}
+.srow[data-s="part"] *{color:var(--on-attn)}
+.srow[data-s="part"] .srow__code i,.srow[data-s="part"] .srow__code .sk,
+.srow[data-s="part"] .srow__qty em,.srow[data-s="part"] .swho n{color:rgba(0,0,0,.58)}
+.srow[data-s="part"] .swho:not(:first-child)>span,
+.srow[data-s="part"] .swho:not(:first-child)>n{border-top-color:rgba(0,0,0,.22)}
+.srow[data-s="part"] .srow__qty .a{color:var(--on-attn)}
+.srow[data-s="done"]{opacity:.45}
+.srow[data-s="done"] .srow__qty .a{color:var(--good)}
+.srow.scanned{background:var(--tint-soft);box-shadow:inset 0 0 0 1.5px var(--tint);opacity:1}
+/* 跨單：一人一行 —— 併成一行時要在人名之間找箱數，一人一行掃視最快 */
+/* 兩欄格線：箱數緊跟在最長的人名之後，同一張卡片內對齊，不推到最右邊 */
+/* 🔴 橫跨整張卡（2026-08-16）。原本只佔中間那一欄（1fr ≈ 164px），
+   「Three little meow香港代理」需要 170px 才排得下一行 —— **差 47px**，
+   從 padding／間距／條碼欄總共只擠得出 36px，怎麼調都不夠。
+   改成跨整列之後可用寬度變成約 330px，長客戶名一行就放得下。
+   ⚠️ 左邊留 104+14 的內縮，維持「這是那個品項底下的細目」的層次感；
+      內縮是 padding 不是 grid 欄位，所以名字長的時候能一路用到卡片右緣。 */
+.srow__whos{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:1px 14px;margin-top:6px;padding-left:118px}
+.swho{display:contents;font-size:14.5px}
+/* ⚠️ .swho 是 display:contents（格線要橫跨兩欄），它本身沒有框，
+   所以分隔線畫在格子上，不能寫在 .swho 上 */
+.swho>span,.swho>n{padding:5px 0;color:var(--ink);min-width:0}
+.swho>span{word-break:break-word}
+.swho:not(:first-child)>span,.swho:not(:first-child)>n{border-top:.5px solid var(--sep)}
+.swho n{font-style:normal;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.row__whos{grid-column:1;display:flex;flex-direction:column;align-items:flex-start;gap:3px;margin-top:6px}
+.who{display:flex;gap:10px;font-size:14px;padding:5px 11px;border-radius:999px;background:var(--fill)}
+.who n{font-style:normal;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.done-note{padding:22px 16px;text-align:center;color:var(--good);font-size:16px;font-weight:500}
+
+/* ═══ 焦點卡：現在該撿哪一箱 ═══ */
+.now{
+  margin:14px var(--pad) 0;padding:17px 18px 18px;border-radius:var(--r);
+  background:var(--card);display:flex;flex-direction:column;gap:2px;
+}
+.now[data-s="part"]{box-shadow:inset 0 0 0 1.5px var(--attn-soft)}
+.now[data-s="done"]{background:var(--good-soft)}
+.now__eye{font-size:13px;font-weight:600;color:var(--ink-3)}
+.now[data-s="part"] .now__eye{color:var(--attn)}
+.now[data-s="done"] .now__eye{color:var(--good)}
+/* 條碼是主角：後 6 碼放到 34px。MZ 品號是內部代號，降為副資訊。 */
+.now__code{font-family:var(--mono);margin-top:1px}
+.now__code .uhead{font-size:19px}
+.now__code .utail{font-size:34px;letter-spacing:-.01em}
+.now__name{font-size:19px;font-weight:600;line-height:1.35;text-wrap:pretty;margin-top:3px}
+.now__sku{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ink-3);margin-top:2px}
+.now__row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:10px}
+.now__qty{font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.03em}
+.now__qty b{font-size:40px;font-weight:600}
+.now__qty em{font-size:17px;font-style:normal;color:var(--ink-3);margin-left:3px;white-space:nowrap}
+.now__multi{flex:1;text-align:right;font-size:13px;color:var(--attn);line-height:1.4}
+
+/* ═══ 分揀 ═══ */
+.sortwrap{padding:14px var(--pad) 190px;display:flex;flex-direction:column;gap:14px;padding-bottom:calc(var(--tabh, 0px) + 140px)}
+.sortcard{
+  padding:20px;border-radius:18px;background:var(--card);
+  display:flex;flex-direction:column;gap:4px;position:relative;
+}
+.sortcard[data-k="ok"],.sortcard[data-k="done"]{background:var(--good-soft)}
+.sortcard[data-k="warn"]{background:var(--attn-soft)}
+.sortcard[data-k="err"]{background:var(--bad-soft)}
+.sortcard__eye{font-size:13px;font-weight:600;color:var(--ink-3);padding-right:76px}
+.sortcard[data-k="ok"] .sortcard__eye,.sortcard[data-k="done"] .sortcard__eye{color:var(--good)}
+.sortcard[data-k="warn"] .sortcard__eye{color:var(--attn)}
+.sortcard[data-k="err"] .sortcard__eye{color:var(--bad)}
+.sortcard__who{font-size:40px;font-weight:700;line-height:1.12;letter-spacing:-.03em;
+  text-wrap:balance;padding-right:76px}
+.sortcard[data-k="idle"] .sortcard__who,.sortcard[data-k="done"] .sortcard__who{padding-right:0}
+.sortcard__pile{
+  position:absolute;top:16px;right:16px;text-align:center;
+  padding:6px 12px;border-radius:12px;background:var(--card);color:var(--ink-2);
+}
+.sortcard__pile i{display:block;font-style:normal;font-size:28px;font-weight:600;line-height:1;
+  letter-spacing:-.02em}
+.sortcard__pile u{display:block;text-decoration:none;font-size:11px;color:var(--ink-3)}
+/* 🔴 識別度層級（2026-08-16 定案）：
+     第 1 階 人名 40px
+     第 2 階 條碼尾6碼 24px ＝ 品名 20px
+     第 3 階 MZ 編號 13.5px ＝ 訂單編號 13.5px
+   ⚠️ 「條碼 ＝ 品名」不能給同一個字級。等寬數字的視覺高度只有字級的約
+      0.72 倍、中文是 0.95 倍 —— 都寫 20px 的話數字會看起來小一截。
+      尾 6 碼開到 24px，跟 20px 的中文才真的一樣大。 */
+.sortcard__line{font-size:13.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+/* 條碼在上、品名在下：兩者同屬第 2 階，所以彼此貼近（7px），
+   整組再跟上面的編號組拉開（11px）。 */
+.sortcard__code{font-family:var(--mono);font-size:15px;color:var(--ink-2);margin-top:7px;
+  line-height:1.1}   /* ＋gap 4px＝11px */
+.sortcard__item{font-size:20px;font-weight:650;margin-top:3px;line-height:1.32}   /* ＋gap 4px＝7px */
+.sortcard__code .uhead{font-size:15px;color:var(--ink-3);letter-spacing:.02em}
+.sortcard__code .utail{font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+/* MZ 自編碼：第 3 階，排在訂單編號正下方、品名上方。
+   兩個都是「編號類」，放成同一組；下面的品名＋條碼才是第 2 階那一組。 */
+.sortcard__sku{font-size:13.5px;font-weight:400;color:var(--ink-3);letter-spacing:.02em;
+  font-variant-numeric:tabular-nums}
+.sortcard__sku:empty{display:none}
+.sortcard__note{font-size:14px;color:var(--ink-2);margin-top:9px;line-height:1.5}   /* ＋gap 4px＝13px */
+/* 「該怎麼做」：只講狀態不講動作的話，走動中的人得自己想。跟全幅提示面板同一個語彙。 */
+.sortcard__todo{margin-top:7px;padding:9px 13px;border-radius:11px;   /* ＋gap 4px＝11px */
+  background:rgba(0,0,0,.20);font-size:15px;font-weight:600;color:var(--ink)}
+.sortcard__todo:empty{display:none}
+
+.piles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;padding:0}
+.pile{padding:12px 13px;border-radius:12px;background:var(--card);position:relative}
+/* 🔴 分揀中的那一疊＝**整片琥珀色塊**（2026-08-16）。
+   ⚠️ 原本是 inset 0 0 0 1.5px var(--attn-soft) —— 用「淡色」當邊框，
+      14% 透明度的琥珀畫在深灰卡片上幾乎看不見，實機回報「外框不是很明顯」。
+      淡色只適合當**底**，不適合當**線**。
+   改成整片實色，跟今日出貨、商品彙總、單張核對的「未完成」語彙一致。 */
+.pile[data-s="part"]{background:var(--attn);box-shadow:none}
+.pile[data-s="part"] .pile__n{color:var(--on-attn)}
+.pile[data-s="part"] .pile__i,.pile[data-s="part"] .pile__q{color:rgba(0,0,0,.62)}
+.pile[data-s="done"]{opacity:.5}
+/* ⚠️ .hit 要寫在 part 後面才蓋得過去 —— 剛掃到的那一疊要閃綠，
+   不能被上面的琥珀底壓住（同分特異性，後者勝）。 */
+.pile.hit{background:var(--good-soft);opacity:1;box-shadow:inset 0 0 0 2px var(--good)}
+.pile.hit .pile__n{color:var(--ink)}
+.pile.hit .pile__i,.pile.hit .pile__q{color:var(--ink-3)}
+.pile__i{position:absolute;top:10px;right:12px;font-size:14px;font-weight:600;color:var(--ink-3);
+  font-variant-numeric:tabular-nums}
+.pile__n{font-size:17px;font-weight:600;padding-right:22px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pile__q{font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums;margin-top:1px}
+
+/* ═══ 底部進度座 ═══ */
+.dock{
+  position:fixed;left:0;right:0;bottom:calc(var(--armh-live, calc(var(--armh) + var(--safe))) + var(--tabh, 0px));z-index:30;
+  max-width:560px;margin:0 auto;
+  background:var(--dock-bg);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-top:.5px solid var(--sep);
+}
+.dock__bar{height:3px;background:var(--fill-2)}
+.dock__fill{height:100%;background:var(--tint);transition:width .22s}
+.dock[data-s="done"] .dock__fill{background:var(--good)}
+.dock__row{display:flex;align-items:center;gap:10px;padding:12px var(--pad) 13px}
+.dock__msg{flex:1;min-width:0;font-size:14.5px;line-height:1.4;color:var(--ink-2)}
+.dock__msg b{color:var(--ink);font-weight:600}
+.dock__count{font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;flex:none}
+.dock[data-s="done"] .dock__count{color:var(--good)}
+.armdot{width:9px;height:9px;flex:none;border-radius:50%;background:var(--attn)}
+.armdot.on{background:var(--good)}
+.manual{display:flex;gap:8px;padding:0 var(--pad) 13px}
+.manual input{
+  flex:1;min-height:46px;padding:0 13px;border-radius:11px;
+  background:var(--fill);border:none;color:var(--ink);
+  font-family:var(--mono);font-size:17px;
+}
+
+/* ═══ 掃描待命條（不要刪、不要在已待命時藏起來）═══ */
+.armbar{
+  /* 🔴 這條只剩兩個用途：① 當那個必須存在的掃描輸入框 ② 顯示狀態。
+     **使用者不需要點它** —— touchstart/touchend/click 都綁在整個文件上，
+     點畫面任何地方都會把焦點搶回來（見 keepFocus 的綁定）。
+     所以高度縮到最小；提示文字改成浮在上方、pointer-events:none，
+     不佔版面也不擋點擊。
+     ⚠️ 高度必須固定（兩種狀態同高）：會變就會讓上面的列跟著移動，
+        或是為了不移動而露出黑帶 —— 兩個都在實機上發生過。 */
+  position:fixed;left:0;right:0;bottom:0;z-index:60;
+  height:calc(10px + var(--safe));
+  display:flex;align-items:flex-start;justify-content:center;
+  background:var(--attn);
+  overflow:visible;
+}
+.armbar__dot{display:none}
+.armbar__txt{display:none}   /* 只留一條色線，不顯示文字 */
+@keyframes bl{50%{opacity:.2}}
+.armbar__in{
+  position:absolute;inset:0;width:100%;height:100%;
+  opacity:0;border:0;outline:0;padding:0;margin:0;background:transparent;
+  font-size:16px;-webkit-appearance:none;
+}
+/* 已待命：不能 display:none（藏起來的 input 會立刻失焦 → 又變回未待命 → 無限閃爍），
+   所以縮成一條綠線。 */
+/* 🔴 待命條的「高度必須固定」，待命後只換顏色與文字，不要縮小。
+   為什麼：
+     · 縮小 → 上面的 tabbar/dock 若跟著移動，點底部按鈕的第一下會落空
+       （先觸發「啟用掃描」，按鈕就在手指底下跑掉）
+     · 為了不移動而把預留固定在展開高度 → 縮小後中間空一大塊黑（實機看到過）
+   兩個問題同一個根源：高度會變。固定高度就同時解掉。
+   ⚠️ 不要為了「省空間」再把它改回會縮的版本。 */
+.armbar.on{background:var(--good)}
+.armbar.on .armbar__dot{width:34px;height:3px;border-radius:2px;
+  background:rgba(11,13,16,.5);animation:none}
+/* 🔴 底部兩條（tabbar／進度座）要貼齊待命條的上緣。
+   高度不能用 CSS 算 —— iOS Safari 底部網址列出現時 env(safe-area-inset-bottom)
+   報的值跟待命條實際佔的高度對不上，就會在兩者之間留一道縫，
+   清單從縫裡透出來。改由 scanbarSync 量實際高度寫進 --armh-live。 */
+
+/* ═══ 全屏回饋：走動撿貨看不到螢幕，聲音是主、整片色是副 ═══ */
+.blast{
+  position:fixed;inset:0;z-index:80;display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  padding:34px 26px calc(40px + var(--safe));text-align:center;color:#fff;
+}
+.blast.on{display:flex}
+.blast[data-k="ok"]{background:#12A093}
+.blast[data-k="warn"]{background:var(--attn);color:var(--on-fill)}
+.blast[data-k="err"]{background:#D22B44}
+.blast__mark{
+  width:76px;height:76px;flex:none;margin:0 auto 6px;border-radius:50%;
+  display:grid;place-items:center;background:rgba(255,255,255,.18);
+  font-size:40px;font-weight:600;line-height:1;
+}
+/* ⚠️ 這些都要給滿寬。父層是 align-items:center 的 flex column，
+   子元素會縮成 fit-content，然後在莫名的位置斷行（「不是這／張單的」）。 */
+.blast>*{width:100%}
+.blast .blast__mark{width:76px}   /* 上面那條會把圓形符號撐成橢圓 */
+.blast__head{margin:0;font-size:34px;font-weight:700;line-height:1.14;
+  letter-spacing:-.03em;text-wrap:balance}
+.blast__code{font-family:var(--mono);font-size:18px;opacity:.85}
+.blast__code .uhead{font-size:15px;color:inherit;opacity:.65}
+.blast__code .utail{font-size:22px;color:inherit}
+.blast__note{margin:4px 0 0;font-size:17px;line-height:1.5;max-width:24em;opacity:.95;
+  margin-left:auto;margin-right:auto}
+.blast__note strong{font-weight:700}
+.blast__todo{
+  display:block;margin-top:14px;padding:10px 15px;border-radius:12px;
+  background:rgba(0,0,0,.18);font-size:16px;font-weight:600;
+}
+.blast__acts{display:flex;flex-direction:column;gap:9px;width:100%;max-width:330px;
+  margin:18px auto 0}
+.blast__act{
+  min-height:52px;padding:0 18px;border-radius:12px;text-align:center;
+  font-size:17px;font-weight:600;background:rgba(255,255,255,.2);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+}
+.blast__act.is-go{background:#fff}
+.blast[data-k="err"] .blast__act.is-go{color:#95152C}
+.blast[data-k="warn"] .blast__mark{background:rgba(0,0,0,.14)}
+.blast[data-k="warn"] .blast__todo{background:rgba(0,0,0,.12)}
+.blast[data-k="warn"] .blast__act{background:rgba(0,0,0,.12);color:var(--on-fill)}
+.blast[data-k="warn"] .blast__act.is-go{background:var(--on-fill);color:var(--attn)}
+.blast[data-k="ok"] .blast__act.is-go{color:#08544C}
+.blast__hint{margin-top:16px;font-size:13px;opacity:.6}
+
+/* ═══ 查條碼 ═══ */
+.lookup{padding:16px var(--pad) 150px;display:flex;flex-direction:column;gap:12px;padding-bottom:calc(var(--tabh, 0px) + 140px)}
+.lookup__big{padding:24px 18px;border-radius:var(--r);background:var(--card);text-align:center}
+.lookup__code{font-family:var(--mono);font-size:20px;font-weight:600}
+.lookup__code .utail{font-size:32px}
+.hit{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:12px;background:var(--card)}
+.hit__mid{flex:1;min-width:0}
+.hit__n{font-size:17px;font-weight:600}
+.hit__m{font-size:13px;color:var(--ink-3)}
+.hit__q{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* ═══ 掃描器自我測試 ═══ */
+.stwrap{position:fixed;inset:0;z-index:70;display:grid;place-items:center;
+  padding:24px;background:var(--scrim);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.stpanel{width:100%;max-width:400px;padding:24px;border-radius:20px;
+  background:var(--card);display:flex;flex-direction:column;gap:7px;text-align:center}
+.stpanel__eye{font-size:13px;font-weight:600;color:var(--ink-3)}
+.stpanel[data-s="ok"] .stpanel__eye{color:var(--good)}
+.stpanel[data-s="err"] .stpanel__eye{color:var(--bad)}
+.stpanel__big{font-size:24px;font-weight:700;letter-spacing:-.025em;line-height:1.2;text-wrap:balance}
+.stpanel__code{font-family:var(--mono);font-size:17px;color:var(--ink-2)}
+.stpanel__hint{margin:0;font-size:13.5px;color:var(--ink-3);line-height:1.5}
+.stchecks{display:flex;flex-direction:column;gap:4px;margin-top:6px;text-align:left}
+.stchk{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;
+  background:var(--fill);font-size:14.5px}
+.stchk s{text-decoration:none;color:var(--good);font-weight:700}
+.stchk.bad{background:var(--bad-soft)}
+.stchk.bad s{color:var(--bad)}
+.stchk em{margin-left:auto;font-style:normal;color:var(--ink-2);font-family:var(--mono);font-size:13px}
+.ststeps{margin:6px 0 0;padding-left:1.3em;text-align:left;font-size:14.5px;
+  color:var(--ink-2);line-height:1.6;display:flex;flex-direction:column;gap:5px}
+.stdots{display:flex;gap:6px;justify-content:center;margin:8px 0}
+.stdots i{width:7px;height:7px;border-radius:50%;background:var(--tint);animation:bl 1.1s infinite}
+.stdots i:nth-child(2){animation-delay:.18s}
+.stdots i:nth-child(3){animation-delay:.36s}
+.stbtns{display:flex;gap:8px;margin-top:10px}
+.stbtns .btn{flex:1;justify-content:center;background:var(--fill)}
+.stbtns .btn--test{background:var(--tint);color:#fff;font-weight:600}
+
+/* ═══ 掃描診斷 ═══ */
+.diag{position:fixed;left:0;right:0;top:0;z-index:75;max-height:52vh;overflow:auto;
+  background:var(--panel-bg);border-bottom:.5px solid var(--sep-strong);
+  font-family:var(--mono);font-size:12px}
+.diag__hd{display:flex;align-items:center;gap:10px;padding:9px 12px;
+  border-bottom:.5px solid var(--sep);color:var(--tint);font-weight:700;
+  position:sticky;top:0;background:var(--panel-bg)}
+.diag__hd span:last-of-type{margin-left:auto;color:var(--ink-3);font-weight:400}
+.diag__x{width:34px;height:34px;display:grid;place-items:center;color:var(--ink-3)}
+.diag__row{padding:5px 12px;border-bottom:.5px solid var(--sep);color:var(--ink-2);
+  word-break:break-all;line-height:1.45}
+.diag__row b{color:var(--good);font-weight:700;margin-right:6px}
+</style><style>
+body{background:#0A0A0B;margin:0}
+.pg{max-width:2140px;margin:0 auto;padding:34px 30px 110px;color:#F2F3F4;
+  font-family:var(--sans);line-height:1.72;font-size:20px}
+.pg h1{font-size:46px;font-weight:800;margin:0 0 15px;letter-spacing:-.025em;line-height:1.15}
+.eyebrow{font-size:17px;font-weight:800;letter-spacing:.15em;color:var(--tint);margin-bottom:12px}
+.lede{font-size:23px;line-height:1.7;color:#B4B4B4;margin:0 0 12px}
+.lede b{color:#fff} .lede .k{color:var(--attn)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(430px,1fr));gap:40px;align-items:start;margin-top:34px}
+.cap{margin-bottom:12px}
+.cap b{display:block;font-size:26px;font-weight:750;letter-spacing:-.015em}
+.cap span{display:block;font-size:18px;color:#8A8A8A;line-height:1.6;margin-top:5px}
+.cap span b{display:inline;font-size:inherit;color:#B4B4B4}
+.cap .warn{color:var(--attn)}
+.frame{width:100%;max-width:390px;border-radius:18px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.12);background:#000;padding:12px}
+
+/* v1 壓暗鄰居 */
+.v1 .row__code i{color:#666}
+.v1 .row__sku{background:none;padding:0;color:#6A6A6A;font-size:12px}
+/* v2 加大字級 */
+.v2 .row__code b{font-size:25px}
+/* v3 加底板 */
+.v3 .row__code b{background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+/* v4 淡青 */
+.v4 .row__code b{color:#7FD8D0}
+/* v5 甲＋丙 */
+.v5 .row__code i{color:#666}
+.v5 .row__sku{background:none;padding:0;color:#6A6A6A;font-size:12px}
+.v5 .row__code b{background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+/* 黃色塊上一律純黑，不受這些變體影響 —— 那裡對比本來就最大 */
+.frame .row[data-s="part"] .row__code b{background:none;box-shadow:none;padding:0;margin:0;color:#000}
+
+.note2{margin-top:60px;padding-top:24px;border-top:1px solid rgba(255,255,255,.12);
+  font-size:21px;line-height:1.8;color:#B4B4B4;max-width:900px}
+.note2 h3{font-size:28px;margin:0 0 14px;color:#fff}
+.note2 ul{padding-left:26px} .note2 li{margin-bottom:10px}
+.note2 b{color:var(--tint)} .note2 .k{color:var(--attn)}
+</style></head><body><div class="pg">
+<div class="eyebrow">MYZOO 撿貨核對</div>
+<h1>條碼怎麼更突出</h1>
+<p class="lede">每一組都是<b>同一張卡、同一份資料</b>，只有條碼那一欄不一樣。<br>
+上面那列是<span class="k">未完成（黃色塊）</span>，下面是一般卡片 ——
+<b>黃色塊上的條碼本來就是純黑、對比已經最大</b>，所以真正要解的是下面那種深灰卡片。</p>
+<div class="cols">
+<div class="col">
+  <div class="cap"><b>現況</b><span>尾 6 碼 21px 純白、前 6 碼 #8A8A8A、MZ 深灰膠囊</span></div>
+  <div class="frame v0">
+    <div class="rowlist" style="padding:0">
+      <div class="row" data-s="part">
+        <div class="row__code"><i>723592</i><b>927639</b><span class="row__sku">MZ0052</span></div>
+        <div class="row__name">貓天空走道L(透明,白框)-Avenue(L)</div>
+        <div class="row__qty"><span class="a">1</span><em>/ 2</em></div>
+      </div>
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>640841</i><b>970935</b><span class="row__sku">MZ0012</span></div>
+        <div class="row__name">六角面蓋Cover Plate白色(White)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 1</em></div>
+      </div>
+    </div>
+  </div>
+</div><div class="col">
+  <div class="cap"><b>甲 · 壓暗鄰居</b><span>尾 6 碼<b>一個字都沒動</b>。前 6 碼降到 #666、MZ 膠囊去底變小字 —— 靠對比不靠尺寸</span></div>
+  <div class="frame v1">
+    <div class="rowlist" style="padding:0">
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>723592</i><b>927639</b><span class="row__sku">MZ0052</span></div>
+        <div class="row__name">貓天空走道L(透明,白框)-Avenue(L)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 2</em></div>
+      </div>
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>640841</i><b>970935</b><span class="row__sku">MZ0012</span></div>
+        <div class="row__name">六角面蓋Cover Plate白色(White)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 1</em></div>
+      </div>
+    </div>
+  </div>
+</div><div class="col">
+  <div class="cap"><b>乙 · 加大字級</b><span>21px → 25px。最直接，代價是卡片變高、一頁少看到半列</span></div>
+  <div class="frame v2">
+    <div class="rowlist" style="padding:0">
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>723592</i><b>927639</b><span class="row__sku">MZ0052</span></div>
+        <div class="row__name">貓天空走道L(透明,白框)-Avenue(L)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 2</em></div>
+      </div>
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>640841</i><b>970935</b><span class="row__sku">MZ0012</span></div>
+        <div class="row__name">六角面蓋Cover Plate白色(White)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 1</em></div>
+      </div>
+    </div>
+  </div>
+</div><div class="col">
+  <div class="cap"><b>丙 · 加底板</b><span>尾 6 碼包一塊深色方塊。<b>遠距離時形狀比顏色先被看到</b></span></div>
+  <div class="frame v3">
+    <div class="rowlist" style="padding:0">
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>723592</i><b>927639</b><span class="row__sku">MZ0052</span></div>
+        <div class="row__name">貓天空走道L(透明,白框)-Avenue(L)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 2</em></div>
+      </div>
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>640841</i><b>970935</b><span class="row__sku">MZ0012</span></div>
+        <div class="row__name">六角面蓋Cover Plate白色(White)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 1</em></div>
+      </div>
+    </div>
+  </div>
+</div><div class="col">
+  <div class="cap"><b>丁 · 淡青</b><span><b class=warn>比白色暗</b> —— 昏暗倉庫反而更難讀。放進來是讓你親眼確認這件事</span></div>
+  <div class="frame v4">
+    <div class="rowlist" style="padding:0">
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>723592</i><b>927639</b><span class="row__sku">MZ0052</span></div>
+        <div class="row__name">貓天空走道L(透明,白框)-Avenue(L)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 2</em></div>
+      </div>
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>640841</i><b>970935</b><span class="row__sku">MZ0012</span></div>
+        <div class="row__name">六角面蓋Cover Plate白色(White)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 1</em></div>
+      </div>
+    </div>
+  </div>
+</div><div class="col">
+  <div class="cap"><b>甲＋丙</b><span>壓暗鄰居 ＋ 加底板，兩個一起用</span></div>
+  <div class="frame v5">
+    <div class="rowlist" style="padding:0">
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>723592</i><b>927639</b><span class="row__sku">MZ0052</span></div>
+        <div class="row__name">貓天空走道L(透明,白框)-Avenue(L)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 2</em></div>
+      </div>
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>640841</i><b>970935</b><span class="row__sku">MZ0012</span></div>
+        <div class="row__name">六角面蓋Cover Plate白色(White)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 1</em></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="note2">
+<h3>我的判斷</h3>
+<ul>
+<li><b>白色已經是黑底上對比最高的東西</b>。任何彩色的亮度都低於純白 ——
+所以「換個更醒目的顏色」這個方向本身就走不通，丁（淡青）放進來就是要讓你親眼看到這件事。</li>
+<li><b>對比是相對的。</b>壓暗鄰居（甲）比打亮主角有效，而且尾 6 碼一個字都沒動、卡片高度不變。</li>
+<li><b>遠距離時形狀比顏色先被看到。</b>底板（丙）在 1 公尺外最有感 —— 那正好是平板固定在推車上的距離。</li>
+<li>顏色能用的其實不多：<span class="k">琥珀＝未完成、綠＝完成、紅＝掃錯、主色＝可點</span>，
+條碼再拿一個，現場就有五種顏色要記。</li>
+</ul>
+</div>
+</div></body></html>

@@ -564,6 +564,11 @@ body[data-role="label"] #goSort{display:none}
 .row__code b,.srow__code b{
   background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+  /* 🧪 v2 才有：底板 ＋ **淡青**（提案 丙＋丁）。正式版維持純白。
+     底板是純黑、比卡片灰更暗，所以顏色放在上面的對比反而**比放在卡片上高** ——
+     淡青對黑底是 12.5:1（純白 18.9:1），WCAG 最高等級只要 7:1，兩個都遠超過。
+     這一版是拿來實機比「有顏色會不會更好找」，正式版還沒跟。 */
+  color:#7FD8D0;
 }
 /* ⚠️ 黃色塊上不要底板 —— 那裡的字已經是純黑、對比本來就最大，
    再加一塊黑底反而變成「黃底上一塊黑方塊」，搶掉整列的注意力。 */

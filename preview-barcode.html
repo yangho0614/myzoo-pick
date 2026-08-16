@@ -879,6 +879,20 @@ body{background:#0A0A0B;margin:0}
 .v5 .row__sku{background:none;padding:0;color:#6A6A6A;font-size:12px}
 .v5 .row__code b{background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+
+/* v6 丙＋丁：底板＋淡青 */
+.v6 .row__code b{background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);color:#7FD8D0}
+/* v7 甲＋丙＋丁：壓暗鄰居＋底板＋淡青 */
+.v7 .row__code i{color:#666}
+.v7 .row__sku{background:none;padding:0;color:#6A6A6A;font-size:12px}
+.v7 .row__code b{background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);color:#7FD8D0}
+/* v8 丙＋琥珀：如果一定要暖色 */
+.v8 .row__code i{color:#666}
+.v8 .row__sku{background:none;padding:0;color:#6A6A6A;font-size:12px}
+.v8 .row__code b{background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);color:#FFD230}
 /* 黃色塊上一律純黑，不受這些變體影響 —— 那裡對比本來就最大 */
 .frame .row[data-s="part"] .row__code b{background:none;box-shadow:none;padding:0;margin:0;color:#000}
 
@@ -992,6 +1006,72 @@ body{background:#0A0A0B;margin:0}
   </div>
 </div>
 </div>
+
+<h2 style="font-size:34px;font-weight:800;margin:64px 0 6px;letter-spacing:-.02em">第二輪：底板 ＋ 顏色</h2><p class="lede" style="margin-bottom:0">底板是<b>純黑</b>，比卡片灰更暗 —— 所以顏色放在底板上的對比<b>比放在卡片上更高</b>。<br><span class="k">淡青在黑底上是 12.5:1，純白是 18.9:1</span>（WCAG 最高等級只要 7:1，兩個都遠超過）。</p><div class="cols"><div class="col">
+  <div class="cap"><b>丙 · 底板＋白（已上線）</b><span>目前正式版就是這個</span></div>
+  <div class="frame v3">
+    <div class="rowlist" style="padding:0">
+      <div class="row" data-s="part">
+        <div class="row__code"><i>723592</i><b>927639</b><span class="row__sku">MZ0052</span></div>
+        <div class="row__name">貓天空走道L(透明,白框)-Avenue(L)</div>
+        <div class="row__qty"><span class="a">1</span><em>/ 2</em></div>
+      </div>
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>640841</i><b>970935</b><span class="row__sku">MZ0012</span></div>
+        <div class="row__name">六角面蓋Cover Plate白色(White)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 1</em></div>
+      </div>
+    </div>
+  </div>
+</div><div class="col">
+  <div class="cap"><b>丙＋丁 · 底板＋淡青</b><span>顏色有了，對比 12.5:1 仍然很夠</span></div>
+  <div class="frame v6">
+    <div class="rowlist" style="padding:0">
+      <div class="row" data-s="part">
+        <div class="row__code"><i>723592</i><b>927639</b><span class="row__sku">MZ0052</span></div>
+        <div class="row__name">貓天空走道L(透明,白框)-Avenue(L)</div>
+        <div class="row__qty"><span class="a">1</span><em>/ 2</em></div>
+      </div>
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>640841</i><b>970935</b><span class="row__sku">MZ0012</span></div>
+        <div class="row__name">六角面蓋Cover Plate白色(White)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 1</em></div>
+      </div>
+    </div>
+  </div>
+</div><div class="col">
+  <div class="cap"><b>甲＋丙＋丁 · 全套</b><span>再把前 6 碼與 MZ 壓暗</span></div>
+  <div class="frame v7">
+    <div class="rowlist" style="padding:0">
+      <div class="row" data-s="part">
+        <div class="row__code"><i>723592</i><b>927639</b><span class="row__sku">MZ0052</span></div>
+        <div class="row__name">貓天空走道L(透明,白框)-Avenue(L)</div>
+        <div class="row__qty"><span class="a">1</span><em>/ 2</em></div>
+      </div>
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>640841</i><b>970935</b><span class="row__sku">MZ0012</span></div>
+        <div class="row__name">六角面蓋Cover Plate白色(White)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 1</em></div>
+      </div>
+    </div>
+  </div>
+</div><div class="col">
+  <div class="cap"><b>丙＋琥珀</b><span><b class=warn>⚠️ 不建議</b>：琥珀＝未完成，用在條碼上會語意打架</span></div>
+  <div class="frame v8">
+    <div class="rowlist" style="padding:0">
+      <div class="row" data-s="part">
+        <div class="row__code"><i>723592</i><b>927639</b><span class="row__sku">MZ0052</span></div>
+        <div class="row__name">貓天空走道L(透明,白框)-Avenue(L)</div>
+        <div class="row__qty"><span class="a">1</span><em>/ 2</em></div>
+      </div>
+      <div class="row" data-s="todo">
+        <div class="row__code"><i>640841</i><b>970935</b><span class="row__sku">MZ0012</span></div>
+        <div class="row__name">六角面蓋Cover Plate白色(White)</div>
+        <div class="row__qty"><span class="a">0</span><em>/ 1</em></div>
+      </div>
+    </div>
+  </div>
+</div></div>
 <div class="note2">
 <h3>我的判斷</h3>
 <ul>

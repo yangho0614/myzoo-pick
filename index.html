@@ -172,7 +172,9 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 /* 主要動作：唯一的實心藍 */
 .btn--go{background:var(--tint);color:var(--on-fill);font-weight:600}
 .btn--go:active{background:#1BAAA0}
-.btn--test{background:var(--card);color:var(--tint)}
+/* 灰底白字（2026-08-16）。這兩顆是「工具／說明」，不是主要動作，
+   也不該再多一個彩色 —— 載入畫面已經有角色色與橘色選檔卡了。 */
+.btn--test{background:var(--fill);color:var(--ink)}
 .btn--ghost{background:transparent;color:var(--tint)}
 
 .chips{display:flex;gap:8px;flex-wrap:wrap;padding:14px var(--pad) 2px}
@@ -273,16 +275,23 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 .resume__b .btn{flex:1;background:var(--fill)}
 .resume__b .btn--go{background:var(--tint)}
 
-.adv{background:var(--card);border-radius:var(--r);overflow:hidden}
-.adv>summary{padding:16px;font-size:16px;font-weight:500;color:var(--tint);
-  cursor:pointer;list-style:none;display:flex;align-items:center}
+.adv{background:var(--fill);border-radius:var(--r);overflow:hidden}
+/* 文字置中、箭頭靠右。⚠️ 箭頭要用 position:absolute 抽離文件流，
+   不然它會佔一個 flex 欄位，margin-left:auto 那招會把文字推到左邊，永遠置不了中。 */
+.adv>summary{padding:16px;font-size:16px;font-weight:500;color:var(--ink);
+  cursor:pointer;list-style:none;position:relative;text-align:center}
 .adv>summary::-webkit-details-marker{display:none}
+/* ⚠️ 箭頭是「正方形只留右邊與下邊的框、再轉 45°」做的，
+   轉完之後**視覺重心不在方框中心** —— 尖端會落在中心下方約 6.4px，
+   兩隻手臂在中心高度，所以視覺重心約在中心下方 3.2px。
+   要看起來置中就得把方框中心再往上推那 3.2px（展開時方向相反）。
+   直接寫 translateY(-50%) 會看起來偏低，這就是原因。 */
 .adv>summary::after{
-  content:"";margin-left:auto;width:8px;height:8px;
-  border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);
-  transform:rotate(45deg);
+  content:"";position:absolute;right:18px;top:50%;width:9px;height:9px;
+  border-right:2px solid var(--ink-2);border-bottom:2px solid var(--ink-2);
+  transform:translateY(calc(-50% - 3.2px)) rotate(45deg);
 }
-.adv[open]>summary::after{transform:rotate(-135deg)}
+.adv[open]>summary::after{transform:translateY(calc(-50% + 3.2px)) rotate(-135deg)}
 .advbody{padding:0 16px 18px;display:flex;flex-direction:column;gap:18px}
 .advsec{display:flex;flex-direction:column;gap:9px;padding-top:16px;border-top:.5px solid var(--sep)}
 .advsec h3{margin:0;font-size:13px;font-weight:600;color:var(--ink-2)}
@@ -793,7 +802,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.42　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.43　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -840,8 +849,11 @@ body[data-role="label"] #goSort{display:none}
     </div>
 
     <div class="step">
-      <div class="step__hd"><i>3</i>點畫面最底部，打開掃描</div>
-      <p class="note"><b class="w">黃色</b>＝還掃不動，點一下變<b class="o">綠線</b>就好了。</p>
+      <!-- ⚠️ 這裡原本是「步驟 ③ 點畫面最底部，打開掃描」＋
+           「黃色＝還掃不動，點一下變綠線就好了」。2026-08-16 兩行都拿掉 ——
+           待命條早就改成不用手動點（touchstart／click 綁在整個文件上），
+           那兩行在教一個使用者根本不需要做的動作，只是雜訊。
+           真正的步驟只剩兩個：① 選角色　② 選檔案。測試掃描器留著當工具，不編號。 -->
       <button class="btn btn--big btn--test" id="stGo"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg>測試掃描器</button>
     </div>
 
@@ -2963,7 +2975,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.42　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.43　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

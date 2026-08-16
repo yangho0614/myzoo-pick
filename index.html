@@ -861,7 +861,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.57　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.58　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -1245,6 +1245,16 @@ function tone(freq, at, dur, vol){
 }
 var SOUND = {
   ok:    function(){ tone(1180,0,.07,.16); },
+  /* 🔴 查詢音（2026-08-16）。商品彙總掃描**不寫入進度**，只是查 ——
+     但原本它發的是跟真的撿到一箱一模一樣的 ok 音。
+     這個 app 的原則是「走動中看不到螢幕，**聲音是主**」，
+     所以「記到了」跟「只是查一下」發同一個聲音就是漏洞：
+     在彙總頁連掃 20 箱會聽到 20 聲成功，但一箱都沒記到。
+     ⚠️ 分辨靠**節奏**不是音高 —— 倉庫吵雜時音高很難聽準，
+        但「一聲」vs「快速兩聲」在任何環境都分得出來。
+     ⚠️ 也要跟 warn 的兩聲分開：warn 是 520Hz 慢兩下（間隔 180ms），
+        這裡是高音快兩下（間隔 70ms）、而且更輕。 */
+  look:  function(){ tone(880,0,.05,.12); tone(1046,.07,.05,.12); },
   done:  function(){ tone(784,0,.09,.16); tone(988,.10,.09,.16); tone(1319,.20,.20,.18); },
   warn:  function(){ tone(520,0,.12,.20); tone(520,.18,.12,.20); },
   err:   function(){ tone(196,0,.17,.26); tone(165,.21,.17,.26); tone(147,.42,.30,.28); }
@@ -1871,7 +1881,7 @@ function scanSummary(code){
     row.classList.add("scanned");          // ⚠️ 不設定時器移除 —— 要留到掃下一個
     row.scrollIntoView({ block: "center" });
   }
-  SOUND.ok(); buzz(35);
+  SOUND.look(); buzz([20,45,20]);   // 查詢音＋快速兩下震動，跟「撿到一箱」明確分開
   // ⚠️ 不要用 msg() —— 它寫的是撿貨畫面的 dockMsg，在彙總畫面根本看不到。
   //    這裡的回饋就是「那一列被標起來並捲到畫面中央」，資訊本來就都在列上。
 }
@@ -3045,7 +3055,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.57　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.58　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

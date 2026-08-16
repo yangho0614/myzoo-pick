@@ -870,6 +870,7 @@ body[data-role="label"] #goSort{display:none}
 <symbol id="i-restart" viewBox="0 -960 960 960"><path d="M440-122q-121-15-200.5-105.5T160-440q0-66 26-126.5T260-672l57 57q-38 34-57.5 79T240-440q0 88 56 155.5T440-202v80Zm80 0v-80q87-16 143.5-83T720-440q0-100-70-170t-170-70h-3l44 44-56 56-140-140 140-140 56 56-44 44h3q134 0 227 93t93 227q0 121-79.5 211.5T520-122Z"/></symbol>
 <symbol id="i-keyboard" viewBox="0 -960 960 960"><path d="M160-200q-33 0-56.5-23.5T80-280v-400q0-33 23.5-56.5T160-760h640q33 0 56.5 23.5T880-680v400q0 33-23.5 56.5T800-200H160Zm0-80h640v-400H160v400Zm160-40h320v-80H320v80ZM200-440h80v-80h-80v80Zm120 0h80v-80h-80v80Zm120 0h80v-80h-80v80Zm120 0h80v-80h-80v80Zm120 0h80v-80h-80v80ZM200-560h80v-80h-80v80Zm120 0h80v-80h-80v80Zm120 0h80v-80h-80v80Zm120 0h80v-80h-80v80Zm120 0h80v-80h-80v80ZM160-280v-400 400Z"/></symbol>
 <symbol id="i-build" viewBox="0 -960 960 960"><path d="M686-132 444-376q-20 8-40.5 12t-43.5 4q-100 0-170-70t-70-170q0-36 10-68.5t28-61.5l146 146 72-72-146-146q29-18 61.5-28t68.5-10q100 0 170 70t70 170q0 23-4 43.5T584-516l244 242q12 12 12 29t-12 29l-84 84q-12 12-29 12t-29-12Zm29-85 27-27-256-256q18-20 26-46.5t8-53.5q0-60-38.5-104.5T386-758l74 74q12 12 12 28t-12 28L332-500q-12 12-28 12t-28-12l-74-74q9 57 53.5 95.5T360-440q26 0 52-8t47-25l256 256ZM472-488Z"/></symbol>
+<symbol id="i-truck" viewBox="0 -960 960 960"><path d="M240-160q-50 0-85-35t-35-85H40v-440q0-33 23.5-56.5T120-800h560v160h120l120 160v200h-80q0 50-35 85t-85 35q-50 0-85-35t-35-85H360q0 50-35 85t-85 35Zm0-80q17 0 28.5-11.5T280-280q0-17-11.5-28.5T240-320q-17 0-28.5 11.5T200-280q0 17 11.5 28.5T240-240Zm-120-120h32q17-18 39-29t49-11q27 0 49 11t39 29h272v-360H120v360Zm600 120q17 0 28.5-11.5T760-280q0-17-11.5-28.5T720-320q-17 0-28.5 11.5T680-280q0 17 11.5 28.5T720-240Zm-40-200h170l-90-120h-80v120ZM360-540Z"/></symbol>
 <symbol id="i-summarize" viewBox="0 -960 960 960"><path d="M348.5-611.5Q360-623 360-640t-11.5-28.5Q337-680 320-680t-28.5 11.5Q280-657 280-640t11.5 28.5Q303-600 320-600t28.5-11.5Zm0 160Q360-463 360-480t-11.5-28.5Q337-520 320-520t-28.5 11.5Q280-497 280-480t11.5 28.5Q303-440 320-440t28.5-11.5Zm0 160Q360-303 360-320t-11.5-28.5Q337-360 320-360t-28.5 11.5Q280-337 280-320t11.5 28.5Q303-280 320-280t28.5-11.5ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h440l200 200v440q0 33-23.5 56.5T760-120H200Zm0-80h560v-400H600v-160H200v560Zm0-560v160-160 560-560Z"/></symbol>
 <symbol id="i-send" viewBox="0 -960 960 960"><path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z"/></symbol>
 <symbol id="i-close" viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></symbol>
@@ -889,7 +890,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.65　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.66　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -1167,10 +1168,12 @@ body[data-role="label"] #goSort{display:none}
      ⚠️ 載入畫面不顯示（那時還沒有資料可切）。 -->
 <nav class="tabbar" id="tabbar" hidden>
   <!-- ⚠️ 順序：商品彙總在前、今日出貨在後（2026-08-16 Evan 指定）。
-       圖示各自維持原本的語意：彙總＝文件、今日出貨＝返回箭頭
-       （那個箭頭跟載入畫面「繼續今日出貨作業」是同一個，指向同一個地方）。 -->
+       圖示：彙總＝文件、今日出貨＝**貨車**、分揀＝箱子、查條碼＝條碼。
+       ⚠️ 今日出貨原本用返回箭頭，2026-08-16 換掉 —— 它是一個「地方」不是「往回」，
+          而且那個箭頭跟載入畫面「繼續今日出貨作業」重複。
+          四個圖示的輪廓刻意各不相同（文件／貨車／箱子／條碼），走動中掃一眼就分得出來。 -->
   <button class="btn" id="goSummary"><svg class="ico" aria-hidden="true"><use href="#i-summarize"/></svg>商品彙總</button>
-  <button class="btn" id="goOrders"><svg class="ico" aria-hidden="true"><use href="#i-arrow_back"/></svg>今日出貨</button>
+  <button class="btn" id="goOrders"><svg class="ico" aria-hidden="true"><use href="#i-truck"/></svg>今日出貨</button>
   <button class="btn" id="goSort"><svg class="ico" aria-hidden="true"><use href="#i-sort"/></svg>分揀</button>
   <button class="btn btn--icon" id="goLookup" aria-label="查條碼" title="查條碼"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg></button>
 </nav>
@@ -3086,7 +3089,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.65　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.66　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

@@ -195,14 +195,16 @@ button:focus-visible,input:focus-visible,label:focus-visible{
    然後又變回「未待命」→ 無限閃爍。所以是縮小，不是隱藏。
    而且綠燈狀態沒有任何可操作的資訊（要點的是琥珀色那個狀態），
    不需要佔掉整條的高度。 */
+/* 🔴 高度固定，待命後只換顏色與文字，不要縮小。
+   縮小會連帶造成兩個問題（都在實機上發生過）：
+     · 上面的 dock 跟著移動 → 點底部按鈕的第一下會落空
+     · 為了不移動而把預留固定在展開高度 → 縮小後中間空一大塊黑
+   兩者同源：高度會變。固定高度就同時解掉。⚠️ 不要為了省空間改回會縮的版本。 */
 .armbar.on{
   background:var(--ok);color:var(--ok-ink);
-  padding:0 0 env(safe-area-inset-bottom);
-  height:calc(7px + env(safe-area-inset-bottom));
   box-shadow:none;
 }
-.armbar.on .armbar__dot,
-.armbar.on .armbar__txt{display:none}
+.armbar.on .armbar__dot{background:var(--ok-ink);opacity:.8;animation:none}
 @keyframes armpulse{0%,100%{opacity:.25;transform:scale(.85)}50%{opacity:.9;transform:scale(1)}}
 .stwrap{
   position:fixed;inset:0;z-index:105;background:rgba(10,11,15,.92);
@@ -739,7 +741,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
     <div class="brandline">
       <h1>MYZOO 撿貨核對系統</h1>
     </div>
-    <div class="verline">版本 <b id="verTag">v0.34　更新日期 2026-08-16</b></div>
+    <div class="verline">版本 <b id="verTag">v0.35　更新日期 2026-08-16</b></div>
 
     <div class="roles">
       <div class="rolegrid">
@@ -2083,11 +2085,9 @@ function scanbarSync(){
      使用者看到的是「按了沒反應」，而且完全看不出被什麼擋住。
      未待命時它約 56px（琥珀＋文字），待命時縮到約 12px，
      寫死任何一個數字都會錯，所以量實際高度。 */
-  /* ⚠️ 只增不減。待命條展開(約56px)／收合(約12px)時若讓預留跟著變，
-     底部的 dock 會上下跳 —— 使用者點按鈕的第一下會先「啟用掃描」，
-     按鈕就在手指底下跑掉，看起來像「按了沒反應」。位置必須固定。 */
+  // 高度已固定（見 .armbar.on 的註解），直接量即可
   var h = bar.hidden ? 0 : bar.offsetHeight;
-  if(h > armH){
+  if(armH !== h){
     armH = h;
     document.documentElement.style.setProperty("--armh", h + "px");
   }
@@ -2561,7 +2561,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.34　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.35　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

@@ -457,16 +457,19 @@ body[data-role="label"] #goSort{display:none}
   background:var(--fill);border-radius:10px;
 }
 .seg--hd button{min-height:34px;padding:0 10px;font-size:12.5px;border-radius:8px;background:transparent}
-/* 🔴 選中那顆改成**主色實心**。原本是 tint-soft 淡底，
-   在純黑底＋深灰底座上幾乎分不出來（2026-08-16 實機看到）。 */
-.seg--hd button[aria-pressed="true"]{background:var(--tint);color:var(--on-tint);box-shadow:none}
+/* 顏色統一由上面的 .seg button[aria-pressed] 決定，這裡不重複宣告 */
 .seg button{
   min-height:44px;padding:0 12px;border-radius:10px;text-align:center;
   display:flex;align-items:center;justify-content:center;
   font-size:15.5px;font-weight:600;color:var(--ink-2);background:var(--fill);
 }
+/* 🔴 選中＝**主色實心**（2026-08-16）。原本是「淡底＋描邊」，
+   在純黑底＋深灰底座上幾乎看不出哪一顆被選中。
+   ⚠️ 這條要寫在通用的 .seg 上，不要只改 .seg--hd ——
+   `.seg--hd button[aria-pressed]` 跟 `.seg button[aria-pressed]` **特異性同分**，
+   誰寫在後面誰贏。第一次只改 .seg--hd 完全沒生效（實機確認過）。 */
 .seg button[aria-pressed="true"]{
-  color:var(--tint);background:var(--tint-soft);box-shadow:inset 0 0 0 1.5px var(--tint);
+  color:var(--on-tint);background:var(--tint);box-shadow:none;
 }
 .seg button:active{background:var(--fill-2)}
 

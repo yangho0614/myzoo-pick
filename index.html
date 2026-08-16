@@ -735,7 +735,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
     <div class="brandline">
       <h1>MYZOO 撿貨核對系統</h1>
     </div>
-    <div class="verline">版本 <b id="verTag">v0.36　更新日期 2026-08-16</b></div>
+    <div class="verline">版本 <b id="verTag">v0.37　更新日期 2026-08-16</b></div>
 
     <div class="roles">
       <div class="rolegrid">
@@ -1623,7 +1623,7 @@ function scanSummary(code){
   var hits = DB.byCode[code] || [];
   if(!hits.length){
     SOUND.err(); buzz([90,60,90,60,140]);
-    blast("err", "不在今天的出貨單上", "查無此條碼", pretty(code),
+    blast("err", "✕", "不在今天的出貨單上", pretty(code),
           "整份出貨單裡都沒有這個條碼");
     return;
   }
@@ -1888,10 +1888,19 @@ function esc(s){
 
 /* ═══ 全屏回饋 ═══════════════════════════════════════════ */
 var blastT = null;
+/* ⚠️ mark 是放進 76px 圓圈的**單一符號**（✓ ✕ ! ▸），不是句子。
+   塞長字串進去會被圓圈擠成「一個字一行」，而且跟下面的文字疊在一起
+   —— 2026-08-16 實機出現過，兩處呼叫都誤用。這裡直接截斷並記進診斷，
+   讓它下次不會再無聲發生。 */
 function blast(kind, mark, head, code, noteHtml){
   var el = $("blast");
   el.dataset.k = kind;
-  $("blMark").textContent = mark;
+  var m = String(mark == null ? "" : mark);
+  if(m.length > 2){
+    dlog("blast", "mark 太長被截斷：" + JSON.stringify(m));
+    m = m.slice(0, 1);
+  }
+  $("blMark").textContent = m;
   $("blHead").textContent = head;
   $("blCode").innerHTML = /^\d+$/.test(code) ? codeHTML(code) : esc(code);
   $("blNote").innerHTML = noteHtml || "";
@@ -1994,7 +2003,7 @@ function commit(){
     if(code.length === 10 && !DB.byCode[code] && DB.orders.length){
       if(isCodePrefix(code)){
         SOUND.err(); buzz([90,60,90]);
-        blast("err", "條碼沒掃完整", "只收到 " + code.length + " 碼",
+        blast("err", "✕", "條碼沒掃完整（只收到 " + code.length + " 碼）",
               pretty(code), "這是某個商品條碼的前半段 —— 請重掃一次");
         return;
       }
@@ -2555,7 +2564,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.36　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.37　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

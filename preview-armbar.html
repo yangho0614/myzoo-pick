@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>待命條高度 · 示意</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0F13">
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --bg:#0E0F13; --card:#191B21; --line:#252831;
+  --ink:#EDEFF5; --ink-2:#8A90A0; --ink-3:#5C6270;
+  --good:#21C7BA; --on-good:#04241F;
+  --attn:#F5C542; --on-attn:#241C02;
+  --safe:34px;              /* 模擬 iPhone 底部安全區 */
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;
+}
+.wrap{max-width:430px;margin:0 auto;padding:18px 14px 40px}
+h1{font-size:18px;font-weight:800;margin:0 0 4px}
+.sub{color:var(--ink-2);font-size:12.5px;line-height:1.7;margin:0 0 20px}
+.sub b{color:var(--attn)}
+
+.case{margin-bottom:26px}
+.tag{
+  display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.14em;
+  color:var(--good);background:rgba(33,199,186,.13);
+  border:1px solid rgba(33,199,186,.34);padding:3px 9px;border-radius:999px;margin-bottom:5px;
+}
+.name{font-size:14.5px;font-weight:700;margin:0 0 2px}
+.why{color:var(--ink-3);font-size:12px;line-height:1.6;margin:0 0 9px}
+.why b{color:var(--ink-2)}
+
+/* 模擬手機底部區塊 */
+.phone{
+  border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--bg);
+}
+.filler{height:74px;background:
+  repeating-linear-gradient(180deg,var(--card) 0 34px,transparent 34px 42px);
+  opacity:.55}
+.tabbar{
+  display:flex;gap:7px;padding:9px 12px 10px;background:var(--bg);
+  border-top:.5px solid var(--line);
+}
+.tb{
+  flex:1;text-align:center;padding:11px 0;border-radius:11px;background:var(--card);
+  color:var(--good);font-size:13px;font-weight:600;
+}
+.dock{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:9px 14px;background:var(--bg);border-top:.5px solid var(--line);
+  font-size:12.5px;color:var(--ink-2);
+}
+.dock b{color:var(--ink);font-size:16px;font-weight:700}
+
+.bar{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  background:var(--good);color:var(--on-good);font-weight:700;
+  padding-bottom:var(--safe);
+}
+.bar.off{background:var(--attn);color:var(--on-attn)}
+.bar i{display:block;width:26px;height:3px;border-radius:2px;background:currentColor;opacity:.7;font-style:normal}
+
+/* 三種高度（不含安全區） */
+.h64{height:calc(64px + var(--safe));font-size:17px}
+.h48{height:calc(48px + var(--safe));font-size:15.5px}
+.h36{height:calc(36px + var(--safe));font-size:14px}
+
+.meta{
+  margin-top:7px;color:var(--ink-3);font-size:11.5px;font-family:ui-monospace,Menlo,monospace;
+}
+.foot{
+  margin-top:28px;padding-top:16px;border-top:1px solid var(--line);
+  color:var(--ink-3);font-size:12.5px;line-height:1.85;
+}
+.foot b{color:var(--attn)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>待命條高度 · 三種</h1>
+  <p class="sub">
+    每組上面是「已待命（綠）」、下面是「未待命（琥珀）」。<br>
+    ⚠️ 兩種狀態<b>必須同高</b> —— 高度會變就會回到「按鈕點不到」或「露出黑帶」。<br>
+    以下已含 iPhone 底部安全區 34px。
+  </p>
+
+  <div class="case">
+    <span class="tag">甲 · 現在</span>
+    <p class="name">64px</p>
+    <p class="why">字最大、最好按。但在 82 箱的清單上，<b>等於少看到一列半</b>。</p>
+    <div class="phone">
+      <div class="filler"></div>
+      <div class="tabbar"><div class="tb">今日彙總</div><div class="tb">分揀</div><div class="tb">查條碼</div></div>
+      <div class="bar h64"><i></i>可以掃了</div>
+    </div>
+    <div class="meta">實際佔用 64 + 34 = 98px</div>
+    <div class="phone" style="margin-top:8px">
+      <div class="bar h64 off">● 點一下這裡，才掃得動</div>
+    </div>
+  </div>
+
+  <div class="case">
+    <span class="tag">乙</span>
+    <p class="name">48px　<span style="color:var(--attn)">← 我建議這個</span></p>
+    <p class="why">比 Apple 建議的 44px 觸控區還大一點，<b>手套也按得到</b>，又省下 16px。</p>
+    <div class="phone">
+      <div class="filler"></div>
+      <div class="tabbar"><div class="tb">今日彙總</div><div class="tb">分揀</div><div class="tb">查條碼</div></div>
+      <div class="bar h48"><i></i>可以掃了</div>
+    </div>
+    <div class="meta">實際佔用 48 + 34 = 82px（省 16px）</div>
+    <div class="phone" style="margin-top:8px">
+      <div class="bar h48 off">● 點一下這裡，才掃得動</div>
+    </div>
+  </div>
+
+  <div class="case">
+    <span class="tag">丙</span>
+    <p class="name">36px</p>
+    <p class="why">最省空間，但<b>低於 44px 的觸控建議值</b> —— 走動中、戴手套時比較容易點空。</p>
+    <div class="phone">
+      <div class="filler"></div>
+      <div class="tabbar"><div class="tb">今日彙總</div><div class="tb">分揀</div><div class="tb">查條碼</div></div>
+      <div class="bar h36"><i></i>可以掃了</div>
+    </div>
+    <div class="meta">實際佔用 36 + 34 = 70px（省 28px）</div>
+    <div class="phone" style="margin-top:8px">
+      <div class="bar h36 off">● 點一下這裡，才掃得動</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    要 <b>甲 64</b> / <b>乙 48</b> / <b>丙 36</b>？<br>
+    ⚠️ 安全區那 34px 是 iPhone 的 Home 指示條區域，<b>省不掉</b> ——
+    那塊本來就不能放可點的東西，只能讓它是背景色。<br>
+    也就是說：真正能省的只有上半部那個數字。
+  </div>
+</div>
+</body>
+</html>

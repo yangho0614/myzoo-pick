@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-<meta charset="utf-8"><title>對單貼標要不要分揀 · 示意</title>
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8">
+<title>底部導覽固定顯示 · 示意</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="icon" href="data:,">
-<style>
+<link rel="icon" href="data:,"><style>
 
 /* 🔴🔴 這條不要刪、也不要改成個別的 .xxx[hidden]。
    hidden 是靠瀏覽器預設的 display:none 生效的，任何自己寫的 display 都會蓋掉它，
@@ -339,6 +336,13 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 /* 沒有載入出貨明細時，這三個入口是空的 —— 直接停用並壓暗，
    否則點過去是一片空白，使用者會以為按鈕壞了（2026-08-16 回報）。 */
 .tabbar .btn[disabled]{opacity:.35;color:var(--ink-3)}
+/* 🔴 對單貼標不需要「分揀」。
+   分揀回答的是「這箱該放到哪一堆」，前提是貨還混在一起；
+   但貼標員拿到的已經是分好的一疊，他要做的是逐箱核對有沒有混到別人的，
+   那是「單張核對」的工作（掃到混入的箱子時紅屏會直接說這箱是誰的、第幾疊）。
+   ⚠️ 撿貨與一人作業維持三顆 —— 那兩個角色真的會用到分揀。
+   .tabbar .btn 是 flex:1，少一顆時剩下兩顆會自動變寬。 */
+body[data-role="label"] #goSort{display:none}
 .empty{padding:40px 20px;text-align:center;color:var(--ink-3);font-size:15px;line-height:1.6}
 
 /* ═══ 品項列 ═══ */
@@ -681,19 +685,25 @@ body{padding:16px 12px 50px}
 .page{max-width:430px;margin:0 auto}
 .page h1{font-size:19px;font-weight:800;margin:0 0 4px}
 .lead{color:var(--ink-2);font-size:12.5px;line-height:1.7;margin:0 0 20px}
-.case{margin-bottom:24px}
-.case__t{font-size:14px;font-weight:700;margin:0 0 3px}
-.case__d{color:var(--ink-3);font-size:12px;line-height:1.6;margin:0 0 9px}
+.case{margin-bottom:26px}
+.case__t{font-size:14.5px;font-weight:700;margin:0 0 3px}
+.case__d{color:var(--ink-3);font-size:12px;line-height:1.65;margin:0 0 9px}
 .case__d b{color:var(--ink-2)}
 .frame{border:1px solid var(--sep-strong);border-radius:14px;overflow:hidden;background:var(--bg)}
 .frame .tabbar{position:relative;left:auto;right:auto;bottom:auto;max-width:none}
-.fake{padding:10px 14px;border-bottom:.5px solid var(--sep);
-  display:flex;align-items:center;justify-content:space-between}
+.frame .now{margin:10px 12px}
+.fake{padding:10px 14px;border-bottom:.5px solid var(--sep);display:flex;align-items:center;justify-content:space-between}
 .fake b{font-size:16px;font-weight:700}
-.fake .rolepill{margin:0}
-.fill{height:120px;background:repeating-linear-gradient(180deg,var(--card) 0 46px,transparent 46px 54px);opacity:.5}
-.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--sep);
-  color:var(--ink-3);font-size:12.5px;line-height:1.85}
+.fill{height:60px;background:repeating-linear-gradient(180deg,var(--card) 0 26px,transparent 26px 32px);opacity:.45;margin:8px 12px}
+.dockdemo{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 14px;border-top:.5px solid var(--sep);font-size:13px;color:var(--ink-2)}
+.dockdemo b{font-size:16px;color:var(--ink)}
+.armline{height:10px;background:var(--good)}
+.tabbar .btn.on{background:var(--tint-soft);color:var(--tint)}
+.tabbar.compact .btn{min-height:42px;font-size:0;gap:0}
+.tabbar.compact .btn .ico{font-size:22px}
+.cost{margin-top:7px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--sep);color:var(--ink-3);font-size:12.5px;line-height:1.85}
 .foot b{color:var(--attn)}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -714,55 +724,63 @@ body{padding:16px 12px 50px}
 <symbol id="i-settings" viewBox="0 -960 960 960"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm112-260q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm0-80q-25 0-42.5-17.5T422-480q0-25 17.5-42.5T482-540q25 0 42.5 17.5T542-480q0 25-17.5 42.5T482-420Zm-2-60Zm-40 320h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Z"/></symbol>
 </defs></svg>
 <div class="page">
-  <h1>對單貼標要不要「分揀」？</h1>
-  <p class="lead">差別只在底部那排。上面兩個是同一個畫面，只是角色不同。</p>
+  <h1>底部導覽要不要固定顯示？</h1>
+  <p class="lead">三個都用撿貨畫面示範 —— 那是底部最擠的地方（已經有進度列）。</p>
 
   <div class="case">
-    <p class="case__t">現在：三顆都在</p>
-    <p class="case__d">貼標員也看得到「分揀」，但他用不到 —— <b>貨已經分好堆了</b>，
-      他要做的是逐箱核對這一疊有沒有混到別人的。</p>
-    <div class="frame">
-      <div class="fake"><b>今日出貨</b><span class="rolepill">對單貼標</span></div>
+    <p class="case__t">甲 · 現況</p>
+    <p class="case__d">只有「今日出貨」那頁有導覽列。撿貨中要切換，得先按左上角返回。</p>
+    <div class="frame"><div class="fake"><b>林世宸</b><span class="pilebadge">第 2 疊</span></div>
+      <div class="now" data-s="todo" style="margin:10px 12px">
+        <div class="now__eye">下一箱要撿</div>
+        <div class="now__code"><span class="uhead">728488</span><span class="utail">110829</span></div>
+        <div class="now__name">六角跳台(原木色)-Hexagon</div>
+        <div class="now__row"><div class="now__qty">1 <em>/ 4 箱</em></div></div>
+      </div>
       <div class="fill"></div>
-      <nav class="tabbar">
-        <button class="btn"><svg class="ico"><use href="#i-summarize"/></svg>今日彙總</button>
-        <button class="btn"><svg class="ico"><use href="#i-sort"/></svg>分揀</button>
-        <button class="btn"><svg class="ico"><use href="#i-scan"/></svg>查條碼</button>
-      </nav>
-    </div>
+      <div class="dockdemo"><span>✓ 六角跳台 1/4</span><b>1 / 22</b></div>
+      
+      <div class="armline"></div></div>
+    <div class="cost">底部高度：進度列 46 ＋ 綠線 10 ＝ 56px</div>
   </div>
 
   <div class="case">
-    <p class="case__t">改後：對單貼標只剩兩顆</p>
-    <p class="case__d">按鈕變寬、更好按，也少一個會誤按的入口。
-      <b>撿貨與一人作業維持三顆</b>（那兩個角色真的會用到分揀）。</p>
-    <div class="frame">
-      <div class="fake"><b>今日出貨</b><span class="rolepill">對單貼標</span></div>
+    <p class="case__t">乙 · 固定顯示（有文字）</p>
+    <p class="case__d">任何畫面都能一鍵切換，<b>不用再按返回</b>。多一顆「今日出貨」取代返回鍵。</p>
+    <div class="frame"><div class="fake"><b>林世宸</b><span class="pilebadge">第 2 疊</span></div>
+      <div class="now" data-s="todo" style="margin:10px 12px">
+        <div class="now__eye">下一箱要撿</div>
+        <div class="now__code"><span class="uhead">728488</span><span class="utail">110829</span></div>
+        <div class="now__name">六角跳台(原木色)-Hexagon</div>
+        <div class="now__row"><div class="now__qty">1 <em>/ 4 箱</em></div></div>
+      </div>
       <div class="fill"></div>
-      <nav class="tabbar">
-        <button class="btn"><svg class="ico"><use href="#i-summarize"/></svg>今日彙總</button>
-        <button class="btn"><svg class="ico"><use href="#i-scan"/></svg>查條碼</button>
-      </nav>
-    </div>
+      <div class="dockdemo"><span>✓ 六角跳台 1/4</span><b>1 / 22</b></div>
+      <nav class="tabbar"><button class="btn"><svg class="ico"><use href="#i-arrow_back"/></svg>今日出貨</button><button class="btn"><svg class="ico"><use href="#i-summarize"/></svg>今日彙總</button><button class="btn"><svg class="ico"><use href="#i-sort"/></svg>分揀</button><button class="btn"><svg class="ico"><use href="#i-scan"/></svg>查條碼</button></nav>
+      <div class="armline"></div></div>
+    <div class="cost">底部高度：46 ＋ 70 ＋ 10 ＝ 126px（多佔 70px）</div>
   </div>
 
   <div class="case">
-    <p class="case__t">對照：撿貨模式（不變）</p>
-    <p class="case__d">撿貨與一人作業都會用到分揀，維持三顆。</p>
-    <div class="frame">
-      <div class="fake"><b>今日出貨</b><span class="rolepill">撿貨</span></div>
+    <p class="case__t">丙 · 固定顯示（只有圖示）</p>
+    <p class="case__d">一樣能一鍵切換，但矮很多。<b>代價是要記得圖示的意思</b>。</p>
+    <div class="frame"><div class="fake"><b>林世宸</b><span class="pilebadge">第 2 疊</span></div>
+      <div class="now" data-s="todo" style="margin:10px 12px">
+        <div class="now__eye">下一箱要撿</div>
+        <div class="now__code"><span class="uhead">728488</span><span class="utail">110829</span></div>
+        <div class="now__name">六角跳台(原木色)-Hexagon</div>
+        <div class="now__row"><div class="now__qty">1 <em>/ 4 箱</em></div></div>
+      </div>
       <div class="fill"></div>
-      <nav class="tabbar">
-        <button class="btn"><svg class="ico"><use href="#i-summarize"/></svg>今日彙總</button>
-        <button class="btn"><svg class="ico"><use href="#i-sort"/></svg>分揀</button>
-        <button class="btn"><svg class="ico"><use href="#i-scan"/></svg>查條碼</button>
-      </nav>
-    </div>
+      <div class="dockdemo"><span>✓ 六角跳台 1/4</span><b>1 / 22</b></div>
+      <nav class="tabbar compact"><button class="btn"><svg class="ico"><use href="#i-arrow_back"/></svg></button><button class="btn"><svg class="ico"><use href="#i-summarize"/></svg></button><button class="btn"><svg class="ico"><use href="#i-sort"/></svg></button><button class="btn"><svg class="ico"><use href="#i-scan"/></svg></button></nav>
+      <div class="armline"></div></div>
+    <div class="cost">底部高度：46 ＋ 42 ＝ 98px（多佔 42px）</div>
   </div>
 
   <div class="foot">
-    ⚠️ 唯一的代價：<b>同一支手機切換角色時，底部按鈕數量會變</b>。<br>
-    如果你覺得「按鈕位置固定」比「不顯示用不到的功能」重要，就維持現狀 ——
-    貼標員誤入分揀不會弄壞資料，進度算在同一份裡。
+    ⚠️ 撿貨畫面本來就有進度列（<b>1 / 22</b> 那條），所以固定導覽是<b>疊在它上面</b>。<br>
+    甲＝畫面最大；乙＝最好懂但最佔；丙＝折衷。<br>
+    對單貼標模式下三個版本都會少一顆「分揀」。
   </div>
 </div></body></html>

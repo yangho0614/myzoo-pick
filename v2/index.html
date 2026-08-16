@@ -542,6 +542,10 @@ body[data-role="label"] #goSort{display:none}
   font-variant-numeric:tabular-nums}
 .sortcard__sku:empty{display:none}
 .sortcard__note{font-size:14px;color:var(--ink-2);margin-top:9px;line-height:1.5}   /* ＋gap 4px＝13px */
+/* 「該怎麼做」：只講狀態不講動作的話，走動中的人得自己想。跟全幅提示面板同一個語彙。 */
+.sortcard__todo{margin-top:7px;padding:9px 13px;border-radius:11px;   /* ＋gap 4px＝11px */
+  background:rgba(0,0,0,.20);font-size:15px;font-weight:600;color:var(--ink)}
+.sortcard__todo:empty{display:none}
 
 .piles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;padding:0}
 .pile{padding:12px 13px;border-radius:12px;background:var(--card);position:relative}
@@ -926,6 +930,7 @@ body[data-role="label"] #goSort{display:none}
       <div class="sortcard__item" id="sortItem"></div>
       <div class="sortcard__code" id="sortCode"></div>
       <div class="sortcard__note" id="sortNote"></div>
+      <div class="sortcard__todo" id="sortTodo"></div>
     </div>
     <div class="piles" id="piles"></div>
   </div>
@@ -1706,7 +1711,7 @@ function totals(){
 function openSort(){ renderSort(); show("scSort"); }
 
 // code 用 innerHTML（要把 MZ 品號標成琥珀色），其餘一律 textContent
-function sortCard(kind, eye, who, line, item, code, note, pile, sku){
+function sortCard(kind, eye, who, line, item, code, note, pile, sku, todo){
   var c = $("sortCard");
   c.dataset.k = kind;
   $("sortPile").innerHTML = pile ? "<i>" + pile + "</i><u>疊</u>" : "";
@@ -1718,6 +1723,7 @@ function sortCard(kind, eye, who, line, item, code, note, pile, sku){
   $("sortItem").textContent = item || "";
   $("sortCode").innerHTML = code || "";
   $("sortNote").textContent = note || "";
+  $("sortTodo").textContent = todo || "";
 }
 /* ⚠️ 這裡以前是 codeLine(sku, upc)，把 "<b>MZ0015</b> · 640841970799" 擠在同一行、
    MZ 還是粗體 —— 那讓最不重要的編號跟第 2 階的條碼搶份量。
@@ -1786,9 +1792,16 @@ function scanSort(code){
   if(!open.length){
     var n = hits.reduce(function(s, h){ return s + h.item.need; }, 0);
     SOUND.warn(); buzz([60,50,60]);
-    sortCard("warn", "這個品項已經分完了", hits[0].item.name, "", "",
+    /* 🔴 40px 那一格永遠回答同一個問題：**現在要做什麼**。
+       正常時是「放到誰那一堆」（人名），這裡就是「多出來的一箱」。
+       ⚠️ 以前放的是品名 —— 長品名（太空計劃那種）在 iPhone 上折成 4 行，
+          把條碼推出視線，而且跟隔壁「這箱不該在這裡」的講法不同種類，
+          視線落點每次都要重新判斷在看什麼。
+       「多出來的一箱」跟全幅提示面板用的是同一句，兩個畫面講同一件事。 */
+    sortCard("warn", "這個品項已經分完了", "多出來的一箱", "", hits[0].item.name,
              codeHTML(code),
-             "今天總共只有 " + n + " 箱，都已經分出去了", "", hits[0].item.sku);
+             "今天總共只有 " + n + " 箱，都已經分出去了", "", hits[0].item.sku,
+             "放回貨架，不要貼標");
     $("sortMsg").textContent = "多出來的一箱：" + hits[0].item.name;
     return;
   }

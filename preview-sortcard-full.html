@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>「已分完」狀態 · 示意</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E1012">
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --bg:#0E1012; --card:#1C1E21; --fill:#26282C;
+  --sep:rgba(255,255,255,.09);
+  --ink:#F2F3F4; --ink-2:#A8ABB0; --ink-3:#75787E;
+  --tint:#21C7BA; --tint-soft:rgba(33,199,186,.15);
+  --attn:#FFD230; --attn-soft:rgba(255,210,48,.14);
+  --good:#4f9b6f; --good-soft:rgba(33,199,186,.15);
+  --bad:#E8354F; --bad-soft:rgba(232,53,79,.14);
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"Roboto Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-text-size-adjust:100%}
+.wrap{max-width:1340px;margin:0 auto;padding:24px 16px 90px}
+h1{font-size:21px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
+.lede{color:var(--ink-2);font-size:13.5px;line-height:1.85;margin:0 0 20px;max-width:720px}
+.lede b{color:var(--attn)}
+.h2b{font-size:17px;font-weight:800;margin:38px 0 5px;letter-spacing:-.01em}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;align-items:start}
+.opt{background:rgba(255,255,255,.022);border:1px solid var(--sep);border-radius:18px;padding:15px 13px}
+.opt.pick{border-color:rgba(33,199,186,.5);background:rgba(33,199,186,.05)}
+.opt.old{opacity:.85}
+.tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.16em;
+  color:var(--ink-3);background:var(--fill);border:1px solid var(--sep);
+  padding:3px 10px;border-radius:999px;margin-bottom:7px}
+.opt.pick .tag{color:var(--tint);background:var(--tint-soft);border-color:rgba(33,199,186,.4)}
+.opt h2{font-size:15px;font-weight:750;margin:0 0 4px;letter-spacing:-.01em}
+.why{color:var(--ink-3);font-size:12.5px;line-height:1.7;margin:0 0 12px;min-height:4.8em}
+.why b{color:var(--ink-2)}
+.ph{width:100%;max-width:390px;margin:0 auto;background:var(--bg);
+  border:1px solid var(--sep);border-radius:16px;padding:12px}
+
+/* ══ 分揀卡（＝ app 現行樣式，含 8/16 的層級調整）══ */
+.sortcard{padding:20px;border-radius:18px;background:var(--good-soft);
+  display:flex;flex-direction:column;gap:4px;position:relative}
+.sortcard.warn{background:var(--attn-soft)}
+.sortcard.err{background:var(--bad-soft)}
+.sortcard__eye{font-size:13px;font-weight:600;color:var(--good);padding-right:76px}
+.sortcard.warn .sortcard__eye{color:var(--attn)}
+.sortcard.err .sortcard__eye{color:var(--bad)}
+.sortcard__who{font-size:40px;font-weight:700;line-height:1.12;letter-spacing:-.03em;
+  text-wrap:balance;padding-right:76px}
+.sortcard__pile{position:absolute;top:16px;right:16px;text-align:center;
+  padding:6px 12px;border-radius:12px;background:var(--card);color:var(--ink-2)}
+.sortcard__pile i{display:block;font-style:normal;font-size:28px;font-weight:600;line-height:1}
+.sortcard__pile u{display:block;text-decoration:none;font-size:11px;color:var(--ink-3)}
+.sortcard__line{font-size:13.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.sortcard__sku{font-size:13.5px;color:var(--ink-3);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.sortcard__item{font-size:20px;font-weight:650;margin-top:7px;line-height:1.32}
+.sortcard__code{font-family:var(--mono);font-size:15px;color:var(--ink-2);margin-top:3px;line-height:1.1}
+.sortcard__code .uhead{font-size:15px;color:var(--ink-3);letter-spacing:.02em}
+.sortcard__code .utail{font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.sortcard__note{font-size:14px;color:var(--ink-2);margin-top:9px;line-height:1.5}
+/* 待辦條：把「該做什麼」講白，跟全幅提示面板同一個語彙 */
+.sortcard__todo{margin-top:11px;padding:9px 13px;border-radius:11px;
+  background:rgba(0,0,0,.20);font-size:15px;font-weight:600;color:var(--ink)}
+
+/* 各方案的差異只在標題那一格 */
+.v-b .sortcard__who{font-size:26px;line-height:1.2}
+.v-c .sortcard__who{font-size:24px;line-height:1.25}
+
+.note{margin-top:11px;color:var(--ink-3);font-size:11.5px;line-height:1.7;font-family:var(--mono)}
+.note em{font-style:normal;color:var(--good)}
+.note s{color:var(--attn);text-decoration:none}
+
+.foot{margin-top:36px;padding-top:20px;border-top:1px solid var(--sep);
+  color:var(--ink-2);font-size:13.5px;line-height:1.9;max-width:800px}
+.foot h3{font-size:15px;margin:0 0 8px;color:var(--ink)}
+.foot b{color:var(--tint)}
+.foot .amb{color:var(--attn)}
+.foot ul{margin:6px 0 0;padding-left:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>「這個品項已經分完了」 · 標題那一格放什麼</h1>
+<p class="lede">
+  這個狀態是<b>手上這箱多出來了</b> —— 今天的量已經全部分出去。<br>
+  問題：現在 40px 那格放的是<b>品名</b>，長品名在 iPhone 上會撐成 4 行、佔掉大半張卡。<br>
+  而且它跟隔壁的錯誤狀態不一致 —— 那邊 40px 放的是「這箱不該在這裡」，一句話。
+</p>
+
+<div class="grid">
+
+  <!-- 現況 -->
+  <div class="opt old">
+    <span class="tag">現況</span>
+    <h2>品名當標題（40px）</h2>
+    <p class="why">品名被放到第 1 階。長品名折成 4 行，<b>把整張卡撐開</b>，下面的條碼被推出視線。而且「品名」在這裡不是重點 —— 重點是<b>這箱要放回去</b>。</p>
+    <div class="ph">
+      <div class="sortcard warn">
+        <div class="sortcard__eye">這個品項已經分完了</div>
+        <div class="sortcard__who">太空計劃Gamma左開(白色)(White,Left)</div>
+        <div class="sortcard__sku">MZ0073</div>
+        <div class="sortcard__code"><span class="uhead">641361</span> <span class="utail">328565</span></div>
+        <div class="sortcard__note">今天總共只有 2 箱，都已經分出去了</div>
+      </div>
+    </div>
+    <div class="note">標題 40px　·　<s>長品名 4 行</s></div>
+  </div>
+
+  <!-- 甲 -->
+  <div class="opt pick">
+    <span class="tag">甲 · 建議</span>
+    <h2>標題改成一句話，品名降到第 2 階</h2>
+    <p class="why">40px 那格<b>永遠回答同一個問題：現在要做什麼</b>。正常時是「放到誰那一堆」，這裡就是「多出來的一箱」。品名回到跟正常狀態一樣的位置，<b>眼睛不用重新找</b>。</p>
+    <div class="ph">
+      <div class="sortcard warn">
+        <div class="sortcard__eye">這個品項已經分完了</div>
+        <div class="sortcard__who">多出來的一箱</div>
+        <div class="sortcard__sku">MZ0073</div>
+        <div class="sortcard__item">太空計劃Gamma左開(白色)(White,Left)</div>
+        <div class="sortcard__code"><span class="uhead">641361</span> <span class="utail">328565</span></div>
+        <div class="sortcard__note">今天總共只有 2 箱，都已經分出去了</div>
+        <div class="sortcard__todo">放回貨架，不要貼標</div>
+      </div>
+    </div>
+    <div class="note"><em>骨架跟正常狀態完全一樣</em>　·　多一條「該怎麼做」</div>
+  </div>
+
+  <!-- 乙 -->
+  <div class="opt">
+    <span class="tag">乙</span>
+    <h2>品名留在標題，但縮到 26px</h2>
+    <p class="why">改動最小，只調字級。長品名剩 2 行。<br>但 40px 那格的意義還是<b>不一致</b> —— 有時是人名、有時是句子、有時是品名，眼睛每次都要重新判斷在看什麼。</p>
+    <div class="ph v-b">
+      <div class="sortcard warn">
+        <div class="sortcard__eye">這個品項已經分完了</div>
+        <div class="sortcard__who">太空計劃Gamma左開(白色)(White,Left)</div>
+        <div class="sortcard__sku">MZ0073</div>
+        <div class="sortcard__code"><span class="uhead">641361</span> <span class="utail">328565</span></div>
+        <div class="sortcard__note">今天總共只有 2 箱，都已經分出去了</div>
+      </div>
+    </div>
+    <div class="note">標題 26px　·　只改一個數字</div>
+  </div>
+
+</div>
+
+<h2 class="h2b">為什麼說「不一致」——三個狀態擺在一起看</h2>
+<p class="lede" style="margin-bottom:18px;color:var(--ink-3)">
+  掃描員的視線一定先落在 40px 那一格。那格如果每次講的是不同種類的東西，就得先花時間判斷「我在看什麼」。
+</p>
+
+<div class="grid">
+  <div class="opt">
+    <span class="tag">正常</span>
+    <div class="ph">
+      <div class="sortcard">
+        <div class="sortcard__pile"><i>1</i><u>疊</u></div>
+        <div class="sortcard__eye">撕這一疊的標，貼上去</div>
+        <div class="sortcard__who">林世宸</div>
+        <div class="sortcard__line">202608188</div>
+        <div class="sortcard__sku">MZ0015</div>
+        <div class="sortcard__item">貓踏板Lack橡木色(S)(Oak)(2pcs)</div>
+        <div class="sortcard__code"><span class="uhead">640841</span> <span class="utail">970799</span></div>
+        <div class="sortcard__note">這位還要 1 箱</div>
+      </div>
+    </div>
+    <div class="note">40px ＝ <em>人名</em>（放哪一堆）</div>
+  </div>
+
+  <div class="opt">
+    <span class="tag">錯誤</span>
+    <div class="ph">
+      <div class="sortcard err">
+        <div class="sortcard__eye">不在今天的出貨單上</div>
+        <div class="sortcard__who">這箱不該在這裡</div>
+        <div class="sortcard__code"><span class="uhead">999999</span> <span class="utail">999999</span></div>
+        <div class="sortcard__note">整份出貨單裡都沒有這個條碼 —— 先確認是不是撿錯了</div>
+      </div>
+    </div>
+    <div class="note">40px ＝ <em>一句話</em>（該怎麼辦）</div>
+  </div>
+
+  <div class="opt old">
+    <span class="tag">已分完 · 現況</span>
+    <div class="ph">
+      <div class="sortcard warn">
+        <div class="sortcard__eye">這個品項已經分完了</div>
+        <div class="sortcard__who">太空計劃Gamma左開(白色)(White,Left)</div>
+        <div class="sortcard__sku">MZ0073</div>
+        <div class="sortcard__code"><span class="uhead">641361</span> <span class="utail">328565</span></div>
+        <div class="sortcard__note">今天總共只有 2 箱，都已經分出去了</div>
+      </div>
+    </div>
+    <div class="note">40px ＝ <s>品名</s>（跟另外兩個不同種類）</div>
+  </div>
+
+  <div class="opt pick">
+    <span class="tag">已分完 · 甲</span>
+    <div class="ph">
+      <div class="sortcard warn">
+        <div class="sortcard__eye">這個品項已經分完了</div>
+        <div class="sortcard__who">多出來的一箱</div>
+        <div class="sortcard__sku">MZ0073</div>
+        <div class="sortcard__item">太空計劃Gamma左開(白色)(White,Left)</div>
+        <div class="sortcard__code"><span class="uhead">641361</span> <span class="utail">328565</span></div>
+        <div class="sortcard__note">今天總共只有 2 箱，都已經分出去了</div>
+        <div class="sortcard__todo">放回貨架，不要貼標</div>
+      </div>
+    </div>
+    <div class="note">40px ＝ <em>一句話</em>，三個狀態統一</div>
+  </div>
+</div>
+
+<div class="foot">
+  <h3>我推薦 甲</h3>
+  <ul>
+    <li>「多出來的一箱」這句話全屏提示面板<b>已經在用了</b> —— 掃到多的箱子時整片黃底跳出來的那句就是它。這裡沿用同一句，兩個畫面講的是同一件事。</li>
+    <li>加上「<span class="amb">放回貨架，不要貼標</span>」那條 —— 現在只講「已經分完了」，沒講該怎麼辦。走動中的人需要被直接告知動作。</li>
+    <li>品名回到第 2 階，跟正常狀態同一個位置，<b>條碼也不會再被推出視線</b>。</li>
+  </ul>
+  <p style="margin:12px 0 0;color:var(--ink-3)">
+    只想動最小的話選 <b>乙</b>（把標題從 40 改成 26px，一行 CSS）。
+  </p>
+</div>
+
+</div>
+</body>
+</html>

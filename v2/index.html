@@ -2098,7 +2098,10 @@ function scanPick(code){
     var other = (DB.byCode[code] || []).filter(function(h){ return h.ord !== cur; });
     SOUND.err(); buzz([90,60,90,60,140]);
     var oth = other.length ? other[0] : null;
-    blast("err", "✕", "不是這張單的", code,
+    /* ⚠️ 標題要看情況：這個條碼**在別張單上**才叫「不是這張單的」；
+       整份出貨單都查不到的時候那句話會跟下面的內文自相矛盾
+       （標題說「不是這張單」暗示它屬於別張，內文卻說「整份都沒有」）。2026-08-16 修。 */
+    blast("err", "✕", oth ? "不是這張單的" : "不在今天的出貨單上", code,
       (oth
         ? (oth.item.sku ? esc(oth.item.sku) + " " : "") + esc(oth.item.name) +
           "<br>這箱是 <strong>" + esc(oth.ord.cust) + "</strong> 的" +

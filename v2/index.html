@@ -349,6 +349,11 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 .row[data-s="part"] .row__code i,.row[data-s="part"] .row__sku,
 .row[data-s="part"] .row__qty em{ color:rgba(0,0,0,.58) }
 .ord[data-s="part"] .ord__pile{ color:rgba(0,0,0,.72) }
+/* ⚠️ MZ 自編碼在一般卡片上是深灰膠囊；到了黃色塊上那個底色會變成
+   「黃底上冒出一塊深灰」。色塊上一律改成透明底＋黑框。 */
+.row[data-s="part"] .row__sku,.srow[data-s="part"] .srow__code .sk{
+  background:rgba(0,0,0,.10);color:rgba(0,0,0,.62)
+}
 .ord[data-s="done"]{opacity:.5}
 .ord__pile{flex:none;width:38px;text-align:center;color:var(--ink-2)}
 .ord__pile i{display:block;font-style:normal;font-size:22px;font-weight:600;
@@ -452,7 +457,9 @@ body[data-role="label"] #goSort{display:none}
   background:var(--fill);border-radius:10px;
 }
 .seg--hd button{min-height:34px;padding:0 10px;font-size:12.5px;border-radius:8px;background:transparent}
-.seg--hd button[aria-pressed="true"]{background:var(--tint-soft);color:var(--tint);box-shadow:none}
+/* 🔴 選中那顆改成**主色實心**。原本是 tint-soft 淡底，
+   在純黑底＋深灰底座上幾乎分不出來（2026-08-16 實機看到）。 */
+.seg--hd button[aria-pressed="true"]{background:var(--tint);color:var(--on-tint);box-shadow:none}
 .seg button{
   min-height:44px;padding:0 12px;border-radius:10px;text-align:center;
   display:flex;align-items:center;justify-content:center;

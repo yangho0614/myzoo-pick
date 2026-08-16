@@ -758,7 +758,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.39　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.40　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -1857,7 +1857,11 @@ function undoSort(){
 /* ═══ 撿貨畫面 ═══════════════════════════════════════════ */
 function openOrder(o){
   cur = o;
-  setPickFilter(false);          // 換單一律回到「顯示全部」
+  /* ⚠️ 這裡曾經寫 setPickFilter(false) —— 那是布林時代的殘留。
+     改成三段（all／left／done）之後，false 不等於任何一個值，
+     結果三顆按鈕的 aria-pressed 全是 false，**開單時沒有任何一顆是選中的**。
+     篩選行為剛好正常（false 既不是 left 也不是 done → 顯示全部），所以很難發現。 */
+  setPickFilter("all");          // 換單一律回到「顯示全部」
   show("scPick");
 }
 
@@ -2906,7 +2910,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.39　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.40　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

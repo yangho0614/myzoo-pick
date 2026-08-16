@@ -1906,7 +1906,11 @@ function undoSort(){
 /* ═══ 撿貨畫面 ═══════════════════════════════════════════ */
 function openOrder(o){
   cur = o;
-  setPickFilter(false);          // 換單一律回到「顯示全部」
+  /* ⚠️ 這裡曾經寫 setPickFilter(false) —— 那是布林時代的殘留。
+     改成三段（all／left／done）之後，false 不等於任何一個值，
+     結果三顆按鈕的 aria-pressed 全是 false，**開單時沒有任何一顆是選中的**。
+     篩選行為剛好正常（false 既不是 left 也不是 done → 顯示全部），所以很難發現。 */
+  setPickFilter("all");          // 換單一律回到「顯示全部」
   show("scPick");
 }
 

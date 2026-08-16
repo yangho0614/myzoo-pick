@@ -261,13 +261,14 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
   display:flex;flex-direction:column;align-items:center;gap:3px;
   padding:25px 16px;border-radius:var(--r);text-align:center;
   background:linear-gradient(135deg,var(--file-c),var(--file-c-2));
-  color:#fff;cursor:pointer;border:0;
+  color:#000;cursor:pointer;border:0;
 }
 /* ⚠️ 這三條原本各自指定顏色又寫在後面，會把上面的設定蓋掉
-   （同分特異性後者勝）。所以顏色一次寫在這裡，不要再拆開。 */
-.drop .ico{width:28px;height:28px;color:#fff}
-.drop b{font-size:17px;font-weight:600;color:#fff}
-.drop p{margin:0;width:100%;font-size:13.5px;color:rgba(255,255,255,.74)}
+   （同分特異性後者勝）。所以顏色一次寫在這裡，不要再拆開。
+   🔴 黑字（2026-08-16 Evan 指定）—— 橘夠亮，白字會糊。 */
+.drop .ico{width:28px;height:28px;color:#000}
+.drop b{font-size:17px;font-weight:600;color:#000}
+.drop p{margin:0;width:100%;font-size:13.5px;color:rgba(0,0,0,.62)}
 .drop:active{filter:brightness(.92)}
 .drop.hot{filter:brightness(1.12)}
 
@@ -811,7 +812,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.44　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.45　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -839,7 +840,7 @@ body[data-role="label"] #goSort{display:none}
       <label class="drop" id="drop">
         <svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>
         <b>選擇出貨明細</b>
-        <p>ERP 原檔 xlsx 直接讀</p>
+        <p>開啟原檔 xlsx 直接讀</p>
         <input type="file" id="file" accept=".xlsx,.csv,.txt" hidden>
       </label>
       <div id="loadErr" class="err-note" hidden></div>
@@ -2984,7 +2985,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.44　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.45　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

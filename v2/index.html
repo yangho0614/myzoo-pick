@@ -184,7 +184,9 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 /* 主要動作：唯一的實心藍 */
 .btn--go{background:var(--tint);color:var(--on-tint);font-weight:600}
 .btn--go:active{background:#1BAAA0}
-.btn--test{background:var(--card);color:var(--tint)}
+/* 灰底白字（2026-08-16 Evan 指定）。這兩顆是「工具／說明」，
+   不是主要動作，也不該再多一個彩色 —— 載入畫面已經有紫綠藍橘四張色卡了。 */
+.btn--test{background:var(--fill);color:var(--ink)}
 /* 🔴 載入畫面的兩顆（2026-08-16）。入口畫面不背作業畫面的顏色語意（Evan 確認），
    但也不該再多一個彩色 —— 那裡已經有紫／綠／藍／橘四張色卡了。
    ⚠️ 所以這兩顆走「非彩色」路線，用明度而不是色相來分主次：
@@ -316,11 +318,12 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 .resume__b .btn{flex:1;background:var(--fill)}
 .resume__b .btn--go{background:var(--tint)}
 
-.adv{background:var(--card);border-radius:var(--r);overflow:hidden}
+.adv{background:var(--fill);border-radius:var(--r);overflow:hidden}
 /* 文字置中、箭頭靠右。⚠️ 用 position:absolute 把箭頭抽離文件流，
    不然它會佔一個 flex 欄位，文字就永遠置中不了（margin-left:auto 那招會把文字推左）。 */
 .adv>summary{padding:16px;font-size:16px;font-weight:500;color:var(--tint);
   cursor:pointer;list-style:none;position:relative;text-align:center}
+.adv>summary{color:var(--ink)}
 .adv>summary::-webkit-details-marker{display:none}
 .adv>summary::after{
   content:"";position:absolute;right:18px;top:50%;width:8px;height:8px;

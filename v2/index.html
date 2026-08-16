@@ -481,25 +481,29 @@ body[data-role="label"] #goSort{display:none}
       「屬於上面那一項」的歸屬感靠的是那個框，不是縮排。
       為了保留縮排而讓名字斷行，是拿真的看不懂換不重要的整齊。
    ⚠️ justify-self:start 保留 —— 短名字的膠囊還是只有內容那麼寬，不會拉成一整條。 */
-/* 🔴 grid-row 必須是 3，不能是 2。
-   .row__code 是 `grid-column:1; grid-row:span 2`（佔第 1 欄的第 1〜2 列）。
-   這個膠囊跨滿整列（1 / -1）如果放在第 2 列，就會**跟條碼欄搶同一格**，
-   自動配置只好把條碼欄擠到後面 —— 實機上看到的就是「條碼跑到卡片最下面」。
-   放到第 3 列，條碼欄保住 1〜2 列，膠囊在下面自己一整條。 */
-.row__multi{grid-column:1 / -1;grid-row:3;justify-self:start;margin-top:7px;margin-left:20px;
-  max-width:calc(100% - 20px);
+/* 🔴 起點要對齊**品名**（第 2 欄），不是卡片左緣。
+   ⚠️ 先前寫 `grid-column:1 / -1` + margin-left:20px，膠囊就跑到條碼／MZ 那一欄底下，
+      看起來像掛在條碼上而不是掛在品項上（2026-08-16 實機回報）。
+   ⚠️ grid-row 必須是 3。.row__code 是 `grid-column:1; grid-row:span 2`（佔第 1 欄的 1〜2 列），
+      膠囊放第 2 列會跟它搶同一格，自動配置會把條碼欄擠到卡片最下面。
+   `2 / -1` ＝ 從品名欄一路用到數量欄的右緣，比原本只佔第 2 欄多拿約 40px。 */
+.row__multi{grid-column:2 / -1;grid-row:3;justify-self:start;margin-top:7px;
   color:var(--attn);background:var(--attn-soft);
-  box-shadow:inset 0 0 0 1px var(--attn-line);border-radius:10px;padding:7px 11px 8px;
+  box-shadow:inset 0 0 0 1px var(--attn-line);border-radius:10px;padding:7px 9px 8px;
   display:grid;gap:3px}
 .row__multi u{text-decoration:none;font-size:11.5px;font-weight:600;
   letter-spacing:.08em;color:var(--attn);opacity:.7}
-/* 一人一行；箱數緊跟在最長的人名之後、同一張卡內對齊 */
+/* 一人一行；箱數緊跟在最長的人名之後、同一張卡內對齊。
+   ⚠️ 字級與間距是**算過的**：對齊品名之後可用寬度只剩約 237px，
+      而最長的客戶名「Three little meow香港代理」在 15.5px 下要 186px，
+      加上內距與箱數欄就爆掉。降到 14px（約 168px）＋ 間距 10px 才剛好塞得下一行。
+      要再加大字級就得接受它換行。 */
 .row__multi span{display:grid;grid-template-columns:minmax(0,max-content) auto;
-  gap:14px;align-items:baseline}
-.row__multi b{font-size:15.5px;font-weight:600;line-height:1.35;color:var(--attn);
+  gap:10px;align-items:baseline}
+.row__multi b{font-size:14px;font-weight:600;line-height:1.35;color:var(--attn);
   min-width:0;word-break:break-word}
-.row__multi n{font-size:15px;font-style:normal;font-variant-numeric:tabular-nums;
-  color:var(--attn)}
+.row__multi n{font-size:14px;font-style:normal;font-variant-numeric:tabular-nums;
+  color:var(--attn);white-space:nowrap}
 /* 跟品名同一列、垂直置中對齊（同彙總表） */
 .row__qty{grid-column:3;grid-row:1;align-self:center;text-align:right;white-space:nowrap;
   font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:-.02em}

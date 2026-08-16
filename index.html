@@ -171,25 +171,23 @@ button:focus-visible,input:focus-visible,label:focus-visible{
 .btn--test{background:var(--ok-wash);border-color:var(--ok-line);color:var(--ok);font-weight:700}
 .btn--test:hover{background:var(--ok-wash);filter:brightness(1.15)}
 .armbar{
+  /* 🔴 這條只剩兩個用途：① 當那個必須存在的掃描輸入框 ② 用顏色顯示狀態。
+     **使用者不需要點它** —— touchend/click 綁在整個文件上，
+     點畫面任何地方都會把焦點搶回來（見 keepFocus 的綁定）。
+     ⚠️ 兩件事不能改：
+       · 不能 display:none（藏起來的 input 會立刻失焦 → 無限閃爍）
+       · 高度必須固定（會變就會讓上面的 dock 移動，或為了不移動而露出黑帶） */
   position:fixed;left:0;right:0;bottom:0;z-index:80;
-  padding:13px var(--pad) calc(13px + env(safe-area-inset-bottom));
-  background:var(--amber);color:var(--amber-ink);border:0;
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  font-size:15.5px;font-weight:750;
-  box-shadow:0 -8px 24px rgba(0,0,0,.45);
-  transition:background .18s;
+  height:calc(10px + env(safe-area-inset-bottom));
+  background:var(--amber);
 }
 /* 透明但真實可點的輸入框，鋪滿整條 —— 手指點的就是它本人 */
 .armbar__in{
   position:absolute;inset:0;width:100%;height:100%;
   opacity:0;border:0;outline:0;padding:0;margin:0;background:transparent;
-  font-size:16px;                /* < 16px 會讓 iOS 聚焦時放大整個頁面 */
-  -webkit-appearance:none;
+  font-size:16px;-webkit-appearance:none;
 }
-.armbar__dot{
-  width:10px;height:10px;border-radius:50%;background:var(--amber-ink);
-  opacity:.45;animation:armpulse 1.4s ease-in-out infinite;
-}
+.armbar__dot{display:none}
 /* 已待命：縮成一條細線。
    ⚠️ **不能整條藏起來** —— CAP 就住在裡面，display:none 的 input 會立刻失去焦點，
    然後又變回「未待命」→ 無限閃爍。所以是縮小，不是隱藏。
@@ -200,11 +198,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
      · 上面的 dock 跟著移動 → 點底部按鈕的第一下會落空
      · 為了不移動而把預留固定在展開高度 → 縮小後中間空一大塊黑
    兩者同源：高度會變。固定高度就同時解掉。⚠️ 不要為了省空間改回會縮的版本。 */
-.armbar.on{
-  background:var(--ok);color:var(--ok-ink);
-  box-shadow:none;
-}
-.armbar.on .armbar__dot{background:var(--ok-ink);opacity:.8;animation:none}
+.armbar.on{background:var(--ok)}
 @keyframes armpulse{0%,100%{opacity:.25;transform:scale(.85)}50%{opacity:.9;transform:scale(1)}}
 .stwrap{
   position:fixed;inset:0;z-index:105;background:rgba(10,11,15,.92);
@@ -741,7 +735,7 @@ button:focus-visible,input:focus-visible,label:focus-visible{
     <div class="brandline">
       <h1>MYZOO 撿貨核對系統</h1>
     </div>
-    <div class="verline">版本 <b id="verTag">v0.35　更新日期 2026-08-16</b></div>
+    <div class="verline">版本 <b id="verTag">v0.36　更新日期 2026-08-16</b></div>
 
     <div class="roles">
       <div class="rolegrid">
@@ -2561,7 +2555,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.35　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.36　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

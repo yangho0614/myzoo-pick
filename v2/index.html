@@ -1836,7 +1836,8 @@ function scanSummary(code){
   if(!hits.length){
     SOUND.err(); buzz([90,60,90,60,140]);
     blast("err", "✕", "不在今天的出貨單上", pretty(code),
-          "整份出貨單裡都沒有這個條碼");
+          scopeText() +
+          '<span class="blast__todo">放回貨架 —— 可能是撿錯，或是別天的貨</span>');
     return;
   }
 
@@ -1880,7 +1881,8 @@ function scanSort(code){
   if(!hits.length){
     SOUND.err(); buzz([90,60,90,60,140]);
     sortCard("err", "不在今天的出貨單上", "這箱不該在這裡", "", "",
-             codeHTML(code), "整份出貨單裡都沒有這個條碼 —— 先確認是不是撿錯了");
+             codeHTML(code), scopeText().replace(/<\/?strong>/g, ""), "", "",
+             "放回貨架 —— 可能是撿錯，或是別天的貨");
     $("sortMsg").textContent = "掃到出貨單上沒有的品項";
     return;
   }
@@ -2088,6 +2090,18 @@ function msg(html, kind){
   m.style.color = kind === "err" ? "var(--err)" : kind === "ok" ? "var(--ok)" : "var(--ink-dim)";
 }
 
+
+/* 「不在今天的出貨單上」的內文：講**查過的範圍**，不要把標題再講一次。
+   原本三行在講同一件事（標題／內文／待辦），資訊量等於一行。
+   現在：標題＝問題是什麼、內文＝查了多大範圍、待辦＝該怎麼做。 */
+function scopeText(){
+  var n = 0, seen = {};
+  DB.orders.forEach(function(o){ o.items.forEach(function(i){
+    if(!seen[i.code]){ seen[i.code] = 1; n++; }
+  }); });
+  return "今天 <strong>" + DB.orders.length + "</strong> 張單、<strong>" + n +
+         "</strong> 個品項裡都沒有它";
+}
 /* ═══ 掃到一筆 ═══════════════════════════════════════════ */
 function scanPick(code){
   var idx = -1;
@@ -2106,9 +2120,9 @@ function scanPick(code){
         ? (oth.item.sku ? esc(oth.item.sku) + " " : "") + esc(oth.item.name) +
           "<br>這箱是 <strong>" + esc(oth.ord.cust) + "</strong> 的" +
           (oth.ord.pile ? "，第 <strong>" + oth.ord.pile + "</strong> 疊" : "")
-        : "整份出貨單裡都沒有這個條碼") +
+        : scopeText()) +
       '<span class="blast__todo">' +
-      (oth ? "放回原位，或切到那張單再掃這一箱" : "先確認是不是撿錯了 —— 今天不出這個品項") +
+      (oth ? "放回原位，或切到那張單再掃這一箱" : "放回貨架 —— 可能是撿錯，或是別天的貨") +
       "</span>",
       oth ? [{ label: "切到 " + oth.ord.cust, kind: "go", fn: function(){ jumpToOrder(oth.ord); } },
              { label: "放回去，繼續撿" }]

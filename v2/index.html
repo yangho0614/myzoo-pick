@@ -2260,15 +2260,19 @@ function scanbarSync(){
      使用者點底部按鈕的第一下會先「啟用掃描」，按鈕就在手指底下跑掉，
      症狀是「按了沒反應，再按一次才中」。按鈕位置必須固定。 */
   // 高度已固定（見 .armbar.on 的註解），直接量即可，不會再上下跳
-  var live = bar.hidden ? "var(--safe)"
-           : Math.round(bar.getBoundingClientRect().height) + "px";
+  /* ⚠️ 量出來的值一定要設上限。這個數字會變成 tabbar 與進度座的 bottom ——
+     一旦量到離譜的值（iOS 在轉向／網址列動畫中回報過），
+     那兩條就會被推到畫面中間，下面露出一大片黑。寧可退回預設值。 */
+  var hpx = Math.round(bar.getBoundingClientRect().height);
+  if(!(hpx >= 0) || hpx > 120) hpx = 14;
+  var live = bar.hidden ? "var(--safe)" : hpx + "px";
   if(armhLive !== live){
     armhLive = live;
     document.documentElement.style.setProperty("--armh-live", live);
   }
   var txt = on ? "可以掃了" : "點一下畫面，才掃得動";
   if($("armTxt").textContent !== txt) $("armTxt").textContent = txt;
-  if(Math.abs(barsDrift()) > 24) bumpBars();   // 見下方：iOS 固定條位置失準的自我修復
+  if(barsBroken()) bumpBars();   // 見下方：iOS 固定條位置失準的自我修復
 }
 /* dock 要坐在 tabbar 上面，捲動區要同時讓開兩條。
    高度用量的 —— 寫死會在有／沒有 tabbar 的畫面之間對不上。 */
@@ -2310,18 +2314,35 @@ function barsDrift(){
   var d2 = document.documentElement.clientHeight - b;
   return Math.round(Math.abs(d1) <= Math.abs(d2) ? d1 : d2);
 }
+/* 第二個感測器：tabbar 的底邊本來就該坐在待命條的頂邊上。
+   兩者對不上 = --armh-live 這個變數被灌到離譜的值（第一張回報照片就是這樣）。 */
+function barsGap(){
+  var tb = $("tabbar"), bar = $("armBar");
+  if(!tb || tb.hidden || !bar || bar.hidden) return 0;
+  return Math.round(bar.getBoundingClientRect().top - tb.getBoundingClientRect().bottom);
+}
+function barsBroken(){
+  return Math.abs(barsDrift()) > 24 || Math.abs(barsGap()) > 24;
+}
 function bumpBars(){
   var now = perfNow();
   if(now - bumpAt < 1500) return;        // 網址列動畫中會連續觸發，限流
   bumpAt = now;
-  var px = parseFloat(armhLive);
-  if(!isFinite(px)) return;              // 值是 "var(--safe)" 時沒得推，跳過
-  var root = document.documentElement, keep = armhLive;
-  root.style.setProperty("--armh-live", (px + 0.5) + "px");
-  requestAnimationFrame(function(){ root.style.setProperty("--armh-live", keep); });
+  var before = barsDrift() + " / " + barsGap();
+  /* 修法：把 --armh-live 重新設成「重量一次的實際高度」。
+     這同時解掉兩種壞法 —— 變數被灌壞（值被改對）、
+     以及 iOS 沒重算 bottom（寫入本身就會觸發重排）。 */
+  var bar = $("armBar"), root = document.documentElement;
+  var hpx = bar && !bar.hidden ? Math.round(bar.getBoundingClientRect().height) : -1;
+  if(!(hpx >= 0) || hpx > 120) hpx = 14;
+  root.style.setProperty("--armh-live", (hpx + 0.5) + "px");
+  requestAnimationFrame(function(){
+    armhLive = hpx + "px";
+    root.style.setProperty("--armh-live", armhLive);
+  });
   window.__barsFix.n++;
-  window.__barsFix.last = barsDrift() + "px";
-  dlog("版面", "底部固定條位置失準（偏 " + window.__barsFix.last + "），已強制重算");
+  window.__barsFix.last = before;
+  dlog("版面", "底部固定條位置失準（偏差／落差 " + before + "），已強制重算");
 }
 /* 轉向與視窗尺寸變化：iOS 的重排比事件晚，所以隔幾百毫秒再確認一次。 */
 function barsRecheck(){

@@ -2268,6 +2268,7 @@ function scanbarSync(){
   }
   var txt = on ? "可以掃了" : "點一下畫面，才掃得動";
   if($("armTxt").textContent !== txt) $("armTxt").textContent = txt;
+  if(Math.abs(barsDrift()) > 24) bumpBars();   // 見下方：iOS 固定條位置失準的自我修復
 }
 /* dock 要坐在 tabbar 上面，捲動區要同時讓開兩條。
    高度用量的 —— 寫死會在有／沒有 tabbar 的畫面之間對不上。 */
@@ -2280,6 +2281,56 @@ function syncBars(){
     document.documentElement.style.setProperty("--tabh", h + "px");
   }
 }
+
+/* ═══ 🔴 iOS：底部固定條「留在舊位置」的自我修復 ═══════════════
+   症狀：進度座＋三顆按鈕＋待命條整組停在畫面中間或上方，
+        下面露出一大片黑，看起來像整頁空掉。
+   什麼時候會發生：轉向（直↔橫）、Safari 網址列伸縮、軟體鍵盤收合之後。
+        iOS Safari 沒有重算 position:fixed 的 bottom，就一直卡在舊值。
+        （2026-08-16 實機回報，橫式與直式各拍到一次；SUPA+ 也踩過同一個坑。）
+   怎麼修：iOS 不會自己回正，要逼它重算 ——
+        把三條的 bottom 所依賴的變數推 0.5px 再推回來，觸發一次重排。
+   ⚠️ 不可以用 display:none 來強制重排：CAP（掃描輸入框）就住在 armBar 裡面，
+      被藏起來的 input 會立刻失焦，然後「未待命 → 待命」無限閃爍。
+   ⚠️ 也不要改成用 transform 補位移 —— armBar 一旦有 transform，
+      裡面那個 absolute 的 CAP 會跟著被裁切，掃描就掛了。 */
+var bumpAt = 0;
+window.__barsFix = { n: 0, last: "" };   // 給診斷面板看：修過幾次、上次的偏差
+function barsDrift(){
+  /* 待命條理論上永遠貼齊視窗底部。
+     ⚠️ 「視窗底部」在 iOS 有兩個答案：innerHeight（看得到的）與
+        clientHeight（版面用的）。網址列伸縮時兩者本來就會差幾十 px，
+        拿錯一個當基準就會每 1.5 秒誤判一次、白白抖動。
+        所以取**比較接近的那一個**當基準 —— 真的失準時兩個都會差很多。 */
+  var bar = $("armBar");
+  if(!bar || bar.hidden) return 0;
+  var b = bar.getBoundingClientRect().bottom;
+  if(!isFinite(b)) return 0;
+  var d1 = window.innerHeight - b;
+  var d2 = document.documentElement.clientHeight - b;
+  return Math.round(Math.abs(d1) <= Math.abs(d2) ? d1 : d2);
+}
+function bumpBars(){
+  var now = perfNow();
+  if(now - bumpAt < 1500) return;        // 網址列動畫中會連續觸發，限流
+  bumpAt = now;
+  var px = parseFloat(armhLive);
+  if(!isFinite(px)) return;              // 值是 "var(--safe)" 時沒得推，跳過
+  var root = document.documentElement, keep = armhLive;
+  root.style.setProperty("--armh-live", (px + 0.5) + "px");
+  requestAnimationFrame(function(){ root.style.setProperty("--armh-live", keep); });
+  window.__barsFix.n++;
+  window.__barsFix.last = barsDrift() + "px";
+  dlog("版面", "底部固定條位置失準（偏 " + window.__barsFix.last + "），已強制重算");
+}
+/* 轉向與視窗尺寸變化：iOS 的重排比事件晚，所以隔幾百毫秒再確認一次。 */
+function barsRecheck(){
+  syncBars(); scanbarSync();
+  setTimeout(function(){ bumpAt = 0; syncBars(); scanbarSync(); }, 320);
+  setTimeout(function(){ bumpAt = 0; syncBars(); scanbarSync(); }, 900);
+}
+window.addEventListener("orientationchange", barsRecheck);
+window.addEventListener("pageshow", barsRecheck);
 
 function scanbarShow(){
   return DB.orders.length > 0 && !$("scLoad").classList.contains("on");
@@ -2354,8 +2405,8 @@ document.addEventListener("click", keepFocus);
 window.addEventListener("focus", keepFocus);
 document.addEventListener("visibilitychange", function(){ if(!document.hidden) keepFocus(); });
 // 網址列伸縮、轉向、鍵盤收合都會改變待命條的實際高度
-window.addEventListener("resize", scanbarSync);
-if(window.visualViewport) window.visualViewport.addEventListener("resize", scanbarSync);
+window.addEventListener("resize", barsRecheck);
+if(window.visualViewport) window.visualViewport.addEventListener("resize", barsRecheck);
 
 /* 焦點可能被系統默默拿走（切 App、鍵盤收起、掃描後換畫面）。
    ⚠️ 換畫面是被「掃描」觸發的、不是使用者手勢，iOS 會拒絕那次 focus()，

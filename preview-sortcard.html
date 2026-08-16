@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>分揀資訊卡 · 層級調整</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E1012">
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --bg:#0E1012; --card:#1C1E21; --fill:#26282C; --fill-2:#31343A;
+  --sep:rgba(255,255,255,.09);
+  --ink:#F2F3F4; --ink-2:#A8ABB0; --ink-3:#75787E;
+  --tint:#21C7BA; --tint-soft:rgba(33,199,186,.15);
+  --attn:#FFD230; --attn-soft:rgba(255,210,48,.14);
+  --good:#4f9b6f; --good-soft:rgba(33,199,186,.15);
+  --bad:#E8354F; --bad-soft:rgba(232,53,79,.14);
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"Roboto Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-text-size-adjust:100%}
+.wrap{max-width:1320px;margin:0 auto;padding:24px 16px 90px}
+h1{font-size:21px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
+.lede{color:var(--ink-2);font-size:13.5px;line-height:1.85;margin:0 0 8px;max-width:700px}
+.lede b{color:var(--attn)}
+
+/* 層級表 */
+.tiers{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 26px}
+.tier{display:flex;align-items:baseline;gap:9px;padding:8px 13px;border-radius:12px;
+  background:rgba(255,255,255,.03);border:1px solid var(--sep)}
+.tier u{text-decoration:none;font-size:10.5px;font-weight:800;letter-spacing:.14em;color:var(--ink-3)}
+.tier span{font-size:13.5px;color:var(--ink)}
+.tier em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--tint)}
+.arrowtxt{color:var(--ink-3);font-size:20px;align-self:center}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;align-items:start}
+.opt{background:rgba(255,255,255,.022);border:1px solid var(--sep);border-radius:18px;padding:15px 13px 15px}
+.opt.pick{border-color:rgba(33,199,186,.5);background:rgba(33,199,186,.05)}
+.opt.old{opacity:.82}
+.tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.16em;
+  color:var(--ink-3);background:var(--fill);border:1px solid var(--sep);
+  padding:3px 10px;border-radius:999px;margin-bottom:7px}
+.opt.pick .tag{color:var(--tint);background:var(--tint-soft);border-color:rgba(33,199,186,.4)}
+.opt h2{font-size:15px;font-weight:750;margin:0 0 4px;letter-spacing:-.01em}
+.why{color:var(--ink-3);font-size:12.5px;line-height:1.7;margin:0 0 12px;min-height:3.4em}
+.why b{color:var(--ink-2)}
+
+.ph{width:100%;max-width:390px;margin:0 auto;background:var(--bg);
+  border:1px solid var(--sep);border-radius:16px;padding:12px;overflow:hidden}
+
+/* ══ 分揀卡（複製自 app） ══════════════════════ */
+.sortcard{padding:20px;border-radius:18px;background:var(--good-soft);
+  display:flex;flex-direction:column;gap:4px;position:relative}
+.sortcard.warn{background:var(--attn-soft)}
+.sortcard__eye{font-size:13px;font-weight:600;color:var(--good);padding-right:76px}
+.sortcard.warn .sortcard__eye{color:var(--attn)}
+.sortcard__who{font-size:40px;font-weight:700;line-height:1.12;letter-spacing:-.03em;
+  text-wrap:balance;padding-right:76px}
+.sortcard__pile{position:absolute;top:16px;right:16px;text-align:center;
+  padding:6px 12px;border-radius:12px;background:var(--card);color:var(--ink-2)}
+.sortcard__pile i{display:block;font-style:normal;font-size:28px;font-weight:600;line-height:1;
+  letter-spacing:-.02em}
+.sortcard__pile u{display:block;text-decoration:none;font-size:11px;color:var(--ink-3)}
+.sortcard__line{font-size:13.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.sortcard__item{font-size:17px;font-weight:600;margin-top:8px;line-height:1.35}
+.sortcard__code{font-family:var(--mono);font-size:13px;color:var(--ink-3)}
+.sortcard__code .uhead{opacity:.75}
+.sortcard__code .utail{font-size:20px}
+.sortcard__code b{color:var(--ink-3);font-size:13px;font-weight:600}
+.sortcard__note{font-size:14px;color:var(--ink-2);margin-top:5px;line-height:1.5}
+
+/* ══ 新層級：共用 ═══════════════════════════════
+   第二階＝條碼與品名等重。數字的視覺高度只有字級的 ~0.72 倍，
+   中文是 ~0.95 倍 —— 所以尾 6 碼要開到 24px，才跟 20px 的中文一樣「大」。 */
+.v .sortcard__code{font-size:15px;color:var(--ink-2);line-height:1.1;margin-top:9px}
+.v .sortcard__code .uhead{font-size:15px;color:var(--ink-3);opacity:1;letter-spacing:.02em}
+.v .sortcard__code .utail{font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.v .sortcard__item{font-size:20px;font-weight:650;margin-top:6px;line-height:1.32}
+.v .sortcard__ids{font-family:var(--mono);font-size:13.5px;color:var(--ink-3);
+  margin-top:11px;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.v .sortcard__ids s{text-decoration:none;opacity:.5;margin:0 .5em}
+
+/* 丙：條碼＋品名關進同一個區塊 */
+.v-c .mainblk{margin-top:11px;padding:12px 13px;border-radius:13px;
+  background:rgba(0,0,0,.20)}
+.v-c .mainblk .sortcard__code{margin-top:0}
+.v-c .mainblk .sortcard__item{margin-top:7px}
+
+.note{margin-top:11px;color:var(--ink-3);font-size:11.5px;line-height:1.7;font-family:var(--mono)}
+.note em{font-style:normal;color:var(--good)}
+
+.foot{margin-top:36px;padding-top:20px;border-top:1px solid var(--sep);
+  color:var(--ink-2);font-size:13.5px;line-height:1.9;max-width:780px}
+.foot h3{font-size:15px;margin:0 0 8px;color:var(--ink)}
+.foot b{color:var(--tint)}
+.foot ul{margin:6px 0 0;padding-left:20px}
+.foot .amb{color:var(--attn)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>分揀資訊卡 · 識別度層級</h1>
+<p class="lede">
+  這張卡就是<b>掃完一箱之後告訴你「這箱是誰的、放哪一堆」</b>的那個半幅面板（分揀畫面）。<br>
+  它是全app裡唯一同時出現<b>人名、條碼、品名、MZ 編號、訂單編號</b>五種資訊的地方。
+</p>
+
+<div class="tiers">
+  <div class="tier"><u>第 1 階</u><span>人名</span><em>40px</em></div>
+  <span class="arrowtxt">›</span>
+  <div class="tier"><u>第 2 階</u><span>條碼</span><em>尾6碼 24px</em></div>
+  <div class="tier"><u>第 2 階</u><span>品名</span><em>20px</em></div>
+  <span class="arrowtxt">›</span>
+  <div class="tier"><u>第 3 階</u><span>MZ 編號</span><em>13.5px</em></div>
+  <div class="tier"><u>第 3 階</u><span>訂單編號</span><em>13.5px</em></div>
+</div>
+
+<p class="lede" style="margin-bottom:22px;color:var(--ink-3)">
+  ⚠️ 「條碼 ＝ 品名」不能直接給同一個字級。等寬數字的視覺高度只有字級的約 <b>0.72 倍</b>，
+  中文是 <b>0.95 倍</b> —— 兩個都寫 20px 的話，數字看起來會小一截。<br>
+  所以尾 6 碼開到 <b>24px</b>，中文品名 <b>20px</b>，兩者<b>實際看起來才一樣大</b>。前 6 碼維持壓小、當背景。
+</p>
+
+<div class="grid">
+
+  <!-- 現況 -->
+  <div class="opt old">
+    <span class="tag">現況</span>
+    <h2>品名比條碼小、單號黏在人名下</h2>
+    <p class="why">現在的順序是 人名 → <b>訂單編號</b> → 品名 → MZ·條碼。訂單編號是最不重要的東西，卻排在第二眼的位置。</p>
+    <div class="ph">
+      <div class="sortcard">
+        <div class="sortcard__pile"><i>4</i><u>疊</u></div>
+        <div class="sortcard__eye">放到這一堆</div>
+        <div class="sortcard__who">林世宸</div>
+        <div class="sortcard__line">202608188</div>
+        <div class="sortcard__item">貓踏板Lack橡木色(S)(Oak)(2pcs)</div>
+        <div class="sortcard__code"><b>MZ0015</b> · <span class="uhead">640841</span><span class="utail">970799</span></div>
+        <div class="sortcard__note">這位還要 2 箱</div>
+      </div>
+    </div>
+    <div class="note">人名40 · 單號13.5 · 品名17 · MZ13 · 尾6碼20</div>
+  </div>
+
+  <!-- 甲 -->
+  <div class="opt">
+    <span class="tag">甲</span>
+    <h2>條碼在上、品名在下</h2>
+    <p class="why">符合實際動作：<b>先拿條碼對數字</b>（確認沒撿錯），確認後才用品名再確認一次。編號類全部收到最後一行。</p>
+    <div class="ph v">
+      <div class="sortcard">
+        <div class="sortcard__pile"><i>4</i><u>疊</u></div>
+        <div class="sortcard__eye">放到這一堆</div>
+        <div class="sortcard__who">林世宸</div>
+        <div class="sortcard__code"><span class="uhead">640841</span> <span class="utail">970799</span></div>
+        <div class="sortcard__item">貓踏板Lack橡木色(S)(Oak)(2pcs)</div>
+        <div class="sortcard__ids">MZ0015<s>·</s>202608188</div>
+        <div class="sortcard__note">這位還要 2 箱</div>
+      </div>
+    </div>
+    <div class="note"><em>人名40 · 尾6碼24 · 品名20 · MZ與單號13.5</em></div>
+  </div>
+
+  <!-- 乙 -->
+  <div class="opt pick">
+    <span class="tag">乙 · 建議</span>
+    <h2>品名在上、條碼在下</h2>
+    <p class="why">維持<b>現在的閱讀順序</b>（先認東西、再核號碼），只調字級與分組。改動最小，同事不需要重新適應。</p>
+    <div class="ph v">
+      <div class="sortcard">
+        <div class="sortcard__pile"><i>4</i><u>疊</u></div>
+        <div class="sortcard__eye">放到這一堆</div>
+        <div class="sortcard__who">林世宸</div>
+        <div class="sortcard__item" style="margin-top:11px">貓踏板Lack橡木色(S)(Oak)(2pcs)</div>
+        <div class="sortcard__code" style="margin-top:7px"><span class="uhead">640841</span> <span class="utail">970799</span></div>
+        <div class="sortcard__ids">MZ0015<s>·</s>202608188</div>
+        <div class="sortcard__note">這位還要 2 箱</div>
+      </div>
+    </div>
+    <div class="note"><em>人名40 · 品名20 · 尾6碼24 · MZ與單號13.5</em></div>
+  </div>
+
+  <!-- 丙 -->
+  <div class="opt">
+    <span class="tag">丙</span>
+    <h2>條碼＋品名關進同一個框</h2>
+    <p class="why">用一塊<b>暗底</b>把第二階兩項圈在一起 —— 「這兩個是同一件事的兩種說法」一眼看得出來。卡片層次最清楚，但多一個框。</p>
+    <div class="ph v v-c">
+      <div class="sortcard">
+        <div class="sortcard__pile"><i>4</i><u>疊</u></div>
+        <div class="sortcard__eye">放到這一堆</div>
+        <div class="sortcard__who">林世宸</div>
+        <div class="mainblk">
+          <div class="sortcard__code"><span class="uhead">640841</span> <span class="utail">970799</span></div>
+          <div class="sortcard__item">貓踏板Lack橡木色(S)(Oak)(2pcs)</div>
+        </div>
+        <div class="sortcard__ids">MZ0015<s>·</s>202608188</div>
+        <div class="sortcard__note">這位還要 2 箱</div>
+      </div>
+    </div>
+    <div class="note"><em>同上，多一層暗底把第二階圈起來</em></div>
+  </div>
+
+</div>
+
+<h2 style="font-size:17px;font-weight:800;margin:38px 0 5px">長品名 ＋ 長人名壓力測試</h2>
+<p class="lede" style="margin-bottom:18px;color:var(--ink-3)">
+  最壞的情況：香港代理那種長人名 ＋ 太空計劃那種長品名。確認放大後<b>不會擠成一團</b>。
+</p>
+
+<div class="grid">
+  <div class="opt old">
+    <span class="tag">現況</span>
+    <div class="ph">
+      <div class="sortcard">
+        <div class="sortcard__pile"><i>2</i><u>疊</u></div>
+        <div class="sortcard__eye">放到這一堆</div>
+        <div class="sortcard__who">Three little meow香港代理</div>
+        <div class="sortcard__line">202608182</div>
+        <div class="sortcard__item">太空計劃Gamma左開(白色)(White,Left)</div>
+        <div class="sortcard__code"><b>MZ0073</b> · <span class="uhead">641361</span><span class="utail">328565</span></div>
+        <div class="sortcard__note">這位還要 1 箱</div>
+      </div>
+    </div>
+  </div>
+  <div class="opt">
+    <span class="tag">甲</span>
+    <div class="ph v">
+      <div class="sortcard">
+        <div class="sortcard__pile"><i>2</i><u>疊</u></div>
+        <div class="sortcard__eye">放到這一堆</div>
+        <div class="sortcard__who">Three little meow香港代理</div>
+        <div class="sortcard__code"><span class="uhead">641361</span> <span class="utail">328565</span></div>
+        <div class="sortcard__item">太空計劃Gamma左開(白色)(White,Left)</div>
+        <div class="sortcard__ids">MZ0073<s>·</s>202608182</div>
+        <div class="sortcard__note">這位還要 1 箱</div>
+      </div>
+    </div>
+  </div>
+  <div class="opt pick">
+    <span class="tag">乙 · 建議</span>
+    <div class="ph v">
+      <div class="sortcard">
+        <div class="sortcard__pile"><i>2</i><u>疊</u></div>
+        <div class="sortcard__eye">放到這一堆</div>
+        <div class="sortcard__who">Three little meow香港代理</div>
+        <div class="sortcard__item" style="margin-top:11px">太空計劃Gamma左開(白色)(White,Left)</div>
+        <div class="sortcard__code" style="margin-top:7px"><span class="uhead">641361</span> <span class="utail">328565</span></div>
+        <div class="sortcard__ids">MZ0073<s>·</s>202608182</div>
+        <div class="sortcard__note">這位還要 1 箱</div>
+      </div>
+    </div>
+  </div>
+  <div class="opt">
+    <span class="tag">丙</span>
+    <div class="ph v v-c">
+      <div class="sortcard">
+        <div class="sortcard__pile"><i>2</i><u>疊</u></div>
+        <div class="sortcard__eye">放到這一堆</div>
+        <div class="sortcard__who">Three little meow香港代理</div>
+        <div class="mainblk">
+          <div class="sortcard__code"><span class="uhead">641361</span> <span class="utail">328565</span></div>
+          <div class="sortcard__item">太空計劃Gamma左開(白色)(White,Left)</div>
+        </div>
+        <div class="sortcard__ids">MZ0073<s>·</s>202608182</div>
+        <div class="sortcard__note">這位還要 1 箱</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <h3>我推薦 乙</h3>
+  <ul>
+    <li>三種都達成你要的層級，差別只在<b>條碼與品名誰在上面</b>。</li>
+    <li>乙 維持現在的順序 —— 同事已經看習慣「人名 → 品名 → 號碼」，只是字變大、單號歸位，<b>不用重新學</b>。</li>
+    <li>甲 適合<span class="amb">完全靠條碼核對</span>的人；丙 層次最漂亮，但卡片裡多一個框，跟已經有的「疊號」小框有點打架。</li>
+  </ul>
+  <p style="margin:12px 0 0">
+    三種共通的改動：<br>
+    ① 訂單編號從人名底下移走，跟 MZ 併成最後一行小字（<b>同階就放同一行</b>）<br>
+    ② 品名 17 → <b>20px</b>；尾 6 碼 20 → <b>24px</b>、前 6 碼 13 → <b>15px</b> 且不再壓成半透明<br>
+    ③ MZ 從「條碼行的粗體前綴」改成「跟訂單編號並列的參考編號」
+  </p>
+</div>
+
+</div>
+</body>
+</html>

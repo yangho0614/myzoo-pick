@@ -1,6 +1,6 @@
 /* MYZOO 撿貨核對頁 — 離線快取
    由 發布到web.py 產生，不要手改。
-   版本 2d3d8315（內容雜湊，index.html 一變就換一組快取）
+   版本 8fc85614（內容雜湊，index.html 一變就換一組快取）
 
    🔴 2026-08-15 重寫過。前一版有兩個設計錯誤，害現場一直拿到舊版：
      ① 網路超過 3 秒就端快取出來 —— 倉庫訊號差時幾乎每次都超過，
@@ -8,7 +8,7 @@
      ② 快取比對用 ignoreSearch:true —— 讓 `?v=xxx` 這種強制更新的網址
         全部對到同一份舊快取，cache busting 完全失效。
    現在：**頁面本身一律以網路為準**，只有真的連不上才用快取。 */
-var CACHE = "myzoo-pick-2d3d8315";
+var CACHE = "myzoo-pick-8fc85614";
 var ASSETS = ["./", "./index.html"];
 
 self.addEventListener("install", function(e){

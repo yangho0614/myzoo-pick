@@ -204,7 +204,10 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
    右邊按鈕固定寬。用 min-width:0 才讓左欄真的縮得下去。 */
 .loaded{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
 /* 只有在真的顯示時才佔位；hidden 時 [hidden]{display:none!important} 會蓋掉 flex */
-.loaded__row{display:flex;align-items:flex-start;gap:10px}
+/* 檔名那一列跟下面的按鈕之間拉一條髮絲線 ——
+   上面是「現在手上有什麼」，下面是「要做什麼」，兩件不同的事。 */
+.loaded__row{display:flex;align-items:flex-start;gap:10px;
+  padding-bottom:11px;border-bottom:.5px solid var(--sep)}
 .loaded__txt{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
   padding-top:7px}
 .loaded__lb{font-size:14px;font-weight:600;color:var(--good);flex:none}
@@ -848,7 +851,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.51　更新日期 2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">v0.52　更新日期 2026-08-16</b></div>
     </div>
 
     <div class="step">
@@ -3026,7 +3029,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.51　更新日期 2026-08-16");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.52　更新日期 2026-08-16");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

@@ -562,9 +562,16 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 }
 /* 已待命：不能 display:none（藏起來的 input 會立刻失焦 → 又變回未待命 → 無限閃爍），
    所以縮成一條綠線。 */
+/* 🔴 待命條的「高度必須固定」，待命後只換顏色與文字，不要縮小。
+   為什麼：
+     · 縮小 → 上面的 tabbar/dock 若跟著移動，點底部按鈕的第一下會落空
+       （先觸發「啟用掃描」，按鈕就在手指底下跑掉）
+     · 為了不移動而把預留固定在展開高度 → 縮小後中間空一大塊黑（實機看到過）
+   兩個問題同一個根源：高度會變。固定高度就同時解掉。
+   ⚠️ 不要為了「省空間」再把它改回會縮的版本。 */
 .armbar.on{
-  padding:0;height:calc(var(--armh) + var(--safe));min-height:0;
-  background:var(--good);color:transparent;font-size:0;
+  background:var(--good);
+  color:var(--on-fill);
 }
 .armbar.on .armbar__dot{width:34px;height:3px;border-radius:2px;
   background:rgba(11,13,16,.5);animation:none}
@@ -2190,9 +2197,9 @@ function scanbarSync(){
      若讓預留跟著縮，底部的 tabbar/dock 會往下掉 ——
      使用者點底部按鈕的第一下會先「啟用掃描」，按鈕就在手指底下跑掉，
      症狀是「按了沒反應，再按一次才中」。按鈕位置必須固定。 */
-  var _h = bar.hidden ? 0 : Math.round(bar.getBoundingClientRect().height);
-  if(_h > armhMax) armhMax = _h;
-  var live = bar.hidden ? "var(--safe)" : armhMax + "px";
+  // 高度已固定（見 .armbar.on 的註解），直接量即可，不會再上下跳
+  var live = bar.hidden ? "var(--safe)"
+           : Math.round(bar.getBoundingClientRect().height) + "px";
   if(armhLive !== live){
     armhLive = live;
     document.documentElement.style.setProperty("--armh-live", live);

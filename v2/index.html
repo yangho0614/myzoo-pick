@@ -1851,13 +1851,7 @@ function renderSummary(){
       '<div class="srow__whos"></div>';
     d.querySelector(".srow__nm").textContent = m.name;
     d.querySelector(".a").textContent = tk;
-    /* 手動整項打勾／取消 —— 繞完一趟回頭補記用。
-       ⚠️ 停止冒泡：這一列本身沒有點擊行為，但以後加了才不會互相觸發。 */
-    d.querySelector(".tick").addEventListener("click", function(e){
-      e.stopPropagation();
-      TAKEN[code] = (Math.min(m.need, TAKEN[code] || 0) >= m.need) ? 0 : m.need;
-      saveTaken(); SOUND.look(); buzz(20); renderSummary();
-    });
+    d.querySelector(".tick").dataset.need = m.need;   // 打勾用（見 sumRows 的事件委派）
     /* 分堆數超過取下數 → 有人跳過取貨記錄（可能是別人幫忙拿的）。
        ⚠️ **不擋、不自動補**，只標出來 —— 擋下來只會惹惱現場。 */
     if(m.got > tk){
@@ -3064,6 +3058,17 @@ function setSumFilter(m){
   $("segSolo").setAttribute("aria-pressed", String(m === "solo"));
   renderSummary();
 }
+/* 手動整項打勾／取消 —— 繞完一趟回頭補記用。
+   ⚠️ 用**事件委派**而不是每列各掛一個監聽器：renderSummary() 每次都重建整份清單，
+      逐列掛監聽等於每次重繪都產生 N 個新的閉包；委派只掛一次，而且重繪後照樣有效。 */
+$("sumRows").addEventListener("click", function(e){
+  var t = e.target.closest && e.target.closest(".tick");
+  if(!t) return;
+  var row = t.closest(".srow"); if(!row) return;
+  var code = row.dataset.code, need = parseInt(t.dataset.need || "0", 10);
+  TAKEN[code] = (Math.min(need, TAKEN[code] || 0) >= need) ? 0 : need;
+  saveTaken(); SOUND.look(); buzz(20); renderSummary();
+});
 $("goSortFromSum").addEventListener("click", function(){ openSort(); });
 $("segAll").addEventListener("click", function(){ setSumFilter("all"); });
 $("segMulti").addEventListener("click", function(){ setSumFilter("multi"); });

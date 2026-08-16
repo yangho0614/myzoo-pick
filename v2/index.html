@@ -295,13 +295,13 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
   background:linear-gradient(135deg,var(--file-c),var(--file-c-2));
   color:var(--on-tint);cursor:pointer;border:0;
 }
-.drop .ico{color:var(--on-tint)}
-.drop p{color:rgba(255,255,255,.72)}
+/* ⚠️ 下面這三條原本寫在後面、又各自指定顏色，會把上面的設定蓋掉
+   （同分特異性後者勝，這個坑今天踩第二次了）。所以直接合併成一組。 */
+.drop .ico{width:28px;height:28px;color:var(--on-tint)}
+.drop b{font-size:17px;font-weight:600;color:var(--on-tint)}
+.drop p{margin:0;width:100%;font-size:13.5px;color:rgba(255,255,255,.74)}
 .drop:active{filter:brightness(.92)}
-.drop.hot{background:var(--tint-soft)}
-.drop .ico{width:28px;height:28px;color:var(--tint)}
-.drop b{font-size:17px;font-weight:600;color:var(--tint)}
-.drop p{margin:0;width:100%;font-size:13.5px;color:var(--ink-3)}
+.drop.hot{filter:brightness(1.12)}
 
 .err-note{
   padding:13px 15px;border-radius:12px;white-space:pre-line;

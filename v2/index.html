@@ -41,37 +41,48 @@
    關鍵數字（箱數、疊號、進度）額外放大，並用等寬數字對位。
    ───────────────────────────────────────────────────────────── */
 :root{
-  /* 中性深灰底（不帶藍也不帶綠），讓湖水綠與黃跳得出來 */
-  --bg:#0E1012;
-  --card:#1C1E21;
-  --fill:#26282C;
-  --fill-2:#31343A;
-  --sep:rgba(255,255,255,.09);
-  --sep-strong:rgba(255,255,255,.19);
+  /* 🔴 2026-08-16 改版：純黑底 + 深灰卡片。
+     原本 #0E1012 底配 #1C1E21 卡只差 14 級灰，所有東西貼在同一個平面上；
+     純黑之後卡片才浮得起來，昏暗倉庫的對比也更好，OLED 還省電。 */
+  --bg:#000;
+  --card:#191919;
+  --fill:#242424;
+  --fill-2:#2E2E2E;
+  --sep:rgba(255,255,255,.11);
+  --sep-strong:rgba(255,255,255,.20);
 
-  --ink:#F2F3F4;
-  --ink-2:#A8ABB0;
-  --ink-3:#75787E;
+  --ink:#FFFFFF;
+  --ink-2:#B4B4B4;
+  --ink-3:#8A8A8A;
 
-  --tint:#21C7BA;
-  --tint-soft:rgba(33,199,186,.15);
-  --tint-ink:#062220;
+  /* 主色＝可點的東西（返回鍵、選中的篩選、進度條、目前所在的頁、角色：撿貨） */
+  --tint:#5B5BF5;
+  --tint-soft:rgba(91,91,245,.17);
+  --tint-line:rgba(91,91,245,.55);
+  /* 輔助色＝資訊性強調（疊號、次要按鈕、分組標題的數字、角色：對單貼標） */
+  --accent:#46B8F0;
+  --accent-soft:rgba(70,184,240,.16);
 
-  --good:#4f9b6f;
-  --good-soft:rgba(33,199,186,.15);
-  --bad:#E8354F;
-  --bad-soft:rgba(232,53,79,.14);
-  --attn:#FFD230;
-  --attn-soft:rgba(255,210,48,.14);
-  --attn-line:rgba(255,210,48,.55);   /* 進行中的卡片描邊（CLAUDE.md：整圈邊框＋淡底，不用左緣色柱） */
+  --good:#3DDC6B;
+  /* ⚠️ 這裡原本寫成青色 rgba(33,199,186,.15)，跟 --tint-soft 一模一樣 ——
+     「已完成」的淡底跟「可點」的淡底同色。2026-08-16 修正。 */
+  --good-soft:rgba(61,220,107,.14);
+  --bad:#F04A5E;
+  --bad-soft:rgba(240,74,94,.14);
+  --attn:#FFC400;
+  --attn-soft:rgba(255,196,0,.14);
+  --attn-line:rgba(255,196,0,.55);
 
-  /* 填在湖水綠或黃色塊上的文字：深色，不要純黑 */
-  --on-fill:#0B0D10;
+  /* 🔴 填在色塊上的文字要分開定義 ——
+     主色是深藍紫（要白字）、琥珀是亮黃（要黑字）。共用一個變數會有一邊看不見。 */
+  --on-tint:#FFFFFF;
+  --on-attn:#000000;
+  --on-fill:var(--on-attn);   /* 舊名保留，指向琥珀那邊 */
 
-  /* 身分色只有一個：青。用在「選角色」與標題列的角色膠囊 ——
-     選錯角色等於整輪白做，所以要用顏色標記「這是模式」，但三個角色不需要三種顏色，
-     分辨靠的是名稱與圖示。青跟藍（可點）、綠（掃對）、琥珀（未完成）、紅（掃錯）都不撞。 */
-  --role:var(--tint);   /* 選中的角色＝可點／選中同一個色，不另立色相 */
+  /* 角色識別色（2026-08-16 改）：撿貨＝主色、對單貼標＝輔助色、一人作業＝兩色並置。
+     ⚠️ 不要拿黃／綠／紅來標角色 —— 那三個是通用警示色，
+     在作業畫面已經是「未完成／完成／掃錯」，借去標角色會語意重疊。 */
+  --role:var(--tint);
 
   --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"Roboto Mono",monospace;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",
@@ -84,7 +95,7 @@
   --bg-fade:rgba(18,20,23,0);
 
   --pad:16px;
-  --r:14px;
+  --r:12px;   /* 2026-08-16：方一點＝更明確（倉庫優先） */
   /* 底部待命條在「已待命」時只剩一條細線。未待命時它會變高並蓋住一點內容，
      但那正是要你點的東西，點完就縮回細線。 */
   --armh:14px;
@@ -161,7 +172,7 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 .btn--big{min-height:52px;width:100%}
 .btn--wide{width:100%}
 /* 主要動作：唯一的實心藍 */
-.btn--go{background:var(--tint);color:var(--on-fill);font-weight:600}
+.btn--go{background:var(--tint);color:var(--on-tint);font-weight:600}
 .btn--go:active{background:#1BAAA0}
 .btn--test{background:var(--card);color:var(--tint)}
 .btn--ghost{background:transparent;color:var(--tint)}
@@ -172,7 +183,7 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
   border-radius:999px;background:var(--card);color:var(--ink-2);
   font-size:15px;font-weight:500;
 }
-.chip[aria-pressed="true"]{background:var(--tint);color:var(--on-fill);font-weight:600}
+.chip[aria-pressed="true"]{background:var(--tint);color:var(--on-tint);font-weight:600}
 
 /* ═══ 分組列表：一列一張卡 ═══
    原本用髮絲線分列，資料一多（實測 43 品項／82 箱）根本分不出段落 ——
@@ -228,21 +239,38 @@ button:focus-visible,input:focus-visible,label:focus-visible,summary:focus-visib
 /* 置中的 flex 子元素會縮成 fit-content 而提早斷行 —— 給滿寬才不會斷在莫名的位置 */
 .role__d{width:100%;font-size:13px;color:var(--ink-3);line-height:1.4;text-wrap:pretty}
 .role b{width:100%}
-/* 每個角色一個顏色：沒選中時圖示帶色＋淡色描邊，選中時整塊填滿 */
-.role{--rc:var(--role)}
+/* 🔴 2026-08-16：角色顏色從「琥珀／綠」改成「主色／輔助色」。
+   原因：琥珀＝未完成、綠＝完成、紅＝掃錯，這三個是**通用警示色**，
+   在作業畫面已經有明確語意。角色識別不是警示，借用警示色會語意重疊。
+   現在：撿貨＝主色、對單貼標＝輔助色、一人作業＝兩色並置。 */
+.role{--rc:var(--tint)}
+#roleLabel{--rc:var(--accent)}
 .role{box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--rc) 34%, transparent)}
 .role .ico{color:var(--rc)}
+/* 一人作業＝兩個角色一起做，所以兩個圖示各自帶自己的顏色 */
+#roleSolo .role__two .ico:first-child{color:var(--tint)}
+#roleSolo .role__two .ico:last-child{color:var(--accent)}
 .role[aria-pressed="true"]{background:var(--rc);box-shadow:none}
-.role[aria-pressed="true"] b,.role[aria-pressed="true"] .ico{color:var(--on-fill)}
-.role[aria-pressed="true"] .role__d{color:rgba(11,13,16,.72)}
+.role[aria-pressed="true"] b,.role[aria-pressed="true"] .ico{color:var(--on-tint)}
+/* ⚠️ 填滿時底色是深藍紫／天青，說明文字要用**白色半透明**。
+   原本寫 rgba(11,13,16,.72)（深色）是給湖水綠底用的，在新的底色上會看不見。 */
+.role[aria-pressed="true"] .role__d{color:rgba(255,255,255,.74)}
+#roleSolo[aria-pressed="true"] .role__two .ico{color:var(--on-tint)}
 .role:focus-visible{outline:2.5px solid var(--rc);outline-offset:2px}
 
+/* 🔴 2026-08-16：改成**虛線拖放區**（提案「乙」）。
+   為什麼不是實心主色：那會跟「撿貨」角色選中時同色又同形，
+   兩個藍色方塊上下相鄰會被當成同一組東西。
+   換形狀不換顏色 —— 實心方塊 vs 虛線框，一眼就知道是兩種不同的東西。
+   而且虛線框本來就是「選檔案／拖進來」的通用語彙，這顆底層真的是 <label> 包 file input。 */
 .drop{
   display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:26px 16px;border-radius:var(--r);text-align:center;
-  background:var(--card);cursor:pointer;
-  box-shadow:inset 0 0 0 1.5px var(--tint-soft);
+  padding:25px 16px;border-radius:var(--r);text-align:center;
+  background:#111;cursor:pointer;
+  border:2px dashed var(--tint);
 }
+.drop .ico{color:var(--tint)}
+.drop:active{background:var(--tint-soft)}
 .drop.hot{background:var(--tint-soft)}
 .drop .ico{width:28px;height:28px;color:var(--tint)}
 .drop b{font-size:17px;font-weight:600;color:var(--tint)}
@@ -311,11 +339,16 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
   border-right:2px solid var(--ink-3);border-top:2px solid var(--ink-3);
   transform:rotate(45deg);
 }
-/* 🔴 進行中＝整張卡描一圈琥珀邊＋極淡底色。
-   不要改回「左緣一條色柱」—— 使用者已多次要求不用那個做法。 */
-.ord[data-s="part"],.row[data-s="part"]{
-  background:var(--attn-soft);box-shadow:inset 0 0 0 1.5px var(--attn-line);
-}
+/* 🔴 進行中＝**整片琥珀色塊**（2026-08-16 定案）。
+   原本是「淡底＋整圈描邊」，改成整片實色是為了 1 公尺外（平板固定在推車上）也一眼看到。
+   ⚠️ 不要改回「左緣一條色柱」—— 使用者已多次要求不用那個做法。
+   ⚠️ 色塊上的字一律 var(--on-attn)＝純黑，琥珀夠亮，深灰字會看不見。 */
+.ord[data-s="part"],.row[data-s="part"]{ background:var(--attn); box-shadow:none }
+.ord[data-s="part"] *,.row[data-s="part"] *{ color:var(--on-attn) }
+.ord[data-s="part"] .ord__meta,.ord[data-s="part"] .ord__frac em,
+.row[data-s="part"] .row__code i,.row[data-s="part"] .row__sku,
+.row[data-s="part"] .row__qty em{ color:rgba(0,0,0,.58) }
+.ord[data-s="part"] .ord__pile{ color:rgba(0,0,0,.72) }
 .ord[data-s="done"]{opacity:.5}
 .ord__pile{flex:none;width:38px;text-align:center;color:var(--ink-2)}
 .ord__pile i{display:block;font-style:normal;font-size:22px;font-weight:600;
@@ -330,7 +363,7 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 .ord__frac{font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:-.02em}
 .ord__frac .g{font-size:22px}
 .ord__frac em{font-size:15px;font-style:normal;color:var(--ink-3);margin-left:.28em}
-.ord[data-s="part"] .ord__frac .g{color:var(--attn)}
+.ord[data-s="part"] .ord__frac .g{color:var(--on-attn)}
 .ord__tag{color:var(--good);font-size:16px;font-weight:600}
 
 /* 次要入口放拇指區 */
@@ -340,12 +373,16 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
   display:flex;gap:8px;padding:10px var(--pad) 12px;
   background:var(--bg);border-top:.5px solid var(--sep);
 }
-.tabbar .btn{flex:1;min-height:48px;padding:0 6px;font-size:15px;font-weight:500}
-/* 查條碼只留圖示：它是「偶爾查一下」，不需要跟主要入口搶寬度 */
-.tabbar .btn--icon{flex:0 0 58px;gap:0}
+/* 🔴 2026-08-16：改成**純圖示、不加底色**（照 LG ThinQ 那套）。
+   原本每顆都是深灰方塊，四個長一樣、掃一眼分不出來；
+   拿掉底色之後靠圖示辨識，選中的那顆變主色。 */
+.tabbar .btn{flex:1;min-height:48px;padding:0 4px;font-size:11.5px;font-weight:600;
+  background:none;border:0;flex-direction:column;gap:3px;color:var(--ink-3)}
+.tabbar .btn .ico{font-size:22px}
+.tabbar .btn--icon{flex:1}
 .tabbar .btn--icon .ico{font-size:22px}
-/* 目前所在的那一頁高亮 */
-.tabbar .btn[aria-current="page"]{background:var(--tint-soft);color:var(--tint)}
+/* 目前所在的那一頁：只換顏色，不加底色 */
+.tabbar .btn[aria-current="page"]{background:none;color:var(--tint)}
 /* 沒有載入出貨明細時，這三個入口是空的 —— 直接停用並壓暗，
    否則點過去是一片空白，使用者會以為按鈕壞了（2026-08-16 回報）。 */
 .tabbar .btn[disabled]{opacity:.35;color:var(--ink-3)}
@@ -404,7 +441,7 @@ body[data-role="label"] #goSort{display:none}
   font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:-.02em}
 .row__qty .a{font-size:23px}
 .row__qty em{font-size:15px;font-style:normal;color:var(--ink-3);margin-left:.28em}
-.row[data-s="part"] .row__qty .a{color:var(--attn)}
+.row[data-s="part"] .row__qty .a{color:var(--on-attn)}
 .row[data-s="done"] .row__qty .a{color:var(--good)}
 /* 分段控制：選中那顆填湖水綠淡底＋描邊，未選中只是文字 */
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px var(--pad) 0}
@@ -457,8 +494,13 @@ body[data-role="label"] #goSort{display:none}
   font-variant-numeric:tabular-nums}
 .srow__qty .a{font-size:22px;font-weight:700}
 .srow__qty em{font-size:14px;font-style:normal;color:var(--ink-3);margin-left:.3em}
-.srow[data-s="part"]{background:var(--attn-soft);box-shadow:inset 0 0 0 1.5px var(--attn-line)}
-.srow[data-s="part"] .srow__qty .a{color:var(--attn)}
+.srow[data-s="part"]{background:var(--attn);box-shadow:none}
+.srow[data-s="part"] *{color:var(--on-attn)}
+.srow[data-s="part"] .srow__code i,.srow[data-s="part"] .srow__code .sk,
+.srow[data-s="part"] .srow__qty em,.srow[data-s="part"] .swho n{color:rgba(0,0,0,.58)}
+.srow[data-s="part"] .swho:not(:first-child)>span,
+.srow[data-s="part"] .swho:not(:first-child)>n{border-top-color:rgba(0,0,0,.22)}
+.srow[data-s="part"] .srow__qty .a{color:var(--on-attn)}
 .srow[data-s="done"]{opacity:.45}
 .srow[data-s="done"] .srow__qty .a{color:var(--good)}
 .srow.scanned{background:var(--tint-soft);box-shadow:inset 0 0 0 1.5px var(--tint);opacity:1}

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>介面風格 · 三個方向</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:,">
+<style>
+/* ═══════════ 頁面外框（不是提案的一部分）═══════════ */
+:root{
+  --page:#0B0C0D; --panel:rgba(255,255,255,.024); --line:rgba(255,255,255,.09);
+  --t1:#F2F3F4; --t2:#A8ABB0; --t3:#75787E;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"Roboto Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--t1);font-family:var(--sans);
+  -webkit-text-size-adjust:100%;line-height:1.6}
+.wrap{max-width:1500px;margin:0 auto;padding:34px 20px 110px}
+.eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.2em;color:#21C7BA;margin-bottom:9px}
+h1{font-size:30px;font-weight:800;margin:0 0 12px;letter-spacing:-.025em;line-height:1.2}
+.lede{color:var(--t2);font-size:14.5px;line-height:1.85;margin:0 0 30px;max-width:760px}
+.lede b{color:var(--t1)}
+.lede .k{color:#FFD230}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:24px;align-items:start}
+.col{}
+.tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.16em;
+  color:var(--t3);background:rgba(255,255,255,.05);border:1px solid var(--line);
+  padding:4px 11px;border-radius:999px;margin-bottom:9px}
+.col.pick .tag{color:#21C7BA;background:rgba(33,199,186,.13);border-color:rgba(33,199,186,.4)}
+.col h2{font-size:17px;font-weight:750;margin:0 0 5px;letter-spacing:-.015em}
+.col .why{color:var(--t3);font-size:12.8px;line-height:1.72;margin:0 0 14px;min-height:5.2em}
+.col .why b{color:var(--t2)}
+.spec{margin-top:13px;font-family:var(--mono);font-size:11.5px;line-height:1.85;color:var(--t3)}
+.spec b{color:var(--t2);font-weight:400}
+.spec em{font-style:normal;color:#21C7BA}
+
+/* 手機外框 */
+.ph{width:100%;max-width:390px;margin:0 auto;border-radius:26px;overflow:hidden;
+  border:1px solid var(--line);position:relative}
+
+/* ═══════════════════════════════════════════════════
+   共用結構：三個方案用同一份 HTML，只換 CSS 變數與細節
+   ═══════════════════════════════════════════════════ */
+.s{ font-family:var(--sans); background:var(--bg); color:var(--ink); padding-bottom:0 }
+
+.s .bar{display:flex;align-items:center;gap:10px;padding:var(--barpad);background:var(--bg)}
+.s .bar .back{width:30px;height:30px;flex:none;display:grid;place-items:center;
+  color:var(--brand);font-size:20px}
+.s .bar .mid{flex:1;min-width:0}
+.s .bar .t{font-size:var(--title);font-weight:var(--titlew);letter-spacing:-.03em;line-height:1.15}
+.s .bar .sub{font-size:12.5px;color:var(--ink3);margin-top:2px;font-variant-numeric:tabular-nums}
+.s .seg{display:flex;gap:2px;background:var(--segbg);border-radius:var(--segr);padding:3px}
+.s .seg b{font-size:12.5px;font-weight:600;padding:5px 9px;border-radius:calc(var(--segr) - 3px);
+  color:var(--ink3)}
+.s .seg b.on{background:var(--segon);color:var(--segonink)}
+
+.s .body{padding:var(--bodypad)}
+.s .grp{font-size:13px;font-weight:600;color:var(--ink3);padding:var(--grppad);letter-spacing:.01em}
+.s .grp i{font-style:normal;color:var(--attn)}
+
+/* 下一箱要撿：主卡 */
+.s .now{background:var(--card);border-radius:var(--r);padding:var(--nowpad);
+  margin-bottom:var(--gap);box-shadow:var(--cardsh)}
+.s .now .eye{font-size:12px;font-weight:600;color:var(--ink3);letter-spacing:.06em}
+.s .now .code{font-family:var(--mono);margin-top:7px;line-height:1.05;white-space:nowrap}
+.s .now .code u{text-decoration:none;font-size:var(--c1);color:var(--ink3);letter-spacing:.02em}
+.s .now .code b{font-size:var(--c2);font-weight:700;letter-spacing:-.02em;margin-left:.42em}
+.s .now .nm{font-size:var(--nm);font-weight:var(--nmw);line-height:1.3;margin-top:9px}
+.s .now .sku{font-family:var(--mono);font-size:12.5px;color:var(--ink3);margin-top:9px}
+.s .now .qty{display:flex;align-items:baseline;gap:.3em;margin-top:12px;
+  font-variant-numeric:tabular-nums}
+.s .now .qty i{font-style:normal;font-size:var(--big);font-weight:750;letter-spacing:-.03em}
+.s .now .qty s{text-decoration:none;font-size:14px;color:var(--ink3)}
+
+/* 清單列 */
+.s .row{display:grid;grid-template-columns:var(--codecol) 1fr auto;align-items:center;
+  gap:3px 13px;background:var(--card);border-radius:var(--r2);padding:var(--rowpad);
+  margin-bottom:var(--gap2);box-shadow:var(--cardsh)}
+.s .row .c{grid-row:span 2;align-self:start;font-family:var(--mono);line-height:1.12}
+.s .row .c u{display:block;text-decoration:none;font-size:11.5px;color:var(--ink3)}
+.s .row .c b{display:block;font-size:var(--rc);font-weight:700;letter-spacing:-.01em;margin-top:1px}
+.s .row .c s{display:block;text-decoration:none;font-size:12px;color:var(--ink3);margin-top:11px}
+.s .row .n{min-width:0;font-size:var(--rn);font-weight:600;line-height:1.28}
+.s .row .q{grid-column:3;grid-row:1;text-align:right;white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.s .row .q i{font-style:normal;font-size:var(--rq);font-weight:700}
+.s .row .q s{text-decoration:none;font-size:13px;color:var(--ink3);margin-left:.25em}
+.s .row.done{opacity:.42}
+.s .row.done .q i{color:var(--ok)}
+.s .row.part{background:var(--attnbg);box-shadow:var(--attnring)}
+.s .row.part .q i{color:var(--attn)}
+
+/* 卡片內細分隔（跨單收件人）—— ThinQ 的手法 */
+.s .who{grid-column:2;display:grid;grid-template-columns:minmax(0,max-content) auto;
+  gap:0 14px;margin-top:7px}
+.s .who span,.s .who n{padding:6px 0;font-size:14px;font-style:normal}
+.s .who n{color:var(--ink2);font-variant-numeric:tabular-nums;text-align:right}
+.s .who .l1 span,.s .who .l1 n{border-top:.5px solid var(--sep)}
+
+/* 底部 */
+.s .foot{position:sticky;bottom:0}
+.s .dock{display:flex;align-items:center;gap:10px;padding:11px 16px 12px;
+  background:var(--dock);border-top:.5px solid var(--sep)}
+.s .dock .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}
+.s .dock .msg{flex:1;min-width:0;font-size:14px;color:var(--ink2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.s .dock .cnt{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.s .prog{height:3px;background:rgba(255,255,255,.1)}
+.s .prog i{display:block;height:100%;background:var(--brand);width:36%}
+.s .tabs{display:flex;gap:var(--tabgap);padding:var(--tabpad);background:var(--bg)}
+.s .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:var(--tabinner);border-radius:var(--tabr);background:var(--tabbg);
+  font-size:var(--tabfs);font-weight:600;color:var(--ink3)}
+.s .tab.on{background:var(--tabonbg);color:var(--tabonink)}
+.s .tab .ic{width:22px;height:22px;display:grid;place-items:center;font-size:19px;line-height:1}
+.s .arm{height:10px;background:var(--ok)}
+
+/* ═══════════ 甲 · ThinQ 質感版 ═══════════ */
+.A{
+  --bg:#000; --card:#1C1C1E; --ink:#FFF; --ink2:#AEAEB2; --ink3:#8E8E93;
+  --sep:rgba(255,255,255,.13); --brand:#5B5BF5; --ok:#30D158; --attn:#FFD60A;
+  --attnbg:rgba(255,214,10,.11); --attnring:inset 0 0 0 1.5px rgba(255,214,10,.4);
+  --dock:#1C1C1E;
+  --r:22px; --r2:20px; --gap:12px; --gap2:10px;
+  --barpad:16px 16px 12px; --bodypad:0 14px; --grppad:16px 6px 8px;
+  --nowpad:20px; --rowpad:15px 17px; --codecol:104px;
+  --title:30px; --titlew:800; --c1:15px; --c2:26px; --nm:19px; --nmw:600; --big:38px;
+  --rc:20px; --rn:16px; --rq:21px;
+  --segbg:#1C1C1E; --segr:12px; --segon:#5B5BF5; --segonink:#fff;
+  --cardsh:none;
+  --tabgap:0px; --tabpad:6px 4px 8px; --tabinner:6px 0 4px; --tabr:0;
+  --tabbg:transparent; --tabonbg:transparent; --tabonink:#fff; --tabfs:11px;
+}
+/* ═══════════ 乙 · MYZOO 版 ═══════════ */
+.B{
+  --bg:#000; --card:#17181A; --ink:#F7F7F5; --ink2:#A9ACA8; --ink3:#7B7E7A;
+  --sep:rgba(255,255,255,.11); --brand:#21C7BA; --ok:#4f9b6f; --attn:#FFD230;
+  --attnbg:rgba(255,210,48,.10); --attnring:inset 0 0 0 1.5px rgba(255,210,48,.45);
+  --dock:#141513;
+  --r:22px; --r2:18px; --gap:12px; --gap2:9px;
+  --barpad:16px 16px 12px; --bodypad:0 14px; --grppad:16px 6px 8px;
+  --nowpad:20px; --rowpad:15px 17px; --codecol:104px;
+  --title:30px; --titlew:800; --c1:15px; --c2:26px; --nm:19px; --nmw:600; --big:38px;
+  --rc:20px; --rn:16px; --rq:21px;
+  --segbg:#17181A; --segr:12px; --segon:#21C7BA; --segonink:#04211F;
+  --cardsh:inset 0 1px 0 rgba(255,255,255,.035);
+  --tabgap:8px; --tabpad:8px 14px 10px; --tabinner:9px 0 8px; --tabr:14px;
+  --tabbg:#17181A; --tabonbg:rgba(33,199,186,.15); --tabonink:#21C7BA; --tabfs:11.5px;
+}
+/* ═══════════ 丙 · 倉庫優先版 ═══════════ */
+.C{
+  --bg:#000; --card:#191919; --ink:#FFF; --ink2:#B4B4B4; --ink3:#8A8A8A;
+  --sep:rgba(255,255,255,.16); --brand:#00E0CC; --ok:#3DDC6B; --attn:#FFC400;
+  --attnbg:rgba(255,196,0,.16); --attnring:inset 0 0 0 2.5px #FFC400;
+  --dock:#111;
+  --r:12px; --r2:10px; --gap:9px; --gap2:7px;
+  --barpad:14px 14px 10px; --bodypad:0 11px; --grppad:14px 4px 7px;
+  --nowpad:17px 18px; --rowpad:13px 15px; --codecol:112px;
+  --title:31px; --titlew:800; --c1:16px; --c2:30px; --nm:21px; --nmw:700; --big:42px;
+  --rc:23px; --rn:17.5px; --rq:23px;
+  --segbg:#191919; --segr:9px; --segon:#00E0CC; --segonink:#001F1C;
+  --cardsh:none;
+  --tabgap:6px; --tabpad:7px 11px 9px; --tabinner:10px 0 8px; --tabr:9px;
+  --tabbg:#191919; --tabonbg:#00E0CC; --tabonink:#001F1C; --tabfs:12px;
+}
+/* 丙：狀態靠整片色塊 */
+.C .row.part{background:var(--attn);box-shadow:none}
+.C .row.part .c u,.C .row.part .c s,.C .row.part .q s{color:rgba(0,0,0,.55)}
+.C .row.part .c b,.C .row.part .n,.C .row.part .q i{color:#000}
+.C .row.part .who span{color:#000}
+.C .row.part .who n{color:rgba(0,0,0,.65)}
+.C .row.part .who .l1 span,.C .row.part .who .l1 n{border-top-color:rgba(0,0,0,.2)}
+
+.foot2{margin-top:44px;padding-top:22px;border-top:1px solid var(--line);
+  color:var(--t2);font-size:14px;line-height:1.9;max-width:820px}
+.foot2 h3{font-size:16px;margin:0 0 9px;color:var(--t1)}
+.foot2 b{color:#21C7BA}
+.foot2 .amb{color:#FFD230}
+.foot2 ul{margin:6px 0 0;padding-left:20px}
+</style>
+
+<style>
+/* ══════════════════════════════════════════════════════════
+   🔴 可讀性覆寫（2026-08-16）：**Evan 有老花**，說明文字一律放大。
+   ⚠️ 但版面維持 **一行三款** —— 他明確說「一行三款一次看剛剛好」，
+      放到一行一款就沒辦法比較了。所以是「字放大、欄位不減」。
+   手機模擬圖 zoom 1.34 等比放大，**內部相對比例完全不變**。
+   ⚠️ 以後做示意／提案頁：說明文字 **20px 起跳**，不要再用 12〜16px。
+   ══════════════════════════════════════════════════════════ */
+body{font-size:20px !important;line-height:1.72 !important}
+h1{font-size:46px !important;line-height:1.15 !important;margin-bottom:15px !important}
+h2{font-size:29px !important}
+.eyebrow{font-size:17px !important;letter-spacing:.15em !important;margin-bottom:12px !important}
+.lede{font-size:23px !important;line-height:1.7 !important;max-width:none !important;
+  margin-bottom:14px !important}
+.now,.sub,.factnote{font-size:20px !important;line-height:1.7 !important;max-width:none !important}
+.lk{font-size:19px !important;padding:13px 20px !important;border-radius:13px !important}
+.tag{font-size:17px !important;padding:7px 17px !important;letter-spacing:.08em !important;
+  margin-bottom:12px !important}
+.col h2,.opt h2,.sz h3{font-size:28px !important;margin-bottom:9px !important;line-height:1.26 !important}
+.why,.col .why,.opt .why{font-size:20px !important;line-height:1.66 !important;
+  min-height:0 !important;margin-bottom:20px !important}
+.spec,.note{font-size:18.5px !important;line-height:1.78 !important}
+.chip u{font-size:15px !important;letter-spacing:.06em !important}
+.chip b{font-size:21px !important}
+.chip{padding:14px 15px 15px !important;border-radius:13px !important}
+.chips{gap:10px !important;margin-bottom:20px !important}
+.roles{font-size:19px !important;gap:9px 16px !important;margin-top:18px !important}
+.roles i{width:16px !important;height:16px !important;border-radius:5px !important}
+.foot2,.foot{font-size:21px !important;line-height:1.78 !important;max-width:none !important;
+  margin-top:58px !important}
+.foot2 h3,.foot h3{font-size:28px !important;margin-bottom:14px !important}
+.foot2 ul,.foot ul{padding-left:26px !important}
+.foot2 li,.foot li{margin-bottom:10px !important}
+.loadwrap,.homewrap{margin-top:64px !important}
+.loadwrap h3,.homewrap h3{font-size:31px !important;margin-bottom:11px !important}
+.loadwrap .d,.homewrap .d{font-size:20px !important;line-height:1.68 !important;
+  max-width:none !important;margin-bottom:26px !important}
+.h2b{font-size:31px !important}
+.step h3{font-size:24px !important}
+.step p,.kv,.alert p,.done ol{font-size:20px !important;line-height:1.68 !important}
+.alert h4,.done h3{font-size:22px !important}
+.fact b{font-size:30px !important} .fact u{font-size:15px !important}
+.path{font-size:17px !important;padding:4px 11px !important}
+table{font-size:20px !important}
+th{font-size:17px !important}
+th,td{padding:16px 19px !important}
+/* 🔍 手機模擬圖等比放大；欄位維持一行三款 */
+.ph{zoom:1.34}
+.cols,.grid,.opts,.sizes{gap:40px !important;
+  grid-template-columns:repeat(auto-fit,minmax(560px,1fr)) !important}
+.wrap{max-width:2140px !important;padding-left:30px !important;padding-right:30px !important}
+.scalenote{margin:8px 0 30px !important;font-size:19px !important;color:#8A8A8A}
+.scalenote b{color:#FFC400}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">MYZOO 撿貨核對 · 介面風格提案</div>
+<h1>三個方向</h1>
+<p class="lede">
+  同一個畫面（單張核對）、同一份資料，只有視覺不一樣。<br>
+  三個方向都吃了 LG ThinQ 那組配方：<b>純黑底 ＋ 深灰卡片 ＋ 大圓角 ＋ 重標題 ＋ 灰色分組標</b>，
+  差別在<span class="k">主色屬於誰</span>與<span class="k">要精緻還是要遠距離可讀</span>。
+</p>
+
+<div class="cols">
+
+  <!-- ══════════ 甲 ══════════ -->
+  <div class="col">
+    <span class="tag">甲 · ThinQ 質感版</span>
+    <h2>直接照參考走</h2>
+    <p class="why">主色換成 ThinQ 的<b>藍紫</b>，圓角 22、標題 30px/800、底部 tab 用純圖示不加底色。<br>
+      最接近你給的參考，質感也最「消費級」。<br>
+      ⚠️ 但藍紫是 LG 的顏色，而且在深色底上不如青綠跳。</p>
+    <div class="ph">
+      <div class="s A">
+        <div class="bar">
+          <div class="back">←</div>
+          <div class="mid"><div class="t">林世宸</div><div class="sub">202608184 · 第 1 疊</div></div>
+          <div class="seg"><b class="on">全部</b><b>未撿</b><b>已撿</b></div>
+        </div>
+        <div class="body">
+          <div class="now">
+            <div class="eye">下一箱要撿</div>
+            <div class="code"><u>723592</u><b>927752</b></div>
+            <div class="nm">魟魚跳台(左邊)-Stingray(Left)</div>
+            <div class="sku">MZ0045</div>
+            <div class="qty"><i>0</i><s>/ 2 箱</s></div>
+          </div>
+          <div class="grp">這張單 <i>3</i> 項</div>
+          <div class="row done">
+            <div class="c"><u>728488</u><b>110829</b><s>MZ0009</s></div>
+            <div class="n">六角跳台(原木色)-Hexagon</div>
+            <div class="q"><i>2</i><s>/ 2</s></div>
+          </div>
+          <div class="row part">
+            <div class="c"><u>723592</u><b>927752</b><s>MZ0045</s></div>
+            <div class="n">魟魚跳台(左邊)-Stingray(Left)</div>
+            <div class="q"><i>0</i><s>/ 2</s></div>
+            <div class="who"><span>順便：洪千涵</span><n>1 箱</n>
+              <span class="l1">林慧敏</span><n class="l1">2 箱</n></div>
+          </div>
+          <div class="row">
+            <div class="c"><u>641361</u><b>328862</b><s>MZ0078</s></div>
+            <div class="n">太空計劃Gamma左開(胡桃木)</div>
+            <div class="q"><i>0</i><s>/ 1</s></div>
+          </div>
+          <div style="height:14px"></div>
+        </div>
+        <div class="foot">
+          <div class="prog"><i></i></div>
+          <div class="dock"><span class="dot"></span><div class="msg">✓ 六角跳台(原木色) 2/2</div><div class="cnt">2 / 5</div></div>
+          <div class="tabs">
+            <div class="tab"><span class="ic">☰</span>今日出貨</div>
+            <div class="tab"><span class="ic">▤</span>商品彙總</div>
+            <div class="tab on"><span class="ic">▦</span>分揀</div>
+            <div class="tab"><span class="ic">|||</span>查條碼</div>
+          </div>
+          <div class="arm"></div>
+        </div>
+      </div>
+    </div>
+    <div class="spec">
+      底 <b>#000</b>　卡 <b>#1C1C1E</b>　圓角 <b>22</b><br>
+      主色 <b>#5B5BF5</b>（藍紫）　標題 <b>30px/800</b><br>
+      tab：<b>無底色，選中變白</b>
+    </div>
+  </div>
+
+  <!-- ══════════ 乙 ══════════ -->
+  <div class="col pick">
+    <span class="tag">乙 · MYZOO 版 · 建議</span>
+    <h2>借骨架，留自己的顏色</h2>
+    <p class="why">一樣純黑、大圓角、重標題，但<b>主色維持青綠</b>，狀態色（琥珀／綠／紅）完全不動。
+      中性色階往暖走一點點呼應你們的木質調，卡片加一道<b>頂端內光</b>做出厚度。<br>
+      拿到 ThinQ 的精緻度，但不會變成 LG。</p>
+    <div class="ph">
+      <div class="s B">
+        <div class="bar">
+          <div class="back">←</div>
+          <div class="mid"><div class="t">林世宸</div><div class="sub">202608184 · 第 1 疊</div></div>
+          <div class="seg"><b class="on">全部</b><b>未撿</b><b>已撿</b></div>
+        </div>
+        <div class="body">
+          <div class="now">
+            <div class="eye">下一箱要撿</div>
+            <div class="code"><u>723592</u><b>927752</b></div>
+            <div class="nm">魟魚跳台(左邊)-Stingray(Left)</div>
+            <div class="sku">MZ0045</div>
+            <div class="qty"><i>0</i><s>/ 2 箱</s></div>
+          </div>
+          <div class="grp">這張單 <i>3</i> 項</div>
+          <div class="row done">
+            <div class="c"><u>728488</u><b>110829</b><s>MZ0009</s></div>
+            <div class="n">六角跳台(原木色)-Hexagon</div>
+            <div class="q"><i>2</i><s>/ 2</s></div>
+          </div>
+          <div class="row part">
+            <div class="c"><u>723592</u><b>927752</b><s>MZ0045</s></div>
+            <div class="n">魟魚跳台(左邊)-Stingray(Left)</div>
+            <div class="q"><i>0</i><s>/ 2</s></div>
+            <div class="who"><span>順便：洪千涵</span><n>1 箱</n>
+              <span class="l1">林慧敏</span><n class="l1">2 箱</n></div>
+          </div>
+          <div class="row">
+            <div class="c"><u>641361</u><b>328862</b><s>MZ0078</s></div>
+            <div class="n">太空計劃Gamma左開(胡桃木)</div>
+            <div class="q"><i>0</i><s>/ 1</s></div>
+          </div>
+          <div style="height:14px"></div>
+        </div>
+        <div class="foot">
+          <div class="prog"><i></i></div>
+          <div class="dock"><span class="dot"></span><div class="msg">✓ 六角跳台(原木色) 2/2</div><div class="cnt">2 / 5</div></div>
+          <div class="tabs">
+            <div class="tab"><span class="ic">☰</span>今日出貨</div>
+            <div class="tab"><span class="ic">▤</span>商品彙總</div>
+            <div class="tab on"><span class="ic">▦</span>分揀</div>
+            <div class="tab"><span class="ic">|||</span>查條碼</div>
+          </div>
+          <div class="arm"></div>
+        </div>
+      </div>
+    </div>
+    <div class="spec">
+      底 <b>#000</b>　卡 <b>#17181A</b>（微暖）　圓角 <b>22</b><br>
+      主色 <em>#21C7BA</em>（維持）　標題 <b>30px/800</b><br>
+      卡片 <b>頂端內光</b>做厚度　tab：<b>選中帶青色底</b>
+    </div>
+  </div>
+
+  <!-- ══════════ 丙 ══════════ -->
+  <div class="col">
+    <span class="tag">丙 · 倉庫優先版</span>
+    <h2>承認它是工具</h2>
+    <p class="why">圓角收回 <b>12</b>（方一點＝更明確）、字級整體上一級、密度拉高。
+      未完成的那一列直接<b>整片琥珀色塊</b>，不是淡底加細框 —— 1 公尺外一眼就看到。<br>
+      平板固定在推車上最好讀，但走的是「有力量」不是「精緻」。</p>
+    <div class="ph">
+      <div class="s C">
+        <div class="bar">
+          <div class="back">←</div>
+          <div class="mid"><div class="t">林世宸</div><div class="sub">202608184 · 第 1 疊</div></div>
+          <div class="seg"><b class="on">全部</b><b>未撿</b><b>已撿</b></div>
+        </div>
+        <div class="body">
+          <div class="now">
+            <div class="eye">下一箱要撿</div>
+            <div class="code"><u>723592</u><b>927752</b></div>
+            <div class="nm">魟魚跳台(左邊)-Stingray(Left)</div>
+            <div class="sku">MZ0045</div>
+            <div class="qty"><i>0</i><s>/ 2 箱</s></div>
+          </div>
+          <div class="grp">這張單 <i>3</i> 項</div>
+          <div class="row done">
+            <div class="c"><u>728488</u><b>110829</b><s>MZ0009</s></div>
+            <div class="n">六角跳台(原木色)-Hexagon</div>
+            <div class="q"><i>2</i><s>/ 2</s></div>
+          </div>
+          <div class="row part">
+            <div class="c"><u>723592</u><b>927752</b><s>MZ0045</s></div>
+            <div class="n">魟魚跳台(左邊)-Stingray(Left)</div>
+            <div class="q"><i>0</i><s>/ 2</s></div>
+            <div class="who"><span>順便：洪千涵</span><n>1 箱</n>
+              <span class="l1">林慧敏</span><n class="l1">2 箱</n></div>
+          </div>
+          <div class="row">
+            <div class="c"><u>641361</u><b>328862</b><s>MZ0078</s></div>
+            <div class="n">太空計劃Gamma左開(胡桃木)</div>
+            <div class="q"><i>0</i><s>/ 1</s></div>
+          </div>
+          <div style="height:14px"></div>
+        </div>
+        <div class="foot">
+          <div class="prog"><i></i></div>
+          <div class="dock"><span class="dot"></span><div class="msg">✓ 六角跳台(原木色) 2/2</div><div class="cnt">2 / 5</div></div>
+          <div class="tabs">
+            <div class="tab"><span class="ic">☰</span>今日出貨</div>
+            <div class="tab"><span class="ic">▤</span>商品彙總</div>
+            <div class="tab on"><span class="ic">▦</span>分揀</div>
+            <div class="tab"><span class="ic">|||</span>查條碼</div>
+          </div>
+          <div class="arm"></div>
+        </div>
+      </div>
+    </div>
+    <div class="spec">
+      底 <b>#000</b>　卡 <b>#191919</b>　圓角 <b>12</b><br>
+      主色 <b>#00E0CC</b>（更亮的青）　標題 <b>31px/800</b><br>
+      未完成＝<b>整片琥珀</b>　字級全面 <b>+1〜2px</b>
+    </div>
+  </div>
+
+</div>
+
+<div class="foot2">
+  <h3>三個都改掉的共通問題</h3>
+  <ul>
+    <li><b>底色從 #0E1012 改成純黑</b> —— 卡片才浮得起來。現在底跟卡差 14 級灰，幾乎貼在同一個平面上。</li>
+    <li><b>加回「分組標題」</b>（這張單 3 項）—— ThinQ 用灰色小字把卡片群分段，我們的跨單／非跨單正好需要。</li>
+    <li><b>圓角從 14 放大</b> —— 現在偏拘謹。甲乙放到 22，丙反向收到 12 讓它更明確。</li>
+    <li><b>修掉那個色彩矛盾</b> —— <span class="amb">--good-soft 原本是青色</span>，跟「可點」的淡底同色。三個方案都已分開。</li>
+    <li><b>底部 tab 給圖示</b> —— 現在只有文字，四個方塊長一樣。加圖示後掃一眼就分得出來。</li>
+  </ul>
+  <p style="margin:14px 0 0">
+    ⚠️ 這裡只畫了<b>單張核對</b>一個畫面。選定方向後，商品彙總、分揀、今日出貨會用同一套變數推過去 ——
+    那也順便解掉「三個畫面各長各的」那個問題。
+  </p>
+  <p style="margin:12px 0 0;color:var(--t3)">
+    也可以混搭：例如「乙的顏色 ＋ 丙的字級」給平板用，手機用乙。跟我說就好。
+  </p>
+</div>
+
+</div>
+</body>
+</html>

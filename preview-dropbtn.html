@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>選擇出貨明細 · 四種做法</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --page:#0A0A0B; --line:rgba(255,255,255,.09);
+  --t1:#F2F3F4; --t2:#A8ABB0; --t3:#75787E;
+  --brand:#3B5BFF; --onbrand:#fff; --accent:#A78BFA; --accentbg:rgba(167,139,250,.17);
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"Roboto Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--t1);font-family:var(--sans);line-height:1.72}
+.wrap{max-width:2140px;margin:0 auto;padding:34px 30px 110px}
+.eyebrow{font-size:17px;font-weight:800;letter-spacing:.15em;color:var(--accent);margin-bottom:12px}
+h1{font-size:46px;font-weight:800;margin:0 0 15px;letter-spacing:-.025em;line-height:1.15}
+.lede{font-size:23px;line-height:1.7;color:var(--t2);margin:0 0 14px}
+.lede b{color:var(--t1)}
+.lede .k{color:#FFC400}
+.scalenote{margin:8px 0 30px;font-size:19px;color:#8A8A8A}
+.scalenote b{color:#FFC400}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(470px,1fr));gap:40px;align-items:start}
+.tag{display:inline-block;font-size:17px;font-weight:800;letter-spacing:.08em;
+  color:var(--t3);background:rgba(255,255,255,.05);border:1px solid var(--line);
+  padding:7px 17px;border-radius:999px;margin-bottom:12px}
+.col.pick .tag{color:var(--accent);background:var(--accentbg);border-color:rgba(167,139,250,.45)}
+.col h2{font-size:28px;font-weight:750;margin:0 0 9px;letter-spacing:-.015em;line-height:1.26}
+.why{font-size:20px;line-height:1.66;color:var(--t3);margin:0 0 20px}
+.why b{color:var(--t2)}
+.why .g{color:#4ADE80} .why .r{color:#F87171}
+
+.ph{width:100%;max-width:390px;margin:0 auto;border-radius:22px;overflow:hidden;
+  border:1px solid var(--line);zoom:1.34}
+
+/* ══ 載入畫面片段（跟提案頁同一套）══ */
+.s{background:#000;color:#FFF;font-family:var(--sans)}
+.s .load{padding:22px 15px 20px}
+.s .stp{margin-top:22px}
+.s .stp:first-child{margin-top:0}
+.s .stp .hd{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;margin-bottom:11px}
+.s .stp .hd i{width:22px;height:22px;flex:none;border-radius:7px;background:#252525;color:#B4B4B4;
+  font-style:normal;font-size:12px;font-weight:800;display:grid;place-items:center}
+.s .rg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.s .role{border-radius:12px;padding:15px 13px 14px;background:#191919;
+  border:1.5px solid rgba(255,255,255,.09);display:flex;flex-direction:column;gap:3px}
+.s .role .ic{font-size:23px;line-height:1;margin-bottom:5px}
+.s .role b{font-size:17px;font-weight:700}
+.s .role span{font-size:12px;color:#8A8A8A;line-height:1.4}
+.s .role.r2{border-color:var(--accent)} .s .role.r2 .ic{color:var(--accent)}
+.s .role.on{background:var(--brand);border-color:var(--brand)}
+.s .role.on b,.s .role.on .ic{color:var(--onbrand)}
+.s .role.on span{color:rgba(255,255,255,.72)}
+.s .role.wide{grid-column:1 / -1;flex-direction:row;align-items:center;gap:12px;padding:13px}
+.s .role.wide .ic{margin:0;font-size:20px;letter-spacing:-2px}
+.s .role.wide .ic .a{color:var(--brand)} .s .role.wide .ic .b2{color:var(--accent)}
+
+/* ── 四種選檔按鈕 ── */
+.s .drop{border-radius:12px;padding:20px 16px;text-align:center}
+.s .drop .ic{font-size:26px;line-height:1}
+.s .drop b{display:block;font-size:19px;font-weight:750;margin-top:7px;letter-spacing:-.02em}
+.s .drop p{margin:4px 0 0;font-size:12.5px}
+
+/* 甲：主色實心 */
+.d-a .drop{background:var(--brand);color:#fff}
+.d-a .drop p{color:rgba(255,255,255,.62)}
+/* 乙：虛線拖放區 */
+.d-b .drop{background:#111;border:2px dashed var(--brand);color:#fff;padding:19px 16px}
+.d-b .drop .ic{color:var(--brand)}
+.d-b .drop p{color:#8A8A8A}
+/* 丙：漸層 */
+.d-c .drop{background:linear-gradient(115deg,var(--brand),var(--accent));color:#fff}
+.d-c .drop p{color:rgba(255,255,255,.68)}
+/* 丁：深灰實心＋主色粗底線 */
+.d-d .drop{background:#191919;color:#fff;border-bottom:4px solid var(--brand);
+  border-radius:12px 12px 6px 6px}
+.d-d .drop .ic{color:var(--brand)}
+.d-d .drop p{color:#8A8A8A}
+
+.s .note{font-size:13px;color:#8A8A8A;line-height:1.7;margin:0 0 11px}
+.s .note .w{color:#FFC400;font-weight:700} .s .note .o{color:#3DDC6B;font-weight:700}
+.s .tbtn{width:100%;border-radius:12px;padding:14px 0;background:#191919;
+  color:var(--brand);font-size:16px;font-weight:700;text-align:center;
+  border:1.5px solid rgba(255,255,255,.09)}
+.s .arm{height:10px;background:#FFC400}
+
+.verdict{margin-top:64px;padding:28px 26px;border-radius:20px;
+  background:rgba(167,139,250,.08);border:1.5px solid rgba(167,139,250,.4)}
+.verdict h3{margin:0 0 14px;font-size:28px;font-weight:800;color:var(--accent);letter-spacing:-.015em}
+.verdict ul{margin:0;padding-left:26px;font-size:21px;line-height:1.8;color:var(--t2)}
+.verdict li{margin-bottom:10px}
+.verdict b{color:var(--t1)}
+.verdict .k{color:#FFC400}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">MYZOO 撿貨核對 · 載入畫面</div>
+<h1>「選擇出貨明細」不用白色的話</h1>
+<p class="lede">
+  白色好用的原因是：它是畫面上<b>唯一的高亮</b>，自動變成最重要的那個，
+  而且<b>不需要跟兩個角色色搶</b>。<br>
+  替代方案要解的就是這件事。四種都用 <span class="k">④ 靛藍 × 紫羅蘭</span> 呈現，
+  上面的角色按鈕一起放進來 —— <b>要看的是它會不會跟「撿貨」那顆撞</b>。
+</p>
+<p class="scalenote">🔍 手機模擬圖已<b>等比放大 1.34 倍</b> —— 內部相對比例跟真實手機完全一樣。</p>
+
+<div class="cols">
+
+  <!-- 甲 -->
+  <div class="col">
+    <span class="tag">甲 · 主色實心</span>
+    <h2>最強，但會撞</h2>
+    <p class="why">對比夠、最醒目。<br>
+      <span class="r">✗ 但它跟「撿貨」選中時<b>同色又同形</b></span> ——
+      兩個藍色實心方塊上下相鄰，眼睛會以為它們是同一組東西。</p>
+    <div class="ph"><div class="s d-a">
+      <div class="load">
+        <div class="stp"><div class="hd"><i>1</i>今天你做哪一段？</div>
+          <div class="rg">
+            <div class="role on"><span class="ic">▦</span><b>撿貨</b><span>撿齊、分堆</span></div>
+            <div class="role r2"><span class="ic">✓</span><b>對單貼標</b><span>覆核、貼物流標</span></div>
+            <div class="role wide"><span class="ic"><span class="a">▦</span><span class="b2">✓</span></span>
+              <span><b>一人作業</b> <span style="color:#8A8A8A">掃一箱 → 當場貼標</span></span></div>
+          </div></div>
+        <div class="stp"><div class="hd"><i>2</i>選今天的出貨明細</div>
+          <div class="drop"><div class="ic">🗀</div><b>選擇出貨明細</b><p>ERP 原檔 xlsx 直接讀</p></div></div>
+        <div class="stp"><div class="hd"><i>3</i>點畫面最底部，打開掃描</div>
+          <p class="note"><b class="w">黃色</b>＝還掃不動，點一下變<b class="o">綠線</b>就好了。</p>
+          <div class="tbtn">⟨|⟩　測試掃描器</div></div>
+      </div><div class="arm"></div>
+    </div></div>
+  </div>
+
+  <!-- 乙 -->
+  <div class="col pick">
+    <span class="tag">乙 · 虛線拖放區 · 建議</span>
+    <h2>換形狀，不換顏色</h2>
+    <p class="why">深底＋<b>主色虛線框</b>。<span class="g">✓ 形狀語言跟角色按鈕完全不同</span>，
+      所以不管顏色多接近都不會混淆。<br>
+      而且虛線框本來就是「選檔案／拖進來」的通用語彙 —— <b>它語意上就是對的</b>。
+      這顆按鈕底層本來就是 <code style="font-family:var(--mono);font-size:17px">&lt;label&gt;</code> 包 file input。</p>
+    <div class="ph"><div class="s d-b">
+      <div class="load">
+        <div class="stp"><div class="hd"><i>1</i>今天你做哪一段？</div>
+          <div class="rg">
+            <div class="role on"><span class="ic">▦</span><b>撿貨</b><span>撿齊、分堆</span></div>
+            <div class="role r2"><span class="ic">✓</span><b>對單貼標</b><span>覆核、貼物流標</span></div>
+            <div class="role wide"><span class="ic"><span class="a">▦</span><span class="b2">✓</span></span>
+              <span><b>一人作業</b> <span style="color:#8A8A8A">掃一箱 → 當場貼標</span></span></div>
+          </div></div>
+        <div class="stp"><div class="hd"><i>2</i>選今天的出貨明細</div>
+          <div class="drop"><div class="ic">🗀</div><b>選擇出貨明細</b><p>ERP 原檔 xlsx 直接讀</p></div></div>
+        <div class="stp"><div class="hd"><i>3</i>點畫面最底部，打開掃描</div>
+          <p class="note"><b class="w">黃色</b>＝還掃不動，點一下變<b class="o">綠線</b>就好了。</p>
+          <div class="tbtn">⟨|⟩　測試掃描器</div></div>
+      </div><div class="arm"></div>
+    </div></div>
+  </div>
+
+  <!-- 丙 -->
+  <div class="col">
+    <span class="tag">丙 · 漸層</span>
+    <h2>全 app 唯一的漸層</h2>
+    <p class="why"><b>主色 → 輔助色</b>的漸層。因為整個 app 沒有別的漸層，
+      它自動變成最特別的那個。<span class="g">✓ 用了兩個品牌色，不偏袒任何一個角色</span>。<br>
+      <span class="r">⚠️ 但漸層是消費級 app 的語彙</span>，
+      放在倉庫工具上要小心變成「裝飾」。</p>
+    <div class="ph"><div class="s d-c">
+      <div class="load">
+        <div class="stp"><div class="hd"><i>1</i>今天你做哪一段？</div>
+          <div class="rg">
+            <div class="role on"><span class="ic">▦</span><b>撿貨</b><span>撿齊、分堆</span></div>
+            <div class="role r2"><span class="ic">✓</span><b>對單貼標</b><span>覆核、貼物流標</span></div>
+            <div class="role wide"><span class="ic"><span class="a">▦</span><span class="b2">✓</span></span>
+              <span><b>一人作業</b> <span style="color:#8A8A8A">掃一箱 → 當場貼標</span></span></div>
+          </div></div>
+        <div class="stp"><div class="hd"><i>2</i>選今天的出貨明細</div>
+          <div class="drop"><div class="ic">🗀</div><b>選擇出貨明細</b><p>ERP 原檔 xlsx 直接讀</p></div></div>
+        <div class="stp"><div class="hd"><i>3</i>點畫面最底部，打開掃描</div>
+          <p class="note"><b class="w">黃色</b>＝還掃不動，點一下變<b class="o">綠線</b>就好了。</p>
+          <div class="tbtn">⟨|⟩　測試掃描器</div></div>
+      </div><div class="arm"></div>
+    </div></div>
+  </div>
+
+  <!-- 丁 -->
+  <div class="col">
+    <span class="tag">丁 · 深灰 ＋ 主色粗底線</span>
+    <h2>最低調</h2>
+    <p class="why">跟其他卡片同一個深灰，只在底部壓一條<b>主色粗線</b>。
+      <span class="g">✓ 畫面最安靜</span>，整頁只有角色那兩顆有顏色。<br>
+      <span class="r">✗ 但它就不像「要按的東西」了</span> ——
+      這一頁最重要的動作變成最不起眼的，對第一次用的人不友善。</p>
+    <div class="ph"><div class="s d-d">
+      <div class="load">
+        <div class="stp"><div class="hd"><i>1</i>今天你做哪一段？</div>
+          <div class="rg">
+            <div class="role on"><span class="ic">▦</span><b>撿貨</b><span>撿齊、分堆</span></div>
+            <div class="role r2"><span class="ic">✓</span><b>對單貼標</b><span>覆核、貼物流標</span></div>
+            <div class="role wide"><span class="ic"><span class="a">▦</span><span class="b2">✓</span></span>
+              <span><b>一人作業</b> <span style="color:#8A8A8A">掃一箱 → 當場貼標</span></span></div>
+          </div></div>
+        <div class="stp"><div class="hd"><i>2</i>選今天的出貨明細</div>
+          <div class="drop"><div class="ic">🗀</div><b>選擇出貨明細</b><p>ERP 原檔 xlsx 直接讀</p></div></div>
+        <div class="stp"><div class="hd"><i>3</i>點畫面最底部，打開掃描</div>
+          <p class="note"><b class="w">黃色</b>＝還掃不動，點一下變<b class="o">綠線</b>就好了。</p>
+          <div class="tbtn">⟨|⟩　測試掃描器</div></div>
+      </div><div class="arm"></div>
+    </div></div>
+  </div>
+
+</div>
+
+<div class="verdict">
+  <h3>我建議 乙（虛線拖放區）</h3>
+  <ul>
+    <li>白色之所以好用，是因為它<b>不跟角色色競爭</b>。乙用<b>換形狀</b>達到同一件事 ——
+      實心方塊 vs 虛線框，一眼就知道是兩種不同的東西。</li>
+    <li>虛線框是<b>選檔案的通用語彙</b>，第一次用的人不用學。這顆按鈕底層本來就是檔案選取器。</li>
+    <li>而且它<span class="k">留了空間給未來</span> —— 之後如果做「把檔案拖進來」或
+      「從 Google Drive 直接抓」，虛線框那個區域本來就該長這樣。</li>
+  </ul>
+  <p style="margin:16px 0 0;font-size:21px;color:var(--t3)">
+    如果你要更醒目一點，乙 也可以加強：<b style="color:var(--t2)">虛線框內再加一層很淡的主色底</b>
+    （像 8% 透明度），就介於乙跟甲之間。要的話跟我說。
+  </p>
+</div>
+
+</div>
+</body>
+</html>

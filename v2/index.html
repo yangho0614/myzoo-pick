@@ -460,7 +460,12 @@ body[data-role="label"] #goSort{display:none}
 .row__name{grid-column:2;grid-row:1 / 3;align-self:center;min-width:0;
   font-size:16.5px;font-weight:600;line-height:1.3;letter-spacing:-.01em;text-wrap:pretty}
 /* 條碼欄三行：前 6 碼小、尾 6 碼放大、MZ 自編碼在下 */
-.row__code{grid-column:1;grid-row:span 2;align-self:start;font-family:var(--mono);line-height:1.15}
+/* ⚠️ 一定要 flex column。尾6碼的底板與 MZ 膠囊都是 inline-block（要包住文字、不撐滿欄），
+   容器如果留在一般的 block 流，兩個 inline-block 就會**併到同一行**去
+   —— 實機看到的是「MZ 跑到條碼右邊」（2026-08-16）。
+   align-items:flex-start 讓每個盒子只有內容那麼寬。 */
+.row__code{grid-column:1;grid-row:span 2;align-self:start;font-family:var(--mono);line-height:1.15;
+  display:flex;flex-direction:column;align-items:flex-start}
 .row__code i{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);letter-spacing:.04em}
 .row__code b{display:block;font-size:21px;font-weight:700;letter-spacing:-.01em;margin-top:1px}
 /* MZ 品號只是內部代號，降到註記級；真正要比對的是條碼後 6 碼 */
@@ -556,7 +561,9 @@ body[data-role="label"] #goSort{display:none}
   background:var(--card);border-radius:14px;
 }
 /* 條碼欄三行：前 6 碼小、尾 6 碼放大、MZ 自編碼在下 */
-.srow__code{grid-row:span 2;align-self:start;font-family:var(--mono);line-height:1.15}
+/* 同上：inline-block 的子元素需要 flex column 才不會併行 */
+.srow__code{grid-row:span 2;align-self:start;font-family:var(--mono);line-height:1.15;
+  display:flex;flex-direction:column;align-items:flex-start}
 .srow__code i{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);letter-spacing:.04em}
 .srow__code b{display:block;font-size:21px;font-weight:700;letter-spacing:-.01em;margin-top:1px}
 

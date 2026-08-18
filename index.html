@@ -530,6 +530,16 @@ body[data-role="label"] #goSort{display:none}
       已經各有狀態意義，Evan 判斷重量標示要能一眼分辨比避免撞色重要。
    ⚠️ 亮底一律配深字（CIS 規則）：白字在這三個亮度上都會糊。
       實測對比 紅 5.88 ／ 橙 8.20 ／ 藍 6.48，都過 4.5。 */
+
+/* 🔴 重量膠囊要跟條碼前 6 碼同一條線（Evan 2026-08-18）。
+   品名欄原本 align-self:center（讓品名對齊條碼區塊中線），
+   但加了膠囊之後置中會把膠囊擠到第二行。改成靠上，膠囊就跟 <i> 齊頭。
+   ⚠️ 微調用 --kg-nudge，不要各處寫死 —— 條碼字級一改就要跟著調。 */
+:root{ --kg-nudge:-3px }
+.row__name{align-self:start !important;margin-top:var(--kg-nudge)}
+.srow__nm{align-self:start;margin-top:var(--kg-nudge)}
+.kgchip{margin-bottom:6px}
+
 .kgchip[data-t="hi"] {background:#FF4D64;color:#2B0007}
 .kgchip[data-t="mid"]{background:#FF9F1C;color:#2E1800}
 .kgchip[data-t="lo"] {background:#58A6FF;color:#04203F}
@@ -1005,7 +1015,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.80　更新日期 2026-08-18</b></div>
+      <div class="verline">版本 <b id="verTag">v0.82　更新日期 2026-08-18</b></div>
     </div>
 
     <div class="step">
@@ -3445,7 +3455,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.80　更新日期 2026-08-18");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.82　更新日期 2026-08-18");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

@@ -518,8 +518,10 @@ body[data-role="label"] #goSort{display:none}
 }
 /* 重量膠囊：每一項都有。只有 >10kg 那階給顏色，其餘用中性灰的深淺 ——
    紅／琥珀／綠／湖水綠都已經有狀態語意，重量是固定屬性，不該搶那些色。 */
+.kgslot{display:block;line-height:1}
+.kgslot:empty{display:none}
 .kgchip{
-  display:inline-block;margin-top:9px;margin-left:-8px;
+  display:inline-block;margin-bottom:5px;
   font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.02em;
   padding:1.5px 8px;border-radius:5px;white-space:nowrap;
 }
@@ -527,7 +529,7 @@ body[data-role="label"] #goSort{display:none}
 .kgchip[data-t="mid"]{background:var(--fill-2);color:var(--ink)}
 .kgchip[data-t="lo"] {background:var(--fill);color:var(--ink-3)}
 .kgchip[data-t="x"]  {background:var(--fill);color:var(--ink-3);font-family:inherit;font-weight:600}
-.srow__code .kgchip{margin-left:0;margin-top:7px}
+
 .row__heavy{
   grid-column:1/-1;justify-self:start;margin-top:6px;
   font-size:12px;font-weight:750;letter-spacing:.02em;
@@ -998,7 +1000,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.78　更新日期 2026-08-18</b></div>
+      <div class="verline">版本 <b id="verTag">v0.79　更新日期 2026-08-18</b></div>
     </div>
 
     <div class="step">
@@ -2011,11 +2013,11 @@ function renderSummary(){
     d.innerHTML =
       '<div class="srow__code"><i>' + String(code).slice(0, 6) + '</i><b>' +
         String(code).slice(6) + '</b><span class="sk"></span></div>' +
-      '<div class="srow__nm"></div>' +
+      '<div class="srow__nm"><span class="kgslot"></span><span class="t"></span></div>' +
       '<div class="srow__qty"><span class="a"></span><em>/ ' + m.need + '</em>' +
         '<button class="tick" aria-label="整項打勾／取消"></button></div>' +
       '<div class="srow__whos"></div>';
-    d.querySelector(".srow__nm").textContent = m.name;
+    d.querySelector(".srow__nm .t").textContent = m.name;
     d.querySelector(".a").textContent = tk;
     d.querySelector(".tick").dataset.need = m.need;   // 打勾用（見 sumRows 的事件委派）
     /* 分堆數超過取下數 → 有人跳過取貨記錄（可能是別人幫忙拿的）。
@@ -2033,7 +2035,7 @@ function renderSummary(){
        ⚠️ 放在 gap 警語**之前**append —— 警語是附註，要留在最後。 */
     var pk = (typeof PACK !== "undefined") && PACK[code];
     var pkg = pk ? pk[0] : null;
-    d.querySelector(".srow__code").appendChild(kgChip(pkg));
+    d.querySelector(".srow__nm .kgslot").appendChild(kgChip(pkg));
     if(kgTier(pkg) === "hi"){
       var hv = document.createElement("div");
       hv.className = "srow__heavy"; hv.textContent = "先撿·墊底";
@@ -2349,16 +2351,17 @@ function renderPick(){
     d.innerHTML =
       '<div class="row__code"><i>' + String(it.code).slice(0, 6) + '</i><b>' +
         String(it.code).slice(6) + '</b><span class="row__sku"></span></div>' +
-      '<div class="row__name"></div>' +
+      '<div class="row__name"><span class="kgslot"></span><span class="t"></span></div>' +
       '<div class="row__qty"><span class="a"></span><em> / ' + it.need + '</em></div>' +
       '<span class="row__multi"></span>';
-    d.querySelector(".row__name").textContent = it.name;
+    d.querySelector(".row__name .t").textContent = it.name;
     var sk = d.querySelector(".row__sku");
     if(it.sku) sk.textContent = it.sku; else sk.remove();
 
-    /* 重量膠囊放在條碼欄（MZ 下面）—— 左欄本來就比右欄短，塞得下而不會撐高整列。
-       只有 >10kg 那階才另外給一行「先撿·墊底」，其餘就是一個灰色數字。 */
-    d.querySelector(".row__code").appendChild(kgChip(it.kg));
+    /* 重量膠囊放在**品名上方**（Evan 2026-08-18）。
+       原本放條碼欄（MZ 下面）不會撐高列，但那一欄整個是「編號區」，
+       重量是商品的屬性、跟品名是同一組資訊，放一起才讀得成一句話。 */
+    d.querySelector(".row__name .kgslot").appendChild(kgChip(it.kg));
     if(kgTier(it.kg) === "hi"){
       var hv = document.createElement("span");
       hv.className = "row__heavy"; hv.textContent = "先撿·墊底";
@@ -3437,7 +3440,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.78　更新日期 2026-08-18");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.79　更新日期 2026-08-18");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

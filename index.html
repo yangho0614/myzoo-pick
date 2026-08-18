@@ -525,10 +525,15 @@ body[data-role="label"] #goSort{display:none}
   font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.02em;
   padding:1.5px 8px;border-radius:5px;white-space:nowrap;
 }
-.kgchip[data-t="hi"] {background:var(--bad-soft);color:#FF8FA0}
-.kgchip[data-t="mid"]{background:var(--fill-2);color:var(--ink)}
-.kgchip[data-t="lo"] {background:var(--fill);color:var(--ink-3)}
-.kgchip[data-t="x"]  {background:var(--fill);color:var(--ink-3);font-family:inherit;font-weight:600}
+/* 三階各給一個醒目且互相分得開的顏色（Evan 2026-08-18 指定）。
+   ⚠️ 這是**刻意不管語意**的決定 —— 我提過紅／琥珀／綠／湖水綠在這個 app
+      已經各有狀態意義，Evan 判斷重量標示要能一眼分辨比避免撞色重要。
+   ⚠️ 亮底一律配深字（CIS 規則）：白字在這三個亮度上都會糊。
+      實測對比 紅 5.88 ／ 橙 8.20 ／ 藍 6.48，都過 4.5。 */
+.kgchip[data-t="hi"] {background:#FF4D64;color:#2B0007}
+.kgchip[data-t="mid"]{background:#FF9F1C;color:#2E1800}
+.kgchip[data-t="lo"] {background:#58A6FF;color:#04203F}
+.kgchip[data-t="x"]  {background:#3A3D44;color:#A8ABB0;font-family:inherit;font-weight:600}
 
 .row__heavy{
   grid-column:1/-1;justify-self:start;margin-top:6px;
@@ -1000,7 +1005,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.79　更新日期 2026-08-18</b></div>
+      <div class="verline">版本 <b id="verTag">v0.80　更新日期 2026-08-18</b></div>
     </div>
 
     <div class="step">
@@ -3440,7 +3445,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.79　更新日期 2026-08-18");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.80　更新日期 2026-08-18");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

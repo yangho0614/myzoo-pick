@@ -363,6 +363,17 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 .stat span{font-size:12.5px;color:var(--ink-3)}
 .stat[data-k="left"] b{color:var(--attn)}
 
+/* 原檔健檢：紅＝會影響作業，琥珀＝已經處理但你該知道。
+   ⚠️ 用既有的 bad／attn，不新增色相 —— 這裡講的正是「有問題」，語意是對得上的。 */
+.health{margin:0 14px 10px;display:flex;flex-direction:column;gap:7px}
+.health[hidden]{display:none}
+.hc{padding:11px 14px;border-radius:12px;border:1.5px solid transparent}
+.hc[data-k="bad"] {background:var(--bad-soft);border-color:rgba(232,53,79,.4)}
+.hc[data-k="warn"]{background:var(--attn-soft);border-color:rgba(255,210,48,.35)}
+.hc b{display:block;font-size:14.5px;font-weight:750}
+.hc[data-k="bad"] b{color:#FF8FA0}
+.hc[data-k="warn"] b{color:var(--attn)}
+.hc span{display:block;margin-top:3px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
 .bind{
   margin:14px var(--pad) 0;padding:15px;border-radius:var(--r);background:var(--card);
   display:flex;flex-direction:column;gap:6px;box-shadow:inset 0 0 0 1.5px var(--attn-soft);
@@ -987,7 +998,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.77　更新日期 2026-08-18</b></div>
+      <div class="verline">版本 <b id="verTag">v0.78　更新日期 2026-08-18</b></div>
     </div>
 
     <div class="step">
@@ -1121,6 +1132,11 @@ body[data-role="label"] #goSort{display:none}
     <div class="stat"><b id="stBoxes">0</b><span>總箱數</span></div>
     <div class="stat" data-k="left"><b id="stLeft">0</b><span>未撿</span></div>
   </div>
+
+  <!-- 原檔健檢：跟平常不一樣才出現。⚠️ 不做「關閉」鈕 ——
+       這是每天都該掃一眼的東西，關掉之後下次載入還是會回來，
+       做一顆假的關閉鈕只會讓人以為處理過了。 -->
+  <div class="health" id="health" hidden></div>
 
   <div class="bind" id="bindBar" hidden>
     <div class="bind__k">這個託運單號還沒認得</div>
@@ -3160,6 +3176,56 @@ function loadedSync(){
   var e = $("emptyNote"); if(e) e.hidden = !!n;
 }
 
+
+/* ═══ 原檔健檢 ═══════════════════════════════════════════
+   🔴 2026-08-17 廠商（達新）匯出的品項編碼突然不再帶 MZ 品號
+      （變成 `728488110751-`）。UPC 還是對的所以掃描照常，
+      **但畫面上人看的品號整個消失，而且沒有任何地方出聲。**
+
+   ⚠️ 針對 MZ 寫特例是錯的解法 —— 下次漏的一定是別的欄位。
+      所以這裡做的是「跟平常不一樣就講一聲」，不是「檢查 MZ」。
+      補得回來就補（MZMAP／PACK），補不回來就**明講**，
+      不要讓「補不到」跟「本來就沒有」長得一樣。            */
+function healthCheck(){
+  var noMz = [], noKg = [], newUpc = [], zeroQty = [];
+  DB.orders.forEach(function(o){
+    o.items.forEach(function(it){
+      var known = (typeof MZMAP !== "undefined") && MZMAP[it.code];
+      if(!it.sku) noMz.push(it);
+      if(it.kg === null || it.kg === undefined) noKg.push(it);
+      if(!known && !(typeof PACK !== "undefined" && PACK[it.code])) newUpc.push(it);
+      if(!it.need) zeroQty.push(it);
+    });
+  });
+  return { noMz: noMz, noKg: noKg, newUpc: newUpc, zeroQty: zeroQty };
+}
+
+function renderHealth(){
+  var h = healthCheck(), box = $("health");
+  if(!box) return;
+  var msgs = [];
+  if(h.newUpc.length) msgs.push({ k: "bad", t: "沒見過的商品 " + h.newUpc.length + " 項",
+    d: "歷史上沒出現過，補不到品號也沒有重量。" + h.newUpc.slice(0,3).map(function(i){ return i.name; }).join("、")
+       + (h.newUpc.length > 3 ? " 等" : "") });
+  if(h.zeroQty.length) msgs.push({ k: "bad", t: "數量是空的 " + h.zeroQty.length + " 項",
+    d: "原檔的數量欄讀不出來，這幾項不會被算進箱數。" });
+  if(h.noKg.length && !h.newUpc.length) msgs.push({ k: "warn", t: "沒有重量 " + h.noKg.length + " 項",
+    d: "排序會排到最後。包裝尺寸表裡沒有這幾項。" });
+  if(h.noMz.length) msgs.push({ k: "warn", t: "廠商沒給品號 " + h.noMz.length + " 項",
+    d: "已用歷史紀錄補上，掃描不受影響。⚠️ 這是繞過去，根因在廠商的匯出檔。" });
+
+  box.textContent = "";
+  box.hidden = !msgs.length;
+  msgs.forEach(function(m){
+    var d = document.createElement("div");
+    d.className = "hc"; d.dataset.k = m.k;
+    d.innerHTML = '<b></b><span></span>';
+    d.querySelector("b").textContent = (m.k === "bad" ? "🔴 " : "⚠️ ") + m.t;
+    d.querySelector("span").textContent = m.d;
+    box.appendChild(d);
+  });
+}
+
 function loadRows(rows, srcName, fromPick){
   $("loadErr").hidden = true;
   try{
@@ -3176,6 +3242,7 @@ function loadRows(rows, srcName, fromPick){
     loadWays();               // 之前掃標籤當場學會的對應
     clearBind();
     renderOrders();
+    renderHealth();
     $("resume").hidden = true;
     saveSession(rows, DB.src);
     // ⚠️ 只有「使用者剛剛選了檔案」才自動進分揀。重整或恢復進度時一律停在訂單清單，
@@ -3370,7 +3437,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.77　更新日期 2026-08-18");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.78　更新日期 2026-08-18");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

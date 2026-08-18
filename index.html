@@ -499,6 +499,12 @@ body[data-role="label"] #goSort{display:none}
    ⚠️ grid-row 必須是 3。.row__code 是 `grid-column:1; grid-row:span 2`（佔第 1 欄的 1〜2 列），
       膠囊放第 2 列會跟它搶同一格，自動配置會把條碼欄擠到卡片最下面。
    `2 / -1` ＝ 從品名欄一路用到數量欄的右緣，比原本只佔第 2 欄多拿約 40px。 */
+.srow__heavy{
+  grid-column:1/-1;margin:4px 0 0 118px;justify-self:start;
+  font-size:12px;font-weight:750;letter-spacing:.02em;
+  padding:2px 9px;border-radius:999px;
+  background:rgba(232,53,79,.14);color:#FF8FA0;
+}
 .row__heavy{
   grid-column:1/-1;justify-self:start;margin-top:4px;
   font-size:12px;font-weight:750;letter-spacing:.02em;
@@ -969,7 +975,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.75　更新日期 2026-08-18</b></div>
+      <div class="verline">版本 <b id="verTag">v0.76　更新日期 2026-08-18</b></div>
     </div>
 
     <div class="step">
@@ -1922,7 +1928,16 @@ function renderSummary(){
       m.hits.push({ cust: o.cust, n: it.need });
     });
   });
-  keys.sort();
+  /* 🔴 排序＝撿貨順序：重的先撿，因為要墊在最下層，再依序往上（2026-08-18）。
+     原本是 keys.sort() ＝ 按 UPC 遞增 —— 那個順序對站在倉庫裡的人沒有任何意義。
+     ⚠️ 沒有重量資料的排最後：混在中間會被當成很輕，那比排錯更糟。 */
+  keys.sort(function(a, b){
+    var ka = (typeof PACK !== "undefined" && PACK[a]) ? PACK[a][0] : null;
+    var kb = (typeof PACK !== "undefined" && PACK[b]) ? PACK[b][0] : null;
+    if((ka === null) !== (kb === null)) return ka === null ? 1 : -1;
+    if(ka !== kb) return (kb || 0) - (ka || 0);
+    return a < b ? -1 : 1;              // 同重量時固定順序，避免每次重畫都跳動
+  });
 
   var box = $("sumRows"); box.textContent = "";
   var shown = 0, multi = 0, boxes = 0;
@@ -1956,6 +1971,16 @@ function renderSummary(){
          縮排跟收件人清單一致（118px），所以跟品名對齊。 */
       d.appendChild(w);
     }
+    /* 跟單張核對用同一個識別：只標最重那一階，不是每個都印數字。
+       ⚠️ 放在 gap 警語**之前**append —— 警語是附註，要留在最後。 */
+    var pk = (typeof PACK !== "undefined") && PACK[code];
+    if(pk && pk[0] >= 8){
+      var hv = document.createElement("div");
+      hv.className = "srow__heavy";
+      hv.textContent = pk[0] + " kg　先撿·墊底";
+      d.insertBefore(hv, d.querySelector(".srow__gap"));
+    }
+
     var sk = d.querySelector(".sk");
     if(m.sku) sk.textContent = m.sku; else sk.remove();
     var mu = d.querySelector(".srow__whos");
@@ -3294,7 +3319,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.75　更新日期 2026-08-18");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.76　更新日期 2026-08-18");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

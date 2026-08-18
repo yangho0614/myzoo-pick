@@ -363,6 +363,17 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 .stat span{font-size:12.5px;color:var(--ink-3)}
 .stat[data-k="left"] b{color:var(--attn)}
 
+/* 原檔健檢：紅＝會影響作業，琥珀＝已經處理但你該知道。
+   ⚠️ 用既有的 bad／attn，不新增色相 —— 這裡講的正是「有問題」，語意是對得上的。 */
+.health{margin:0 14px 10px;display:flex;flex-direction:column;gap:7px}
+.health[hidden]{display:none}
+.hc{padding:11px 14px;border-radius:12px;border:1.5px solid transparent}
+.hc[data-k="bad"] {background:var(--bad-soft);border-color:rgba(232,53,79,.4)}
+.hc[data-k="warn"]{background:var(--attn-soft);border-color:rgba(255,210,48,.35)}
+.hc b{display:block;font-size:14.5px;font-weight:750}
+.hc[data-k="bad"] b{color:#FF8FA0}
+.hc[data-k="warn"] b{color:var(--attn)}
+.hc span{display:block;margin-top:3px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
 .bind{
   margin:14px var(--pad) 0;padding:15px;border-radius:var(--r);background:var(--card);
   display:flex;flex-direction:column;gap:6px;box-shadow:inset 0 0 0 1.5px var(--attn-soft);
@@ -499,6 +510,77 @@ body[data-role="label"] #goSort{display:none}
    ⚠️ grid-row 必須是 3。.row__code 是 `grid-column:1; grid-row:span 2`（佔第 1 欄的 1〜2 列），
       膠囊放第 2 列會跟它搶同一格，自動配置會把條碼欄擠到卡片最下面。
    `2 / -1` ＝ 從品名欄一路用到數量欄的右緣，比原本只佔第 2 欄多拿約 40px。 */
+.srow__heavy{
+  grid-column:1/-1;margin:4px 0 0 118px;justify-self:start;
+  font-size:12px;font-weight:750;letter-spacing:.02em;
+  padding:2px 9px;border-radius:999px;
+  background:rgba(232,53,79,.14);color:#FF8FA0;
+}
+/* 重量膠囊：每一項都有。只有 >10kg 那階給顏色，其餘用中性灰的深淺 ——
+   紅／琥珀／綠／湖水綠都已經有狀態語意，重量是固定屬性，不該搶那些色。 */
+.kgslot{display:block;line-height:1}
+.kgslot:empty{display:none}
+.kgchip{
+  display:inline-block;margin-bottom:5px;
+  font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.02em;
+  padding:1.5px 8px;border-radius:5px;white-space:nowrap;
+}
+/* 三階各給一個醒目且互相分得開的顏色（Evan 2026-08-18 指定）。
+   ⚠️ 這是**刻意不管語意**的決定 —— 我提過紅／琥珀／綠／湖水綠在這個 app
+      已經各有狀態意義，Evan 判斷重量標示要能一眼分辨比避免撞色重要。
+   ⚠️ 亮底一律配深字（CIS 規則）：白字在這三個亮度上都會糊。
+      實測對比 紅 5.88 ／ 橙 8.20 ／ 藍 6.48，都過 4.5。 */
+
+/* 🔴 重量膠囊要跟條碼前 6 碼同一條線（Evan 2026-08-18）。
+   品名欄原本 align-self:center（讓品名對齊條碼區塊中線），
+   但加了膠囊之後置中會把膠囊擠到第二行。改成靠上，膠囊就跟 <i> 齊頭。
+   ⚠️ 微調用 --kg-nudge，不要各處寫死 —— 條碼字級一改就要跟著調。 */
+:root{ --kg-nudge:0px }
+.row__name{align-self:start !important;margin-top:var(--kg-nudge)}
+.srow__nm{align-self:start;margin-top:var(--kg-nudge)}
+.kgchip{margin-bottom:6px}
+.kgslot{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.dimchip{
+  /* 字級跟重量膠囊一樣（Evan 2026-08-18）—— 兩個要能一起掃過去，
+     差 0.5px 只會讓尺寸看起來比較不重要，但它不是次要資訊。 */
+  display:inline-block;margin-bottom:6px;
+  font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.02em;
+  padding:1.5px 7px;border-radius:5px;white-space:nowrap;
+  background:var(--fill);color:var(--ink-3);
+}
+
+.kgchip[data-t="hi"] {background:#FF4D64;color:#2B0007}
+.kgchip[data-t="mid"]{background:#FF9F1C;color:#2E1800}
+.kgchip[data-t="lo"] {background:#58A6FF;color:#04203F}
+.kgchip[data-t="x"]  {background:#3A3D44;color:#A8ABB0;font-family:inherit;font-weight:600}
+
+/* 🔴 外箱示意圖＋尺寸掛在條碼欄（Evan 2026-08-19）：條碼 ▸ MZ ▸ 箱子 ▸ 尺寸。
+   為什麼放這一欄：① 完全不吃品名寬度（放品名那邊要讓出約 40px，390px 手機上是真的痛）
+   ② 圖跟尺寸是同一句話（「長這樣、這麼大」），一台兩箱時更要一組一組排，
+      拆成「兩張圖＋兩個數字」就對不起來了。
+   ⚠️ 尺寸膠囊從 .kgslot 搬過來，品名上方只剩重量 —— 重量是「要不要先撿」的判斷依據，
+      尺寸只是參考，兩者本來就不同層級。 */
+.codebox{display:block;margin-top:10px}
+.codebox+.codebox{margin-top:9px}
+.bxsvg{display:block;
+  /* 箱子三面：頂面最亮、右面中、左面暗 —— 光從左上來，跟人眼預設一致。
+     跟 boxes.html 同一組色。 */
+  --box-t:#8DA2C4; --box-r:#4D5F7E; --box-l:#33415A; --box-k:#0E1016}
+.codedim{display:inline-block;margin-top:3px;font-family:var(--mono);font-size:11.5px;
+  font-weight:700;letter-spacing:.02em;padding:1.5px 7px;margin-left:-7px;
+  border-radius:5px;background:var(--fill);color:var(--ink-3);white-space:nowrap}
+/* 琥珀色（未完成）卡片上要換一組 —— 藍灰在黃底上會糊掉，黑線也要收斂 */
+.row[data-s="part"] .bxsvg,.srow[data-s="part"] .bxsvg{
+  --box-t:#6E7F9E; --box-r:#465671; --box-l:#2F3B52; --box-k:rgba(0,0,0,.42)}
+.row[data-s="part"] .codedim,.srow[data-s="part"] .codedim{
+  background:rgba(0,0,0,.13);color:rgba(0,0,0,.6)}
+
+.row__heavy{
+  grid-column:1/-1;justify-self:start;margin-top:6px;
+  font-size:12px;font-weight:750;letter-spacing:.02em;
+  padding:2px 9px;border-radius:999px;
+  background:rgba(232,53,79,.14);color:#FF8FA0;
+}
 .row__multi{grid-column:2 / -1;grid-row:3;justify-self:start;margin-top:2px;
   color:var(--attn);background:var(--attn-soft);
   box-shadow:inset 0 0 0 1px var(--attn-line);border-radius:10px;padding:7px 11px 8px;
@@ -934,10 +1016,6 @@ body[data-role="label"] #goSort{display:none}
 .diag__row b{color:var(--good);font-weight:700;margin-right:6px}
 </style></head>
 <body>
-</head>
-<body>
-</head>
-<body>
 <!-- Google Material Symbols（Apache 2.0）。⚠️ 路徑直接內嵌，不連 CDN ——
      這頁在倉庫要能離線跑，連外部字型或圖示檔就會破功。 -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -967,7 +1045,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.71）　2026-08-16</b></div>
+      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.86）　2026-08-18</b></div>
     </div>
 
     <div class="step">
@@ -1101,6 +1179,11 @@ body[data-role="label"] #goSort{display:none}
     <div class="stat"><b id="stBoxes">0</b><span>總箱數</span></div>
     <div class="stat" data-k="left"><b id="stLeft">0</b><span>未撿</span></div>
   </div>
+
+  <!-- 原檔健檢：跟平常不一樣才出現。⚠️ 不做「關閉」鈕 ——
+       這是每天都該掃一眼的東西，關掉之後下次載入還是會回來，
+       做一顆假的關閉鈕只會讓人以為處理過了。 -->
+  <div class="health" id="health" hidden></div>
 
   <div class="bind" id="bindBar" hidden>
     <div class="bind__k">這個託運單號還沒認得</div>
@@ -1340,6 +1423,11 @@ body[data-role="label"] #goSort{display:none}
 <script>
 "use strict";
 
+/* ═══ 重量表（由 更新重量表.py 產生，不要手改）═══ */
+var PACK = {"640841970799":[1.3,1,"29 \u00d7 24 \u00d7 15"],"640841970867":[2.0,1,"34 \u00d7 34 \u00d7 15"],"723592927783":[2.0,1,"34 \u00d7 34 \u00d7 15"],"640841970805":[2.0,1,"34 \u00d7 34 \u00d7 15"],"723592927417":[2.0,1,"34 \u00d7 34 \u00d7 15"],"640841970829":[1.5,1,"34 \u00d7 24 \u00d7 17"],"640841970959":[1.0,1,"33 \u00d7 25 \u00d7 12"],"723592927288":[1.0,1,"33 \u00d7 25 \u00d7 12"],"723592928001":[0.9,1,"42 \u00d7 22 \u00d7 17"],"723592927998":[0.9,1,"42 \u00d7 22 \u00d7 17"],"723592927318":[0.9,1,"42 \u00d7 22 \u00d7 17"],"723592927325":[0.9,1,"42 \u00d7 22 \u00d7 17"],"640841970768":[2.3,1,"40 \u00d7 34 \u00d7 16"],"723592927721":[2.3,1,"40 \u00d7 34 \u00d7 16"],"640841970836":[1.9,1,"39 \u00d7 39 \u00d7 18"],"723592927202":[1.9,1,"39 \u00d7 39 \u00d7 18"],"728488110843":[0.5,1,"24 \u00d7 11 \u00d7 11"],"640841970942":[1.5,1,"60 \u00d7 19 \u00d7 12"],"728488110447":[1.5,1,"60 \u00d7 19 \u00d7 12"],"723592927257":[1.5,1,"60 \u00d7 19 \u00d7 12"],"728488110454":[1.2,1,"51 \u00d7 11 \u00d7 11"],"728488110409":[1.2,1,"51 \u00d7 11 \u00d7 11"],"728488110867":[1.2,1,"51 \u00d7 11 \u00d7 11"],"723592927844":[1.5,1,"65 \u00d7 31 \u00d7 15"],"728488110768":[3.5,1,"68 \u00d7 39 \u00d7 7"],"728488110829":[1.9,1,"28 \u00d7 24 \u00d7 24"],"728488110836":[3.0,1,"35 \u00d7 31 \u00d7 31"],"723592927103":[1.4,1,"25 \u00d7 24 \u00d7 24"],"723592927110":[2.5,1,"32 \u00d7 31 \u00d7 31"],"641361328596":[1.2,1,"49 \u00d7 42 \u00d7 5"],"640841970935":[1.2,1,"49 \u00d7 42 \u00d7 5"],"723592928018":[1.2,1,"49 \u00d7 42 \u00d7 5"],"723592928025":[1.2,1,"50 \u00d7 44 \u00d7 4"],"641361328626":[2.0,1,"57 \u00d7 47 \u00d7 9"],"641361328589":[4.2,1,"54 \u00d7 47 \u00d7 35"],"640841970706":[4.2,1,"54 \u00d7 47 \u00d7 35"],"640841970812":[4.2,1,"54 \u00d7 47 \u00d7 35"],"641361328879":[4.8,1,"46 \u00d7 44 \u00d7 33"],"641361328749":[4.8,1,"46 \u00d7 44 \u00d7 33"],"641361328862":[4.8,1,"46 \u00d7 44 \u00d7 33"],"641361328695":[4.8,1,"46 \u00d7 44 \u00d7 33"],"641361328565":[4.8,1,"46 \u00d7 44 \u00d7 33"],"641361328572":[4.8,1,"46 \u00d7 44 \u00d7 33"],"640841970676":[4.8,1,"46 \u00d7 44 \u00d7 33"],"640841970683":[4.8,1,"46 \u00d7 44 \u00d7 33"],"641361328701":[4.2,1,"46 \u00d7 44 \u00d7 33"],"723592927837":[5.2,1,"45 \u00d7 43 \u00d7 34"],"723592927813":[5.2,1,"45 \u00d7 43 \u00d7 34"],"728488110874":[3.9,1,"63 \u00d7 47 \u00d7 22"],"723592927301":[3.9,1,"63 \u00d7 47 \u00d7 22"],"728488110850":[4.2,1,"42 \u00d7 37 \u00d7 23"],"728488110386":[2.6,1,"49 \u00d7 36 \u00d7 29"],"640841971024":[2.6,1,"49 \u00d7 36 \u00d7 29"],"723592927233":[2.6,1,"49 \u00d7 36 \u00d7 29"],"723592927240":[2.6,1,"49 \u00d7 36 \u00d7 29"],"640841971017":[8.0,1,"80 \u00d7 45 \u00d7 36"],"723592927196":[8.0,1,"80 \u00d7 45 \u00d7 36"],"723592927356":[4.5,1,"69 \u00d7 38 \u00d7 35"],"640841970843":[3.0,1,"82 \u00d7 48 \u00d7 31"],"723592927363":[4.8,1,"57 \u00d7 47 \u00d7 26"],"728488110799":[2.0,1,"64 \u00d7 22 \u00d7 8"],"728488110805":[3.0,1,"94 \u00d7 22 \u00d7 8"],"723592927271":[2.0,1,"64 \u00d7 22 \u00d7 8"],"723592927264":[3.0,1,"94 \u00d7 22 \u00d7 8"],"723592927158":[3.1,1,"74 \u00d7 40 \u00d7 11"],"723592927165":[3.1,1,"74 \u00d7 40 \u00d7 11"],"723592927172":[4.5,1,"114 \u00d7 40 \u00d7 11"],"723592927189":[4.5,1,"114 \u00d7 40 \u00d7 11"],"723592927615":[3.1,1,"74 \u00d7 40 \u00d7 11"],"723592927622":[4.5,1,"114 \u00d7 40 \u00d7 11"],"723592927639":[4.5,1,"107 \u00d7 37 \u00d7 7"],"723592927646":[4.5,1,"107 \u00d7 37 \u00d7 7"],"723592927950":[0.4,1,"56 \u00d7 36 \u00d7 4"],"723592927974":[0.5,1,"95 \u00d7 35 \u00d7 4"],"723592927653":[5.3,1,"73 \u00d7 52 \u00d7 6"],"723592927851":[5.3,1,"73 \u00d7 52 \u00d7 6"],"723592927745":[1.9,1,"61 \u00d7 29 \u00d7 16"],"723592927752":[1.9,1,"61 \u00d7 29 \u00d7 16"],"723592927226":[1.9,1,"61 \u00d7 29 \u00d7 16"],"723592927219":[1.9,1,"61 \u00d7 29 \u00d7 16"],"723592927738":[2.5,1,"40 \u00d7 37 \u00d7 14"],"723592927790":[2.9,1,"52 \u00d7 30 \u00d7 8"],"723592927806":[2.9,1,"52 \u00d7 30 \u00d7 8"],"728488110546":[3.9,1,"75 \u00d7 33 \u00d7 8"],"728488110553":[1.6,1,"33 \u00d7 30 \u00d7 20"],"723592927677":[15.3,1,"128 \u00d7 54 \u00d7 9"],"723592927660":[15.3,1,"128 \u00d7 54 \u00d7 9"],"723592928049":[22.0,2,"70 \u00d7 69 \u00d7 11 \uff0b 128 \u00d7 37 \u00d7 9"],"723592927349":[22.0,2,"70 \u00d7 69 \u00d7 11 \uff0b 128 \u00d7 37 \u00d7 9"],"723592928056":[22.0,2,"70 \u00d7 69 \u00d7 11 \uff0b 128 \u00d7 37 \u00d7 9"],"723592928070":[0.4,1,"51 \u00d7 29 \u00d7 5"],"723592928063":[0.4,1,"51 \u00d7 29 \u00d7 5"],"723592928087":[0.4,1,"51 \u00d7 29 \u00d7 5"],"723592928094":[0.4,1,"51 \u00d7 29 \u00d7 5"],"728488110560":[6.5,1,"60 \u00d7 45 \u00d7 35"],"728488110751":[15.9,1,"110 \u00d7 48 \u00d7 24"],"728488110744":[5.5,1,"65 \u00d7 36 \u00d7 16"]};
+var MZMAP = {"641361328572":"MZ0074","641361328565":"MZ0073","640841971024":"MZ0049","728488110386":"MZ0050","723592927783":"MZ0018","723592927745":"MZ0046","728488110447":"MZ0028","728488110874":"MZ0004","728488110454":"MZ0029","723592928049":"MZ0060","723592927752":"MZ0045","723592927998":"MZ0033","640841970867":"MZ0017","723592927639":"MZ0052","641361328589":"MZ0009","723592928025":"MZ0022","640841970799":"MZ0015","723592927158":"MZ0056","723592927172":"MZ0054","723592928001":"MZ0034","640841970706":"MZ0008","640841970935":"MZ0012","728488110553":"MZ0027","723592927974":"MZ0100","728488110850":"MZ0003","641361328862":"MZ0078","728488110768":"MZ0005","728488110829":"MZ0001","728488110836":"MZ0002","728488110751":"MZ0047","728488110560":"MZ0042","728488110799":"MZ0037","641361328596":"MZ0011","723592927721":"MZ0014","728488110546":"MZ0026","640841971017":"MZ0035","640841970836":"MZ0044","640841970768":"MZ0013","723592927837":"MZ0081","640841970829":"MZ0019","723592927844":"MZ0041","641361328879":"MZ0076","640841970843":"MZ0043","640841970805":"MZ0016","728488110867":"MZ0032","641361328626":"MZ0023","641361328695":"MZ0077","641361328749":"MZ0075","640841970959":"MZ0020","640841970812":"MZ0010","723592928018":"MZ0021","723592927806":"MZ0025","728488110805":"MZ0036","723592927646":"MZ0053","723592928056":"MZ0061","723592927950":"MZ0099","641361328701":"MZ0079","723592927165":"MZ0057","640841970942":"MZ0030","640841970683":"MZ0007","641361328619":"MZ0080","723592927790":"MZ0024","723592927813":"MZ0082","723592927622":"MZ0059","723592927653":"MZ0067","640841970676":"MZ0006","723592927189":"MZ0055","723592927851":"MZ0068","723592927615":"MZ0058","728488110744":"MZ0048","723592927738":"MZ0038","728488110409":"MZ0031","723592927677":"MZ0072","728488110812":"MZ0042","723592927219":"MZ0113","723592927226":"MZ0114","723592927318":"MZ0110","723592927325":"MZ0109","723592927196":"MZ0111","723592927233":"MZ0115","723592927257":"MZ0117","723592927301":"MZ0107","723592927240":"MZ0116","723592927288":"MZ0120","723592927271":"MZ0119","723592927264":"MZ0118","723592927202":"MZ0112","723592927660":"MZ0071","723592927363":"MZ0125","723592927110":"MZ0040","723592927356":"MZ0124","723592927417":"MZ0127"};
+/* ═══ 重量表結束 ═══ */
+
 /* ═══ 狀態 ═══════════════════════════════════════════════ */
 var DB = { orders: [], byCode: {}, byWay: {}, key: "" };  // key = 這份出貨單的識別碼
 var cur = null;              // 目前撿的訂單
@@ -1347,6 +1435,119 @@ var pickFilter = "all";   // all ／ left ／ done
 var LS = "myzoom.pick.v1";
 var ROLE = "pick";           // pick = 撿貨 ／ label = 對單貼標
 try{ ROLE = localStorage.getItem(LS + ".role") || "pick"; }catch(e){}
+
+
+/* ═══ 重量標示 ═══════════════════════════════════════════
+   每一項都標重量（Evan 2026-08-18）。分三階，但**只有最重那階給顏色**：
+
+     >10 kg   紅   6 個　「先撿·墊底」   ← 真的要先拿、墊在最下層
+     5–10 kg  亮灰 6 個                  ← 較重，但單手還拿得動
+     <5 kg    暗灰 85 個                 ← 91% 的品項都在這裡
+
+   ⚠️ 中間階與輕的階**刻意只用中性灰的深淺**，不新增色相 ——
+      紅（掃錯）／琥珀（還沒做完）／綠（完成）／湖水綠（可點）都已經有語意，
+      再借一個就會開始互相干擾。重量是**固定屬性**不是狀態，不該搶狀態色。
+   ⚠️ 分階門檻在這裡改一次，兩個畫面一起生效。                        */
+var KG_HI = 10, KG_MID = 5;
+function kgTier(kg){
+  if(kg === null || kg === undefined) return "x";
+  return kg > KG_HI ? "hi" : (kg >= KG_MID ? "mid" : "lo");
+}
+function kgChip(kg){
+  var t = kgTier(kg), d = document.createElement("span");
+  d.className = "kgchip"; d.dataset.t = t;
+  d.textContent = (t === "x") ? "重量未知" : kg + " kg";
+  return d;
+}
+/* 外箱尺寸，跟在重量右邊。⚠️ 刻意用中性灰、不填實色 ——
+   重量是「要不要先撿」的判斷依據，尺寸只是參考（大概多大一箱）。
+   兩個都給亮色的話重量就不再突出了。 */
+function dimChips(dim){
+  /* 回傳一個 fragment。⚠️ 一台多箱時**一箱一個膠囊**，不要串成一條 ——
+     「70×68.5×10.5 ＋ 128×37×8.5 cm」在 414px 會把版面撐破（實測橫向溢出）。
+     拆開之後每個都短，flex-wrap 自己會換行。 */
+  var f = document.createDocumentFragment();
+  if(!dim) return f;
+  dim.split("＋").forEach(function(one, i, all){
+    var t = one.trim();
+    if(!t) return;
+    var d = document.createElement("span");
+    d.className = "dimchip";
+    d.textContent = t + (i === all.length - 1 ? " cm" : "");
+    f.appendChild(d);
+  });
+  return f;
+}
+
+/* ═══ 外箱示意圖（等角投影） ═══════════════════════════════ */
+/* 跟 boxes.html（產生箱型對照.py 的 iso()）同一份幾何 —— 兩邊要一致，
+   不然在對照頁看過的形狀，到撿貨頁變成另一個樣子。
+   ⚠️ 三邊先由大到小排序再畫，所以畫的是**形狀**，不是它在現場實際擺放的方向。
+
+   🔴 2026-08-19 Evan 指定用**實際比例**：全部品項共用一把尺（最大那箱滿格），
+      所以小箱子畫出來就是小。代價是 30cm 的替換柱在 38px 格子裡只剩約 7px、
+      形狀讀不出來 —— 但「它很小」這件事本身就是資訊，先試這個版本。
+      要改回「每箱各自撐滿格子」（形狀清楚、大小不能比）：BOX_REAL 改 false。 */
+var BOX_REAL = true, BOX_SLOT = 38;
+var C30 = Math.cos(Math.PI / 6), S30 = 0.5;
+
+function dimsOf(code){
+  var p = PACK[code];
+  if(!p || !p[2]) return [];
+  return p[2].split("＋").map(function(s){
+    var n = (s.match(/\d+(?:\.\d+)?/g) || []).map(Number);
+    return n.length >= 3 ? n.slice(0, 3).sort(function(a, b){ return b - a; }) : null;
+  }).filter(Boolean);
+}
+function boxSpan(d){ return Math.max((d[0] + d[1]) * C30, (d[0] + d[1]) * S30 + d[2]); }
+
+/* 全表最大跨距 —— 實際比例的分母。⚠️ 從 PACK 現算，不要寫死：
+   包裝尺寸表一更新，比例尺要自己跟上。 */
+var BOX_MAX = (function(){
+  var m = 0;
+  for(var k in PACK) dimsOf(k).forEach(function(d){ if(boxSpan(d) > m) m = boxSpan(d); });
+  return m || 1;
+})();
+
+function boxSvg(d){
+  var s = BOX_SLOT, k = (s - 2) / (BOX_REAL ? BOX_MAX : boxSpan(d));
+  var L = d[0] * k, W = d[1] * k, H = d[2] * k;
+  /* 靠左、貼底 —— 實際比例下所有箱子要站在同一條地面線上，大小才比得出來。
+     置中的話小箱子飄在格子中間，看起來只是「畫得比較小」而不是「東西比較小」。 */
+  var ox = 1 + W * C30, oy = s - 1;
+  function P(x, y){ return x.toFixed(1) + "," + y.toFixed(1); }
+  var O = [ox, oy],
+      A = [ox + L * C30, oy - L * S30],
+      B = [ox - W * C30, oy - W * S30],
+      C = [A[0] - W * C30, A[1] - W * S30];
+  var up = function(p){ return [p[0], p[1] - H]; };
+  var O2 = up(O), A2 = up(A), B2 = up(B), C2 = up(C);
+  var top = P.apply(null, O2) + " " + P.apply(null, A2) + " " + P.apply(null, C2) + " " + P.apply(null, B2);
+  var rt  = P.apply(null, O)  + " " + P.apply(null, A)  + " " + P.apply(null, A2) + " " + P.apply(null, O2);
+  var lf  = P.apply(null, O)  + " " + P.apply(null, B)  + " " + P.apply(null, B2) + " " + P.apply(null, O2);
+  return '<svg class="bxsvg" viewBox="0 0 ' + s + ' ' + s + '" width="' + s + '" height="' + s + '" aria-hidden="true">'
+       + '<polygon points="' + top + '" fill="var(--box-t)"/>'
+       + '<polygon points="' + rt  + '" fill="var(--box-r)"/>'
+       + '<polygon points="' + lf  + '" fill="var(--box-l)"/>'
+       + '<g stroke="var(--box-k)" stroke-width="1" fill="none" stroke-linejoin="round">'
+       + '<polygon points="' + top + '"/><polygon points="' + rt + '"/><polygon points="' + lf + '"/>'
+       + '</g></svg>';
+}
+
+/* 條碼欄底部：一箱一組「示意圖＋它自己的尺寸」。
+   ⚠️ 一台兩箱時要成對排，不要先畫兩張圖再列兩個數字 —— 那樣對不起來。 */
+function boxBlock(code){
+  var f = document.createDocumentFragment(), ds = dimsOf(code);
+  if(!ds.length) return f;
+  var raw = PACK[code][2].split("＋").map(function(s){ return s.trim(); });
+  ds.forEach(function(d, i){
+    var w = document.createElement("span");
+    w.className = "codebox";
+    w.innerHTML = boxSvg(d) + '<span class="codedim">' + raw[i] + (i === ds.length - 1 ? " cm" : "") + '</span>';
+    f.appendChild(w);
+  });
+  return f;
+}
 
 /* ═══ 聲音（Web Audio，不依賴任何檔案） ═══════════════════ */
 var actx = null;
@@ -1625,7 +1826,12 @@ function parseRows(rows0){
     if(hit){ hit.need += qty; }
     else od.items.push({
       code: code,
-      sku: cs.sku || (iSku >= 0 ? String(raw[iSku] || "").trim() : ""),
+      /* 🔴 2026-08-17 起 ERP 不再輸出 MZ 品號（品項編碼變成 `728488110751-`）。
+         UPC 還是對的所以掃描不受影響，但人看的品號整個消失了。
+         這裡用歷史（MZMAP，兩年掃出來的 UPC→MZ）補回來。
+         ⚠️ 這是繞過去不是修好 —— 根因在 ERP，要請人去查。 */
+      sku: cs.sku || (iSku >= 0 ? String(raw[iSku] || "").trim() : "")
+           || ((typeof MZMAP !== "undefined" && MZMAP[code]) || ""),
       name: String(raw[iName] || "").trim() || "（未命名）",
       need: qty, got: 0
     });
@@ -1635,6 +1841,22 @@ function parseRows(rows0){
   if(!order.length) throw new Error("讀不到任何品項。檢查一下「品項編碼」欄裡是不是真的有數字。");
 
   var orders = order.map(function(k){ return ordMap[k]; });
+
+  // 🔴 撿貨順序 ＝ 堆疊順序：重的先撿，因為要墊在最下層，再依序往上。
+  //    ⚠️ 沒有重量資料的排最後 —— 混在中間會被當成很輕，那比排錯更糟。
+  orders.forEach(function(od){
+    od.items.forEach(function(it){
+      var p = (typeof PACK !== "undefined") && PACK[it.code];
+      it.kg = p ? p[0] : null;
+      it.boxes = p ? p[1] : 1;      // >1 ＝ 一台多箱，而且共用同一個條碼
+      it.dim = p ? (p[2] || "") : "";
+    });
+    od.items.sort(function(a, b){
+      if((a.kg === null) !== (b.kg === null)) return a.kg === null ? 1 : -1;
+      return (b.kg || 0) - (a.kg || 0);
+    });
+  });
+
   var byCode = {}, byWay = {};
   orders.forEach(function(od){
     // 物流標籤上的條碼是託運單號去掉連字號（344-880-4575 → 3448804575）
@@ -1895,13 +2117,22 @@ function renderSummary(){
   var map = {}, keys = [];
   DB.orders.forEach(function(o){
     o.items.forEach(function(it){
-      if(!map[it.code]){ map[it.code] = { sku: it.sku, name: it.name, need: 0, got: 0, hits: [] }; keys.push(it.code); }
+      if(!map[it.code]){ map[it.code] = { sku: it.sku || (typeof MZMAP !== "undefined" && MZMAP[it.code]) || "", name: it.name, need: 0, got: 0, hits: [] }; keys.push(it.code); }
       var m = map[it.code];
       m.need += it.need; m.got += it.got;
       m.hits.push({ cust: o.cust, n: it.need });
     });
   });
-  keys.sort();
+  /* 🔴 排序＝撿貨順序：重的先撿，因為要墊在最下層，再依序往上（2026-08-18）。
+     原本是 keys.sort() ＝ 按 UPC 遞增 —— 那個順序對站在倉庫裡的人沒有任何意義。
+     ⚠️ 沒有重量資料的排最後：混在中間會被當成很輕，那比排錯更糟。 */
+  keys.sort(function(a, b){
+    var ka = (typeof PACK !== "undefined" && PACK[a]) ? PACK[a][0] : null;
+    var kb = (typeof PACK !== "undefined" && PACK[b]) ? PACK[b][0] : null;
+    if((ka === null) !== (kb === null)) return ka === null ? 1 : -1;
+    if(ka !== kb) return (kb || 0) - (ka || 0);
+    return a < b ? -1 : 1;              // 同重量時固定順序，避免每次重畫都跳動
+  });
 
   var box = $("sumRows"); box.textContent = "";
   var shown = 0, multi = 0, boxes = 0;
@@ -1917,11 +2148,11 @@ function renderSummary(){
     d.innerHTML =
       '<div class="srow__code"><i>' + String(code).slice(0, 6) + '</i><b>' +
         String(code).slice(6) + '</b><span class="sk"></span></div>' +
-      '<div class="srow__nm"></div>' +
+      '<div class="srow__nm"><span class="kgslot"></span><span class="t"></span></div>' +
       '<div class="srow__qty"><span class="a"></span><em>/ ' + m.need + '</em>' +
         '<button class="tick" aria-label="整項打勾／取消"></button></div>' +
       '<div class="srow__whos"></div>';
-    d.querySelector(".srow__nm").textContent = m.name;
+    d.querySelector(".srow__nm .t").textContent = m.name;
     d.querySelector(".a").textContent = tk;
     d.querySelector(".tick").dataset.need = m.need;   // 打勾用（見 sumRows 的事件委派）
     /* 分堆數超過取下數 → 有人跳過取貨記錄（可能是別人幫忙拿的）。
@@ -1935,6 +2166,20 @@ function renderSummary(){
          縮排跟收件人清單一致（118px），所以跟品名對齊。 */
       d.appendChild(w);
     }
+    /* 跟單張核對用同一個識別：只標最重那一階，不是每個都印數字。
+       ⚠️ 放在 gap 警語**之前**append —— 警語是附註，要留在最後。 */
+    var pk = (typeof PACK !== "undefined") && PACK[code];
+    var pkg = pk ? pk[0] : null;
+    var sslot = d.querySelector(".srow__nm .kgslot");
+    sslot.appendChild(kgChip(pkg));
+    /* 尺寸不再跟重量並排 —— 已經連同外箱示意圖搬到條碼欄（Evan 2026-08-19） */
+    d.querySelector(".srow__code").appendChild(boxBlock(code));
+    if(kgTier(pkg) === "hi"){
+      var hv = document.createElement("div");
+      hv.className = "srow__heavy"; hv.textContent = "先撿·墊底";
+      d.insertBefore(hv, d.querySelector(".srow__gap"));
+    }
+
     var sk = d.querySelector(".sk");
     if(m.sku) sk.textContent = m.sku; else sk.remove();
     var mu = d.querySelector(".srow__whos");
@@ -2244,12 +2489,24 @@ function renderPick(){
     d.innerHTML =
       '<div class="row__code"><i>' + String(it.code).slice(0, 6) + '</i><b>' +
         String(it.code).slice(6) + '</b><span class="row__sku"></span></div>' +
-      '<div class="row__name"></div>' +
+      '<div class="row__name"><span class="kgslot"></span><span class="t"></span></div>' +
       '<div class="row__qty"><span class="a"></span><em> / ' + it.need + '</em></div>' +
       '<span class="row__multi"></span>';
-    d.querySelector(".row__name").textContent = it.name;
+    d.querySelector(".row__name .t").textContent = it.name;
     var sk = d.querySelector(".row__sku");
     if(it.sku) sk.textContent = it.sku; else sk.remove();
+
+    /* 重量膠囊放在**品名上方**（Evan 2026-08-18）。
+       原本放條碼欄（MZ 下面）不會撐高列，但那一欄整個是「編號區」，
+       重量是商品的屬性、跟品名是同一組資訊，放一起才讀得成一句話。 */
+    var slot = d.querySelector(".row__name .kgslot");
+    slot.appendChild(kgChip(it.kg));
+    d.querySelector(".row__code").appendChild(boxBlock(it.code));
+    if(kgTier(it.kg) === "hi"){
+      var hv = document.createElement("span");
+      hv.className = "row__heavy"; hv.textContent = "先撿·墊底";
+      d.appendChild(hv);
+    }
 
     // 今天還有別張單也要這一項 → 標出來，就是「順便一起撿」的提示
     var mu = d.querySelector(".row__multi"), other = othersFor(it.code, cur);
@@ -3062,6 +3319,56 @@ function loadedSync(){
   var e = $("emptyNote"); if(e) e.hidden = !!n;
 }
 
+
+/* ═══ 原檔健檢 ═══════════════════════════════════════════
+   🔴 2026-08-17 廠商（達新）匯出的品項編碼突然不再帶 MZ 品號
+      （變成 `728488110751-`）。UPC 還是對的所以掃描照常，
+      **但畫面上人看的品號整個消失，而且沒有任何地方出聲。**
+
+   ⚠️ 針對 MZ 寫特例是錯的解法 —— 下次漏的一定是別的欄位。
+      所以這裡做的是「跟平常不一樣就講一聲」，不是「檢查 MZ」。
+      補得回來就補（MZMAP／PACK），補不回來就**明講**，
+      不要讓「補不到」跟「本來就沒有」長得一樣。            */
+function healthCheck(){
+  var noMz = [], noKg = [], newUpc = [], zeroQty = [];
+  DB.orders.forEach(function(o){
+    o.items.forEach(function(it){
+      var known = (typeof MZMAP !== "undefined") && MZMAP[it.code];
+      if(!it.sku) noMz.push(it);
+      if(it.kg === null || it.kg === undefined) noKg.push(it);
+      if(!known && !(typeof PACK !== "undefined" && PACK[it.code])) newUpc.push(it);
+      if(!it.need) zeroQty.push(it);
+    });
+  });
+  return { noMz: noMz, noKg: noKg, newUpc: newUpc, zeroQty: zeroQty };
+}
+
+function renderHealth(){
+  var h = healthCheck(), box = $("health");
+  if(!box) return;
+  var msgs = [];
+  if(h.newUpc.length) msgs.push({ k: "bad", t: "沒見過的商品 " + h.newUpc.length + " 項",
+    d: "歷史上沒出現過，補不到品號也沒有重量。" + h.newUpc.slice(0,3).map(function(i){ return i.name; }).join("、")
+       + (h.newUpc.length > 3 ? " 等" : "") });
+  if(h.zeroQty.length) msgs.push({ k: "bad", t: "數量是空的 " + h.zeroQty.length + " 項",
+    d: "原檔的數量欄讀不出來，這幾項不會被算進箱數。" });
+  if(h.noKg.length && !h.newUpc.length) msgs.push({ k: "warn", t: "沒有重量 " + h.noKg.length + " 項",
+    d: "排序會排到最後。包裝尺寸表裡沒有這幾項。" });
+  if(h.noMz.length) msgs.push({ k: "warn", t: "廠商沒給品號 " + h.noMz.length + " 項",
+    d: "已用歷史紀錄補上，掃描不受影響。⚠️ 這是繞過去，根因在廠商的匯出檔。" });
+
+  box.textContent = "";
+  box.hidden = !msgs.length;
+  msgs.forEach(function(m){
+    var d = document.createElement("div");
+    d.className = "hc"; d.dataset.k = m.k;
+    d.innerHTML = '<b></b><span></span>';
+    d.querySelector("b").textContent = (m.k === "bad" ? "🔴 " : "⚠️ ") + m.t;
+    d.querySelector("span").textContent = m.d;
+    box.appendChild(d);
+  });
+}
+
 function loadRows(rows, srcName, fromPick){
   $("loadErr").hidden = true;
   try{
@@ -3078,6 +3385,7 @@ function loadRows(rows, srcName, fromPick){
     loadWays();               // 之前掃標籤當場學會的對應
     clearBind();
     renderOrders();
+    renderHealth();
     $("resume").hidden = true;
     saveSession(rows, DB.src);
     // ⚠️ 只有「使用者剛剛選了檔案」才自動進分揀。重整或恢復進度時一律停在訂單清單，

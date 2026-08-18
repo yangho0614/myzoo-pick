@@ -554,26 +554,25 @@ body[data-role="label"] #goSort{display:none}
 .kgchip[data-t="lo"] {background:#58A6FF;color:#04203F}
 .kgchip[data-t="x"]  {background:#3A3D44;color:#A8ABB0;font-family:inherit;font-weight:600}
 
-/* 🔴 外箱示意圖＋尺寸掛在條碼欄（Evan 2026-08-19）：條碼 ▸ MZ ▸ 箱子 ▸ 尺寸。
-   為什麼放這一欄：① 完全不吃品名寬度（放品名那邊要讓出約 40px，390px 手機上是真的痛）
-   ② 圖跟尺寸是同一句話（「長這樣、這麼大」），一台兩箱時更要一組一組排，
-      拆成「兩張圖＋兩個數字」就對不起來了。
-   ⚠️ 尺寸膠囊從 .kgslot 搬過來，品名上方只剩重量 —— 重量是「要不要先撿」的判斷依據，
-      尺寸只是參考，兩者本來就不同層級。 */
-.codebox{display:block;margin-top:10px}
-.codebox+.codebox{margin-top:9px}
+/* 🔴 外箱示意圖掛在條碼欄底部（Evan 2026-08-19）：條碼 ▸ MZ ▸ 箱子。
+   為什麼是這一欄：放在品名那邊要讓出約 40px，390px 手機上是真的痛；
+   掛在條碼欄則完全不吃品名寬度（欄寬本來就由 21px 的尾 6 碼決定，圖比它窄）。
+   ⚠️ 尺寸膠囊**留在重量後方不要動** —— 一起搬過來會把條碼欄撐寬約 27px，
+      等於繞了一圈又回到「吃掉品名」那個問題。 */
+.codebox{display:flex;gap:4px;margin-top:11px}
 .bxsvg{display:block;
   /* 箱子三面：頂面最亮、右面中、左面暗 —— 光從左上來，跟人眼預設一致。
      跟 boxes.html 同一組色。 */
   --box-t:#8DA2C4; --box-r:#4D5F7E; --box-l:#33415A; --box-k:#0E1016}
-.codedim{display:inline-block;margin-top:3px;font-family:var(--mono);font-size:11.5px;
-  font-weight:700;letter-spacing:.02em;padding:1.5px 7px;margin-left:-7px;
-  border-radius:5px;background:var(--fill);color:var(--ink-3);white-space:nowrap}
-/* 琥珀色（未完成）卡片上要換一組 —— 藍灰在黃底上會糊掉，黑線也要收斂 */
+/* 琥珀色（未完成）卡片上換一組較深的 —— 藍灰直接放在黃底上會糊掉，黑描邊也要收斂 */
 .row[data-s="part"] .bxsvg,.srow[data-s="part"] .bxsvg{
   --box-t:#6E7F9E; --box-r:#465671; --box-l:#2F3B52; --box-k:rgba(0,0,0,.42)}
-.row[data-s="part"] .codedim,.srow[data-s="part"] .codedim{
-  background:rgba(0,0,0,.13);color:rgba(0,0,0,.6)}
+/* 🐛 順手修（v0.86 就有的錯，跟箱子無關）：琥珀卡片上的**尺寸膠囊讀不到**。
+   `.row[data-s="part"] *` 把所有字改成深色，但 .dimchip 的底色仍是深灰 --fill，
+   變成深字配深底。MZ 膠囊 2026-08-16 修過同一件事，08-18 新增尺寸膠囊時漏掉。
+   ⚠️ 這條要跟著搬回正式版，不是測試版專用。 */
+.row[data-s="part"] .dimchip,.srow[data-s="part"] .dimchip{
+  background:rgba(0,0,0,.13);color:rgba(0,0,0,.62)}
 
 .row__heavy{
   grid-column:1/-1;justify-self:start;margin-top:6px;
@@ -1045,7 +1044,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.86）　2026-08-18</b></div>
+      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.86）　2026-08-19</b></div>
     </div>
 
     <div class="step">
@@ -1484,11 +1483,12 @@ function dimChips(dim){
    不然在對照頁看過的形狀，到撿貨頁變成另一個樣子。
    ⚠️ 三邊先由大到小排序再畫，所以畫的是**形狀**，不是它在現場實際擺放的方向。
 
-   🔴 2026-08-19 Evan 指定用**實際比例**：全部品項共用一把尺（最大那箱滿格），
-      所以小箱子畫出來就是小。代價是 30cm 的替換柱在 38px 格子裡只剩約 7px、
-      形狀讀不出來 —— 但「它很小」這件事本身就是資訊，先試這個版本。
-      要改回「每箱各自撐滿格子」（形狀清楚、大小不能比）：BOX_REAL 改 false。 */
-var BOX_REAL = true, BOX_SLOT = 38;
+   🔴 BOX_REAL=false（填滿格子）：每箱各自撐滿格子 —— 形狀讀得清楚，但**大小不能互比**。
+      這是 Evan 2026-08-19 看過兩種版本後選的。
+      另一種 true（實際比例，全表共用一把尺）已試過並否決：
+      158cm 的貓咖啡桌滿格時，30cm 的替換柱只剩 7px 的小點，什麼都看不出來。
+      大小的資訊由旁邊的尺寸膠囊負責，圖只負責形狀，各司其職。 */
+var BOX_REAL = false, BOX_SLOT = 36;
 var C30 = Math.cos(Math.PI / 6), S30 = 0.5;
 
 function dimsOf(code){
@@ -1501,8 +1501,8 @@ function dimsOf(code){
 }
 function boxSpan(d){ return Math.max((d[0] + d[1]) * C30, (d[0] + d[1]) * S30 + d[2]); }
 
-/* 全表最大跨距 —— 實際比例的分母。⚠️ 從 PACK 現算，不要寫死：
-   包裝尺寸表一更新，比例尺要自己跟上。 */
+/* 全表最大跨距 —— 只有 BOX_REAL=true 時才用得到。
+   ⚠️ 從 PACK 現算，不要寫死：包裝尺寸表一更新，比例尺要自己跟上。 */
 var BOX_MAX = (function(){
   var m = 0;
   for(var k in PACK) dimsOf(k).forEach(function(d){ if(boxSpan(d) > m) m = boxSpan(d); });
@@ -1512,19 +1512,19 @@ var BOX_MAX = (function(){
 function boxSvg(d){
   var s = BOX_SLOT, k = (s - 2) / (BOX_REAL ? BOX_MAX : boxSpan(d));
   var L = d[0] * k, W = d[1] * k, H = d[2] * k;
-  /* 靠左、貼底 —— 實際比例下所有箱子要站在同一條地面線上，大小才比得出來。
-     置中的話小箱子飄在格子中間，看起來只是「畫得比較小」而不是「東西比較小」。 */
+  /* 靠左、貼底 —— 一台兩箱並排時要站在同一條地面線上，兩個形狀才好比。
+     置中的話扁箱會浮在格子中間，看起來像另一種東西。 */
   var ox = 1 + W * C30, oy = s - 1;
-  function P(x, y){ return x.toFixed(1) + "," + y.toFixed(1); }
+  function P(p){ return p[0].toFixed(1) + "," + p[1].toFixed(1); }
   var O = [ox, oy],
       A = [ox + L * C30, oy - L * S30],
       B = [ox - W * C30, oy - W * S30],
-      C = [A[0] - W * C30, A[1] - W * S30];
+      Cc = [A[0] - W * C30, A[1] - W * S30];
   var up = function(p){ return [p[0], p[1] - H]; };
-  var O2 = up(O), A2 = up(A), B2 = up(B), C2 = up(C);
-  var top = P.apply(null, O2) + " " + P.apply(null, A2) + " " + P.apply(null, C2) + " " + P.apply(null, B2);
-  var rt  = P.apply(null, O)  + " " + P.apply(null, A)  + " " + P.apply(null, A2) + " " + P.apply(null, O2);
-  var lf  = P.apply(null, O)  + " " + P.apply(null, B)  + " " + P.apply(null, B2) + " " + P.apply(null, O2);
+  var O2 = up(O), A2 = up(A), B2 = up(B), C2 = up(Cc);
+  var top = P(O2) + " " + P(A2) + " " + P(C2) + " " + P(B2);
+  var rt  = P(O)  + " " + P(A)  + " " + P(A2) + " " + P(O2);
+  var lf  = P(O)  + " " + P(B)  + " " + P(B2) + " " + P(O2);
   return '<svg class="bxsvg" viewBox="0 0 ' + s + ' ' + s + '" width="' + s + '" height="' + s + '" aria-hidden="true">'
        + '<polygon points="' + top + '" fill="var(--box-t)"/>'
        + '<polygon points="' + rt  + '" fill="var(--box-r)"/>'
@@ -1534,18 +1534,16 @@ function boxSvg(d){
        + '</g></svg>';
 }
 
-/* 條碼欄底部：一箱一組「示意圖＋它自己的尺寸」。
-   ⚠️ 一台兩箱時要成對排，不要先畫兩張圖再列兩個數字 —— 那樣對不起來。 */
+/* 條碼欄底部的箱子。一台兩箱就**並排**（不是上下疊）——
+   並排才讀得成「這一台有這兩箱」，上下疊看起來像兩個獨立品項。
+   兩個 36px 併排 76px，比 21px 的尾 6 碼底板窄，不會撐寬這一欄。 */
 function boxBlock(code){
   var f = document.createDocumentFragment(), ds = dimsOf(code);
   if(!ds.length) return f;
-  var raw = PACK[code][2].split("＋").map(function(s){ return s.trim(); });
-  ds.forEach(function(d, i){
-    var w = document.createElement("span");
-    w.className = "codebox";
-    w.innerHTML = boxSvg(d) + '<span class="codedim">' + raw[i] + (i === ds.length - 1 ? " cm" : "") + '</span>';
-    f.appendChild(w);
-  });
+  var w = document.createElement("span");
+  w.className = "codebox";
+  w.innerHTML = ds.map(boxSvg).join("");
+  f.appendChild(w);
   return f;
 }
 
@@ -2172,7 +2170,8 @@ function renderSummary(){
     var pkg = pk ? pk[0] : null;
     var sslot = d.querySelector(".srow__nm .kgslot");
     sslot.appendChild(kgChip(pkg));
-    /* 尺寸不再跟重量並排 —— 已經連同外箱示意圖搬到條碼欄（Evan 2026-08-19） */
+    sslot.appendChild(dimChips(pk ? pk[2] : null));
+    /* 外箱示意圖掛在條碼欄（Evan 2026-08-19）—— 尺寸維持在重量後方不動 */
     d.querySelector(".srow__code").appendChild(boxBlock(code));
     if(kgTier(pkg) === "hi"){
       var hv = document.createElement("div");
@@ -2501,6 +2500,7 @@ function renderPick(){
        重量是商品的屬性、跟品名是同一組資訊，放一起才讀得成一句話。 */
     var slot = d.querySelector(".row__name .kgslot");
     slot.appendChild(kgChip(it.kg));
+    slot.appendChild(dimChips(it.dim));
     d.querySelector(".row__code").appendChild(boxBlock(it.code));
     if(kgTier(it.kg) === "hi"){
       var hv = document.createElement("span");

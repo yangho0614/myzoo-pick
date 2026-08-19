@@ -406,6 +406,13 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 .row[data-s="part"] .row__sku,.srow[data-s="part"] .srow__code .sk{
   background:rgba(0,0,0,.10);color:rgba(0,0,0,.62)
 }
+/* 🐛 同一個坑第二次：尺寸膠囊在琥珀卡片上是**深字配深底**，等於讀不到。
+   `.row[data-s="part"] *` 只改了字色，.dimchip 的底仍是深灰 --fill。
+   MZ 膠囊 2026-08-16 修過，2026-08-18 新增尺寸膠囊時漏掉。
+   ⚠️ 之後在琥珀卡片上再加任何**自帶底色**的膠囊，都要在這裡補一條。 */
+.row[data-s="part"] .dimchip,.srow[data-s="part"] .dimchip{
+  background:rgba(0,0,0,.13);color:rgba(0,0,0,.62)
+}
 .ord[data-s="done"]{opacity:.5}
 .ord__pile{flex:none;width:38px;text-align:center;color:var(--ink-2)}
 .ord__pile i{display:block;font-style:normal;font-size:22px;font-weight:600;
@@ -1024,7 +1031,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">v0.86　更新日期 2026-08-18</b></div>
+      <div class="verline">版本 <b id="verTag">v0.87　更新日期 2026-08-19</b></div>
     </div>
 
     <div class="step">
@@ -3488,7 +3495,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.86　更新日期 2026-08-18");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.87　更新日期 2026-08-19");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

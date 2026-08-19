@@ -552,8 +552,23 @@ body[data-role="label"] #goSort{display:none}
    與尾 6 碼隔 13px ＝ 約 21px 大數字字高的一半，太貼會跟條碼糊成一塊。
    ⚠️ margin-bottom 必須歸零 —— 上面那條 .kgchip 給了 6px，
       在品名列是為了跟尺寸膠囊換行對齊，到了條碼欄底部只會多出一截空白。 */
-.row__code .kgchip,.srow__code .kgchip{margin:13px 0 0 -8px}
+/* 🔴 重量與箱子併成**一橫排**（Evan 2026-08-19）：兩者互相垂直置中，
+   整組左緣對齊上方的條碼後 6 碼。原本上下疊，左欄約 130px 高，
+   把卡片撐得比右邊的內容還長（那也是「品名下方一大片空白」的來源之一）。
+   `margin-left:-8px` 是接手條碼底板那套對齊：盒子往左推 8px、**文字**回到欄位原點。
+   ⚠️ flex-wrap 要留著 —— 轉轉貓塔那種一台兩箱的，一排放不下要能掉到下一行。 */
+.codefoot{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:13px 0 0 -8px}
+.codefoot:empty{display:none}
+/* ⚠️ 膠囊自己的 margin 要歸零 —— 間距現在由 .codefoot 的 gap 統一給。
+   留著 margin-bottom:6px 會讓箱子跟重量的中線對不齊。 */
+.codefoot .kgchip{margin:0}
 .kgslot{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+/* 🔴 尺寸搬到**品名下方**（Evan 2026-08-19）。原本跟 MZ 併在品名上方那一列，
+   但那一列是「這是什麼東西」的標示（MZ 是代號），尺寸講的是「這箱多大」，
+   跟品名一起讀才成一句話。⚠️ 一台多箱時 dimChips 會給多個膠囊，所以要能換行。 */
+.namefoot{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.namefoot:empty{display:none}
+.namefoot .dimchip{margin:0}
 .dimchip{
   /* 字級跟重量膠囊一樣（Evan 2026-08-18）—— 兩個要能一起掃過去，
      差 0.5px 只會讓尺寸看起來比較不重要，但它不是次要資訊。 */
@@ -573,7 +588,7 @@ body[data-role="label"] #goSort{display:none}
    掛在條碼欄則完全不吃品名寬度（欄寬本來就由 21px 的尾 6 碼決定，圖比它窄）。
    ⚠️ 尺寸膠囊**留在重量後方不要動** —— 一起搬過來會把條碼欄撐寬約 27px，
       等於繞了一圈又回到「吃掉品名」那個問題。 */
-.codebox{display:flex;gap:4px;margin-top:11px}
+.codebox{display:flex;gap:4px}   /* ⚠️ margin-top 拿掉 —— 現在由 .codefoot 的 align-items 決定垂直位置 */
 .bxsvg{display:block;
   /* 箱子三面：頂面最亮、右面中、左面暗 —— 光從左上來，跟人眼預設一致。
      跟 boxes.html 同一組色。 */
@@ -1065,7 +1080,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.89）　2026-08-19</b></div>
+      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.90）　2026-08-19</b></div>
     </div>
 
     <div class="step">
@@ -2166,9 +2181,9 @@ function renderSummary(){
     d.className = "srow"; d.dataset.s = st; d.dataset.code = code;
     d.innerHTML =
       '<div class="srow__code"><i>' + String(code).slice(0, 6) + '</i><b>' +
-        String(code).slice(6) + '</b></div>' +
+        String(code).slice(6) + '</b><span class="codefoot"></span></div>' +
       '<div class="srow__nm"><span class="kgslot"><span class="sk"></span></span>' +
-        '<span class="t"></span></div>' +
+        '<span class="t"></span><span class="namefoot"></span></div>' +
       '<div class="srow__qty"><span class="a"></span><em>/ ' + m.need + '</em>' +
         '<button class="tick" aria-label="整項打勾／取消"></button></div>' +
       '<div class="srow__whos"></div>';
@@ -2190,11 +2205,16 @@ function renderSummary(){
        ⚠️ 放在 gap 警語**之前**append —— 警語是附註，要留在最後。 */
     var pk = (typeof PACK !== "undefined") && PACK[code];
     var pkg = pk ? pk[0] : null;
-    d.querySelector(".srow__code").appendChild(kgChip(pkg));
-    d.querySelector(".srow__nm .kgslot").appendChild(dimChips(pk ? pk[2] : null));
-    /* 外箱示意圖掛在條碼欄（Evan 2026-08-19）—— 尺寸維持在重量後方不動。
-       ⚠️ 箱子要 append 在**重量膠囊之後**，順序是 條碼 ▸ 重量 ▸ 箱子。 */
-    d.querySelector(".srow__code").appendChild(boxBlock(code));
+    d.querySelector(".srow__code .codefoot").appendChild(kgChip(pkg));
+    d.querySelector(".srow__nm .namefoot").appendChild(dimChips(pk ? pk[2] : null));
+    /* ⚓ 箱型 patch 的插入點（_patch_boxicon.py｜商品彙總） */
+    /* 箱子掛進 .codefoot —— 跟重量同一橫排、互相垂直置中（Evan 2026-08-19）。 */
+    d.querySelector(".srow__code .codefoot").appendChild(boxBlock(code));
+    /*—— **不要刪、不要改字**。
+       ⚠️ 這行註解就是錨點本身。原本 patch 鎖的是「某一行程式碼」，
+          結果 2026-08-19 三次版面調整把那行搬走了三次、patch 就壞三次。
+          鎖一行不會因為版面調整而消失的註解，才不會再壞。 */
+
     if(kgTier(pkg) === "hi"){
       var hv = document.createElement("div");
       hv.className = "srow__heavy"; hv.textContent = "先撿·墊底";
@@ -2509,9 +2529,9 @@ function renderPick(){
     d.className = "row"; d.dataset.s = st; d.dataset.i = idx;
     d.innerHTML =
       '<div class="row__code"><i>' + String(it.code).slice(0, 6) + '</i><b>' +
-        String(it.code).slice(6) + '</b></div>' +
+        String(it.code).slice(6) + '</b><span class="codefoot"></span></div>' +
       '<div class="row__name"><span class="kgslot"><span class="row__sku"></span></span>' +
-        '<span class="t"></span></div>' +
+        '<span class="t"></span><span class="namefoot"></span></div>' +
       '<div class="row__qty"><span class="a"></span><em> / ' + it.need + '</em></div>' +
       '<span class="row__multi"></span>';
     d.querySelector(".row__name .t").textContent = it.name;
@@ -2523,9 +2543,16 @@ function renderPick(){
        「重量是商品屬性，跟品名同一組」；但實際撿貨時重量決定的是**順序**，
        跟條碼一樣屬於「找到這一箱」的資訊，而 MZ 只是內部代號、誰都不會照它撿。
        ⚠️ 重量進條碼欄不會撐高卡片 —— 左欄本來就比右欄短（08-18 量過，17px 都還有餘）。 */
-    d.querySelector(".row__code").appendChild(kgChip(it.kg));
-    d.querySelector(".row__name .kgslot").appendChild(dimChips(it.dim));
-    d.querySelector(".row__code").appendChild(boxBlock(it.code));
+    d.querySelector(".row__code .codefoot").appendChild(kgChip(it.kg));
+    d.querySelector(".row__name .namefoot").appendChild(dimChips(it.dim));
+    /* ⚓ 箱型 patch 的插入點（_patch_boxicon.py｜撿貨列） */
+    /* 箱子掛進 .codefoot —— 跟重量同一橫排、互相垂直置中（Evan 2026-08-19）。 */
+    d.querySelector(".row__code .codefoot").appendChild(boxBlock(it.code));
+    /*—— **不要刪、不要改字**。
+       ⚠️ 這行註解就是錨點本身。原本 patch 鎖的是「某一行程式碼」，
+          結果 2026-08-19 三次版面調整把那行搬走了三次、patch 就壞三次。
+          鎖一行不會因為版面調整而消失的註解，才不會再壞。 */
+
     if(kgTier(it.kg) === "hi"){
       var hv = document.createElement("span");
       hv.className = "row__heavy"; hv.textContent = "先撿·墊底";
@@ -3605,7 +3632,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.89　更新日期 2026-08-19");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.90　更新日期 2026-08-19");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

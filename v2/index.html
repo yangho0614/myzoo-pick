@@ -403,8 +403,15 @@ code{font-family:var(--mono);font-size:.86em;padding:1px 5px;border-radius:5px;
 .ord[data-s="part"] .ord__pile{ color:rgba(0,0,0,.72) }
 /* ⚠️ MZ 自編碼在一般卡片上是深灰膠囊；到了黃色塊上會變成「黃底上冒出一塊深灰」。
    色塊上改成極淡的黑底。 */
-.row[data-s="part"] .row__sku,.srow[data-s="part"] .srow__code .sk{
+.row[data-s="part"] .row__sku,.srow[data-s="part"] .srow__nm .sk{
   background:rgba(0,0,0,.10);color:rgba(0,0,0,.62)
+}
+/* 🐛 同一個坑第二次：尺寸膠囊在琥珀卡片上是**深字配深底**，等於讀不到。
+   `.row[data-s="part"] *` 只改了字色，.dimchip 的底仍是深灰 --fill。
+   MZ 膠囊 2026-08-16 修過，2026-08-18 新增尺寸膠囊時漏掉。
+   ⚠️ 之後在琥珀卡片上再加任何**自帶底色**的膠囊，都要在這裡補一條。 */
+.row[data-s="part"] .dimchip,.srow[data-s="part"] .dimchip{
+  background:rgba(0,0,0,.13);color:rgba(0,0,0,.62)
 }
 .ord[data-s="done"]{opacity:.5}
 .ord__pile{flex:none;width:38px;text-align:center;color:var(--ink-2)}
@@ -480,13 +487,13 @@ body[data-role="label"] #goSort{display:none}
 .row__code i{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);letter-spacing:.04em}
 .row__code b{display:block;font-size:21px;font-weight:700;letter-spacing:-.01em;margin-top:1px}
 /* MZ 品號只是內部代號，降到註記級；真正要比對的是條碼後 6 碼 */
+/* 🔴 2026-08-19 起 MZ 在**品名上方那一列**（跟尺寸並排），不再在條碼欄。
+   ⚠️ 原本的 `margin-top:13px` 與 `margin-left:-8px` 已拿掉 ——
+      那兩個值是為了讓 MZ 的文字跟條碼欄的前 6／尾 6 碼切齊；
+      現在的鄰居是 flex 排列的尺寸膠囊，負邊距會把整條 kgslot 往左拉 8px，
+      變成「膠囊比品名還突出去」。 */
 .row__sku{
-  /* ⚠️ margin-left:-8px ＋ padding 8：跟條碼底板同一個做法，讓 MZ 的**文字**
-     跟上面兩行切齊（見 .row__code b 的註解）。
-     🔴 MZ 自編碼：字級 12.5px、與上方尾 6 碼隔 13px（約大數字字高的一半）。
-     原本 11px/5px 太貼，視覺上跟 21px 的條碼糊成一塊，眼睛會一起讀進去。
-     間距拉開不會撐高卡片 —— 左欄本來就比右欄短，實測 17px 都還塞得下。 */
-  display:inline-block;margin-top:13px;font-size:12.5px;padding:1.5px 8px;margin-left:-8px;border-radius:5px;
+  display:inline-block;margin-bottom:6px;font-size:12.5px;padding:1.5px 8px;border-radius:5px;
   background:var(--fill);color:var(--ink-2);letter-spacing:.02em;
 }
 /* 🔴 後 6 碼放大、前 6 碼壓暗：95 個品項的前 6 碼只有 4 種，幾乎不帶資訊，
@@ -539,6 +546,13 @@ body[data-role="label"] #goSort{display:none}
 .row__name{align-self:start !important;margin-top:var(--kg-nudge)}
 .srow__nm{align-self:start;margin-top:var(--kg-nudge)}
 .kgchip{margin-bottom:6px}
+/* 🔴 重量膠囊搬進條碼欄（Evan 2026-08-19，與 MZ 互換）。
+   接手 MZ 原本那一套對齊：`padding 8 ＋ margin-left -8` 把盒子往左推，
+   **文字**回到欄位原點，跟前 6 碼／尾 6 碼三行切齊（見 .row__code b 的註解）。
+   與尾 6 碼隔 13px ＝ 約 21px 大數字字高的一半，太貼會跟條碼糊成一塊。
+   ⚠️ margin-bottom 必須歸零 —— 上面那條 .kgchip 給了 6px，
+      在品名列是為了跟尺寸膠囊換行對齊，到了條碼欄底部只會多出一截空白。 */
+.row__code .kgchip,.srow__code .kgchip{margin:13px 0 0 -8px}
 .kgslot{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .dimchip{
   /* 字級跟重量膠囊一樣（Evan 2026-08-18）—— 兩個要能一起掃過去，
@@ -668,10 +682,11 @@ body[data-role="label"] #goSort{display:none}
   display:inline-block;width:max-content;
   background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
-  /* 🧪 v2 才有：底板 ＋ **淡青**（提案 丙＋丁）。正式版維持純白。
+  /* 底板 ＋ **淡青**（提案 丙＋丁）。⚠️ 註解原寫「v2 才有、正式版維持純白」，
+     但 commit 2f4690a 早就把它升為正式版了 —— 兩邊現在都是淡青。
      底板是純黑、比卡片灰更暗，所以顏色放在上面的對比反而**比放在卡片上高** ——
      淡青對黑底是 12.5:1（純白 18.9:1），WCAG 最高等級只要 7:1，兩個都遠超過。
-     這一版是拿來實機比「有顏色會不會更好找」，正式版還沒跟。 */
+     當時是拿來實機比「有顏色會不會更好找」，結果留下來了。 */
   color:#7FD8D0;
 }
 /* ⚠️ 黃色塊上不要底板 —— 那裡的字已經是純黑、對比本來就最大，
@@ -680,11 +695,9 @@ body[data-role="label"] #goSort{display:none}
   background:none;box-shadow:none;padding:0;margin-left:0;
 }
 
-.srow__code .sk{
-  /* 🔴 MZ 自編碼：字級 12.5px、與上方尾 6 碼隔 13px（約大數字字高的一半）。
-     原本 11px/5px 太貼，視覺上跟 21px 的條碼糊成一塊，眼睛會一起讀進去。
-     間距拉開不會撐高卡片 —— 左欄本來就比右欄短，實測 17px 都還塞得下。 */
-  display:inline-block;margin-top:13px;font-size:12.5px;padding:1.5px 8px;margin-left:-8px;border-radius:5px;
+/* 商品彙總的 MZ，跟撿貨列同一套（見 .row__sku 的註解） */
+.srow__nm .sk{
+  display:inline-block;margin-bottom:6px;font-size:12.5px;padding:1.5px 8px;border-radius:5px;
   background:var(--fill);color:var(--ink-2);letter-spacing:.02em;
 }
 .srow__nm{min-width:0;font-size:16.5px;font-weight:600;line-height:1.3;letter-spacing:-.01em;text-wrap:pretty}
@@ -695,7 +708,7 @@ body[data-role="label"] #goSort{display:none}
 .srow__qty em{font-size:14px;font-style:normal;color:var(--ink-3);margin-left:.3em}
 .srow[data-s="part"]{background:var(--attn);box-shadow:none}
 .srow[data-s="part"] *{color:var(--on-attn)}
-.srow[data-s="part"] .srow__code i,.srow[data-s="part"] .srow__code .sk,
+.srow[data-s="part"] .srow__code i,.srow[data-s="part"] .srow__nm .sk,
 .srow[data-s="part"] .srow__qty em,.srow[data-s="part"] .swho n{color:rgba(0,0,0,.58)}
 .srow[data-s="part"] .swho:not(:first-child)>span,
 .srow[data-s="part"] .swho:not(:first-child)>n{border-top-color:rgba(0,0,0,.22)}
@@ -1044,7 +1057,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.86）　2026-08-19</b></div>
+      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.88）　2026-08-19</b></div>
     </div>
 
     <div class="step">
@@ -2145,8 +2158,9 @@ function renderSummary(){
     d.className = "srow"; d.dataset.s = st; d.dataset.code = code;
     d.innerHTML =
       '<div class="srow__code"><i>' + String(code).slice(0, 6) + '</i><b>' +
-        String(code).slice(6) + '</b><span class="sk"></span></div>' +
-      '<div class="srow__nm"><span class="kgslot"></span><span class="t"></span></div>' +
+        String(code).slice(6) + '</b></div>' +
+      '<div class="srow__nm"><span class="kgslot"><span class="sk"></span></span>' +
+        '<span class="t"></span></div>' +
       '<div class="srow__qty"><span class="a"></span><em>/ ' + m.need + '</em>' +
         '<button class="tick" aria-label="整項打勾／取消"></button></div>' +
       '<div class="srow__whos"></div>';
@@ -2168,10 +2182,10 @@ function renderSummary(){
        ⚠️ 放在 gap 警語**之前**append —— 警語是附註，要留在最後。 */
     var pk = (typeof PACK !== "undefined") && PACK[code];
     var pkg = pk ? pk[0] : null;
-    var sslot = d.querySelector(".srow__nm .kgslot");
-    sslot.appendChild(kgChip(pkg));
-    sslot.appendChild(dimChips(pk ? pk[2] : null));
-    /* 外箱示意圖掛在條碼欄（Evan 2026-08-19）—— 尺寸維持在重量後方不動 */
+    d.querySelector(".srow__code").appendChild(kgChip(pkg));
+    d.querySelector(".srow__nm .kgslot").appendChild(dimChips(pk ? pk[2] : null));
+    /* 外箱示意圖掛在條碼欄（Evan 2026-08-19）—— 尺寸維持在重量後方不動。
+       ⚠️ 箱子要 append 在**重量膠囊之後**，順序是 條碼 ▸ 重量 ▸ 箱子。 */
     d.querySelector(".srow__code").appendChild(boxBlock(code));
     if(kgTier(pkg) === "hi"){
       var hv = document.createElement("div");
@@ -2487,20 +2501,22 @@ function renderPick(){
     d.className = "row"; d.dataset.s = st; d.dataset.i = idx;
     d.innerHTML =
       '<div class="row__code"><i>' + String(it.code).slice(0, 6) + '</i><b>' +
-        String(it.code).slice(6) + '</b><span class="row__sku"></span></div>' +
-      '<div class="row__name"><span class="kgslot"></span><span class="t"></span></div>' +
+        String(it.code).slice(6) + '</b></div>' +
+      '<div class="row__name"><span class="kgslot"><span class="row__sku"></span></span>' +
+        '<span class="t"></span></div>' +
       '<div class="row__qty"><span class="a"></span><em> / ' + it.need + '</em></div>' +
       '<span class="row__multi"></span>';
     d.querySelector(".row__name .t").textContent = it.name;
     var sk = d.querySelector(".row__sku");
     if(it.sku) sk.textContent = it.sku; else sk.remove();
 
-    /* 重量膠囊放在**品名上方**（Evan 2026-08-18）。
-       原本放條碼欄（MZ 下面）不會撐高列，但那一欄整個是「編號區」，
-       重量是商品的屬性、跟品名是同一組資訊，放一起才讀得成一句話。 */
-    var slot = d.querySelector(".row__name .kgslot");
-    slot.appendChild(kgChip(it.kg));
-    slot.appendChild(dimChips(it.dim));
+    /* 🔴 重量與 MZ 互換（Evan 2026-08-19）：**重量進條碼欄、MZ 上到品名那一列**。
+       ⚠️ 這推翻了 08-18 的擺法（重量在品名上方、MZ 在條碼下方）。當時的理由是
+       「重量是商品屬性，跟品名同一組」；但實際撿貨時重量決定的是**順序**，
+       跟條碼一樣屬於「找到這一箱」的資訊，而 MZ 只是內部代號、誰都不會照它撿。
+       ⚠️ 重量進條碼欄不會撐高卡片 —— 左欄本來就比右欄短（08-18 量過，17px 都還有餘）。 */
+    d.querySelector(".row__code").appendChild(kgChip(it.kg));
+    d.querySelector(".row__name .kgslot").appendChild(dimChips(it.dim));
     d.querySelector(".row__code").appendChild(boxBlock(it.code));
     if(kgTier(it.kg) === "hi"){
       var hv = document.createElement("span");
@@ -3574,14 +3590,17 @@ bootSession();
 </script>
 
 <script>
-/* 🔴 測試版**不註冊** Service Worker。
-   離線快取會讓你分不清「改了沒生效」是程式問題還是快取問題，
-   測試階段這種不確定性的代價遠大於離線的好處。正式版才註冊。 */
+/* 離線快取：載入過一次之後，沒網路也開得起來。
+   ⚠️ 不做自動更新重整 —— 撿貨中途換版比拿到舊版危險。新版下次開啟才生效。 */
 (function(){
-  return;   // ⚠️ 測試版不註冊 SW
+  return;   /* ⚠️ 測試版不註冊 SW */
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
-    navigator.serviceWorker.register("sw.js");
+    navigator.serviceWorker.register("sw.js").then(function(){
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.88　更新日期 2026-08-19");
+    }).catch(function(err){
+      console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
+    });
   });
 })();
 </script>

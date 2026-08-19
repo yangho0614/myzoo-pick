@@ -518,7 +518,7 @@ body[data-role="label"] #goSort{display:none}
       膠囊放第 2 列會跟它搶同一格，自動配置會把條碼欄擠到卡片最下面。
    `2 / -1` ＝ 從品名欄一路用到數量欄的右緣，比原本只佔第 2 欄多拿約 40px。 */
 .srow__heavy{
-  grid-column:1/-1;margin:4px 0 0 118px;justify-self:start;
+  grid-column:2/-1;align-self:start;margin:4px 0 0;justify-self:start;
   font-size:12px;font-weight:750;letter-spacing:.02em;
   padding:2px 9px;border-radius:999px;
   background:rgba(232,53,79,.14);color:#FF8FA0;
@@ -589,7 +589,9 @@ body[data-role="label"] #goSort{display:none}
   background:rgba(0,0,0,.13);color:rgba(0,0,0,.62)}
 
 .row__heavy{
-  grid-column:1/-1;justify-self:start;margin-top:6px;
+  /* 同上（見 .srow__whos 的註解）：跨到第 1 欄會被壓到左欄下面。
+     .row__multi 早就是 2/-1，這條是漏掉的那個。 */
+  grid-column:2/-1;justify-self:start;margin-top:6px;
   font-size:12px;font-weight:750;letter-spacing:.02em;
   padding:2px 9px;border-radius:999px;
   background:rgba(232,53,79,.14);color:#FF8FA0;
@@ -724,8 +726,14 @@ body[data-role="label"] #goSort{display:none}
    改成跨整列之後可用寬度變成約 330px，長客戶名一行就放得下。
    ⚠️ 左邊留 104+14 的內縮，維持「這是那個品項底下的細目」的層次感；
       內縮是 padding 不是 grid 欄位，所以名字長的時候能一路用到卡片右緣。 */
-.srow__whos{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,1fr) auto;
-  gap:1px 14px;margin-top:6px;padding-left:118px}
+/* 🔴 2026-08-19：從 `1 / -1 ＋ 內縮 118px` 改成 `2 / -1`。
+   重量搬進條碼欄之後左欄變高（條碼＋重量＋v2 的箱子），而跨到第 1 欄的東西
+   **只能排在整個左欄下面** —— 品名跟收件人清單之間就空出一大片（Evan 實機回報）。
+   從第 2 欄起就跟品名同一欄，緊接著往下排，空白消失、卡片也變矮。
+   ⚠️ **寬度沒有變少**：欄寬 104px ＋ gap 14px ＝ 118px，正好等於原本的內縮。
+   ⚠️ `.srow` 是 align-items:center，跨欄的東西要自己 align-self:start，否則會在剩餘空間裡置中。 */
+.srow__whos{grid-column:2 / -1;align-self:start;display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:1px 14px;margin-top:6px}
 .swho{display:contents;font-size:14.5px}
 /* ⚠️ .swho 是 display:contents（格線要橫跨兩欄），它本身沒有框，
    所以分隔線畫在格子上，不能寫在 .swho 上 */
@@ -830,7 +838,7 @@ body[data-role="label"] #goSort{display:none}
 .srow[data-s="part"] .tick{background:rgba(0,0,0,.14);box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.3)}
 .srow[data-s="part"] .tick::after{border-color:rgba(0,0,0,.55)}
 /* 分堆數超過取下數的提示 */
-.srow__gap{grid-column:1 / -1;margin-top:8px;padding-left:118px;font-size:13px;color:var(--attn)}
+.srow__gap{grid-column:2 / -1;align-self:start;margin-top:8px;font-size:13px;color:var(--attn)}
 .srow[data-s="part"] .srow__gap{color:rgba(0,0,0,.62)}
 /* ⚠️ 這裡原本有「已取下」小標，2026-08-16 拿掉（Evan）。
    兩個計數器都會走到同一個總數，但**畫面本身就分得出來** ——
@@ -1057,7 +1065,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.88）　2026-08-19</b></div>
+      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.89）　2026-08-19</b></div>
     </div>
 
     <div class="step">
@@ -3597,7 +3605,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.88　更新日期 2026-08-19");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.89　更新日期 2026-08-19");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });

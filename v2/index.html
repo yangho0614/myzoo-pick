@@ -483,7 +483,7 @@ body[data-role="label"] #goSort{display:none}
    —— 實機看到的是「MZ 跑到條碼右邊」（2026-08-16）。
    align-items:flex-start 讓每個盒子只有內容那麼寬。 */
 .row__code{grid-column:1;grid-row:span 2;align-self:start;font-family:var(--mono);line-height:1.15;
-  display:flex;flex-direction:column;align-items:flex-start}
+  display:flex;flex-direction:column;align-items:center}
 .row__code i{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);letter-spacing:.04em}
 .row__code b{display:block;font-size:21px;font-weight:700;letter-spacing:-.01em;margin-top:1px}
 /* MZ 品號只是內部代號，降到註記級；真正要比對的是條碼後 6 碼 */
@@ -574,8 +574,8 @@ body[data-role="label"] #goSort{display:none}
       底座不撐滿欄寬的話就縮成內容寬，箱子的「置中」沒有多餘空間可用，寫了也不會動。
    ⚠️ 重量的 `margin-left:-8px` 保留：盒子往左推 8px、**文字**回到欄位原點，
       跟前 6 碼／尾 6 碼三行切齊（見 .row__code b 的註解）。置中的只有箱子。 */
-.codefoot{display:flex;flex-direction:column;align-self:stretch;gap:6px;margin:13px 0 0}
-.codefoot .kgchip{align-self:flex-start;margin:0 0 0 -8px}
+.codefoot{display:flex;flex-direction:column;align-items:center;gap:6px;margin:13px 0 0}
+.codefoot .kgchip{margin:0}
 /* ⚠️ 箱子的置中規則寫在 `_patch_boxicon.py` 裡，不放這裡 ——
    規則裡的 `.codebox{` 字串會誤觸 patch 的「已套用過」守衛，
    害 patch 靜靜跳過，v2 就完全沒有箱子（2026-08-19 踩過）。 */
@@ -699,7 +699,7 @@ body[data-role="label"] #goSort{display:none}
 /* 條碼欄三行：前 6 碼小、尾 6 碼放大、MZ 自編碼在下 */
 /* 同上：inline-block 的子元素需要 flex column 才不會併行 */
 .srow__code{grid-row:span 2;align-self:start;font-family:var(--mono);line-height:1.15;
-  display:flex;flex-direction:column;align-items:flex-start}
+  display:flex;flex-direction:column;align-items:center}
 .srow__code i{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);letter-spacing:.04em}
 .srow__code b{display:block;font-size:21px;font-weight:700;letter-spacing:-.01em;margin-top:1px}
 
@@ -716,12 +716,17 @@ body[data-role="label"] #goSort{display:none}
    🔴 兩個必修（2026-08-16 實機回報）：
       ① `display:block` 會讓底板**撐滿整個條碼欄**，右邊多出一大塊黑。
          改成 inline-block 才會包住數字。
-      ② 對齊的基準是**文字**不是盒子：前 6 碼、尾 6 碼、MZ 三行的字要切齊在同一條線上。
-         所以底板與 MZ 膠囊都用「padding 8 ＋ margin-left -8」把盒子往左推，
-         文字就回到欄位原點，三行對齊；兩個盒子的左緣也剛好一致。 */
+      ② 🔴 **2026-08-19 改成整欄置中**（Evan：「重量 箱子 沒有對齊條碼」）。
+         在那之前是「文字切齊同一條左線」，靠底板與膠囊的 `padding 8 ＋ margin-left -8`
+         把盒子往左推。但箱子要水平置中之後，它是**對著欄位**置中、不是對著條碼底板，
+         而底板因為 -8px 比欄位再往左 8px —— 兩個中心差了 15px，肉眼看得出來歪。
+         現在四樣東西（前 6 碼／底板／重量／箱子）**共用同一條中心線**，
+         負邊距全部拿掉，就不會再有「對齊誰」的歧義。
+         ⚠️ 要改回靠左的話：條碼欄的 align-items 改回 flex-start，
+            並把底板與 .codefoot .kgchip 的 margin-left:-8px 加回來。 */
 .row__code b,.srow__code b{
   display:inline-block;width:max-content;
-  background:#000;border-radius:7px;padding:2px 8px;margin-left:-8px;
+  background:#000;border-radius:7px;padding:2px 8px;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
   /* 底板 ＋ **淡青**（提案 丙＋丁）。⚠️ 註解原寫「v2 才有、正式版維持純白」，
      但 commit 2f4690a 早就把它升為正式版了 —— 兩邊現在都是淡青。
@@ -733,7 +738,7 @@ body[data-role="label"] #goSort{display:none}
 /* ⚠️ 黃色塊上不要底板 —— 那裡的字已經是純黑、對比本來就最大，
    再加一塊黑底反而變成「黃底上一塊黑方塊」，搶掉整列的注意力。 */
 .row[data-s="part"] .row__code b,.srow[data-s="part"] .srow__code b{
-  background:none;box-shadow:none;padding:0;margin-left:0;
+  background:none;box-shadow:none;padding:0;
 }
 
 /* 商品彙總的 MZ，跟撿貨列同一套（見 .row__sku 的註解） */
@@ -1104,7 +1109,7 @@ body[data-role="label"] #goSort{display:none}
 
     <div class="brand">
       <h1>MYZOO 撿貨核對</h1>
-      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.91）　2026-08-19</b></div>
+      <div class="verline">版本 <b id="verTag">🧪 測試版（基於 v0.92）　2026-08-19</b></div>
     </div>
 
     <div class="step">
@@ -3665,7 +3670,7 @@ bootSession();
   if(!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("[MYZOO] 離線快取就緒 · 版本 v0.91　更新日期 2026-08-19");
+      console.log("[MYZOO] 離線快取就緒 · 版本 v0.92　更新日期 2026-08-19");
     }).catch(function(err){
       console.log("[MYZOO] 離線快取註冊失敗（不影響使用）", err);
     });
